@@ -1,0 +1,343 @@
+[
+ {
+  "case": "Whole building, exterior doors",
+  "maxFlow": 15.762500000000005,
+  "cut": [
+   {
+    "id": "FC1",
+    "label": "FC1",
+    "capacity": 1.8915000000000002
+   },
+   {
+    "id": "FC2",
+    "label": "FC2",
+    "capacity": 1.8915000000000002
+   },
+   {
+    "id": "FC3",
+    "label": "FC3",
+    "capacity": 1.8915000000000002
+   },
+   {
+    "id": "P1",
+    "label": "P1",
+    "capacity": 1.6393000000000002
+   },
+   {
+    "id": "P2",
+    "label": "P2",
+    "capacity": 1.6393000000000002
+   },
+   {
+    "id": "P3",
+    "label": "P3",
+    "capacity": 1.6393000000000002
+   },
+   {
+    "id": "P4",
+    "label": "P4",
+    "capacity": 1.6393000000000002
+   },
+   {
+    "id": "SDW",
+    "label": "Stage escape door W",
+    "capacity": 0.8826999999999999
+   },
+   {
+    "id": "SDE",
+    "label": "Stage escape door E",
+    "capacity": 0.8826999999999999
+   },
+   {
+    "id": "BNDW",
+    "label": "BNW door",
+    "capacity": 0.8826999999999999
+   },
+   {
+    "id": "BNDE",
+    "label": "BNE door",
+    "capacity": 0.8826999999999999
+   }
+  ],
+  "flowTime": 84.3140364789849,
+  "N": 1329
+ },
+ {
+  "case": "Whole building, street level",
+  "maxFlow": 12.348100000000004,
+  "cut": [
+   {
+    "id": "FC1",
+    "label": "FC1",
+    "capacity": 1.8915000000000002
+   },
+   {
+    "id": "FC2",
+    "label": "FC2",
+    "capacity": 1.8915000000000002
+   },
+   {
+    "id": "FC3",
+    "label": "FC3",
+    "capacity": 1.8915000000000002
+   },
+   {
+    "id": "PST_W",
+    "label": "Portico stair W",
+    "capacity": 1.5714000000000001
+   },
+   {
+    "id": "PST_E",
+    "label": "Portico stair E",
+    "capacity": 1.5714000000000001
+   },
+   {
+    "id": "SDW",
+    "label": "Stage escape door W",
+    "capacity": 0.8826999999999999
+   },
+   {
+    "id": "SDE",
+    "label": "Stage escape door E",
+    "capacity": 0.8826999999999999
+   },
+   {
+    "id": "BNDW",
+    "label": "BNW door",
+    "capacity": 0.8826999999999999
+   },
+   {
+    "id": "BNDE",
+    "label": "BNE door",
+    "capacity": 0.8826999999999999
+   }
+  ],
+  "flowTime": 107.62789416995324,
+  "N": 1329
+ },
+ {
+  "case": "FC2 blocked, exterior doors",
+  "maxFlow": 13.871,
+  "cut": [
+   {
+    "id": "FC1",
+    "label": "FC1",
+    "capacity": 1.8915000000000002
+   },
+   {
+    "id": "FC3",
+    "label": "FC3",
+    "capacity": 1.8915000000000002
+   },
+   {
+    "id": "P1",
+    "label": "P1",
+    "capacity": 1.6393000000000002
+   },
+   {
+    "id": "P2",
+    "label": "P2",
+    "capacity": 1.6393000000000002
+   },
+   {
+    "id": "P3",
+    "label": "P3",
+    "capacity": 1.6393000000000002
+   },
+   {
+    "id": "P4",
+    "label": "P4",
+    "capacity": 1.6393000000000002
+   },
+   {
+    "id": "SDW",
+    "label": "Stage escape door W",
+    "capacity": 0.8826999999999999
+   },
+   {
+    "id": "SDE",
+    "label": "Stage escape door E",
+    "capacity": 0.8826999999999999
+   },
+   {
+    "id": "BNDW",
+    "label": "BNW door",
+    "capacity": 0.8826999999999999
+   },
+   {
+    "id": "BNDE",
+    "label": "BNE door",
+    "capacity": 0.8826999999999999
+   }
+  ],
+  "flowTime": 95.8114050897556,
+  "N": 1329
+ },
+ {
+  "case": "Foyer blocked (FC1-3), exterior doors",
+  "maxFlow": 10.087999999999997,
+  "cut": [
+   {
+    "id": "P1",
+    "label": "P1",
+    "capacity": 1.6393000000000002
+   },
+   {
+    "id": "P2",
+    "label": "P2",
+    "capacity": 1.6393000000000002
+   },
+   {
+    "id": "P3",
+    "label": "P3",
+    "capacity": 1.6393000000000002
+   },
+   {
+    "id": "P4",
+    "label": "P4",
+    "capacity": 1.6393000000000002
+   },
+   {
+    "id": "SDW",
+    "label": "Stage escape door W",
+    "capacity": 0.8826999999999999
+   },
+   {
+    "id": "SDE",
+    "label": "Stage escape door E",
+    "capacity": 0.8826999999999999
+   },
+   {
+    "id": "BNDW",
+    "label": "BNW door",
+    "capacity": 0.8826999999999999
+   },
+   {
+    "id": "BNDE",
+    "label": "BNE door",
+    "capacity": 0.8826999999999999
+   }
+  ],
+  "flowTime": 131.740681998414,
+  "N": 1329
+ },
+ {
+  "case": "Orchestra only (527)",
+  "maxFlow": 5.8326,
+  "cut": [
+   {
+    "id": "OST_FW",
+    "label": "Access W1 (front)",
+    "capacity": 0.9894
+   },
+   {
+    "id": "OST_FE",
+    "label": "Access E1 (front)",
+    "capacity": 0.9894
+   },
+   {
+    "id": "OST_BW",
+    "label": "Access W3 (back aisle)",
+    "capacity": 0.9894
+   },
+   {
+    "id": "OST_BE",
+    "label": "Access E3 (back aisle)",
+    "capacity": 0.9894
+   },
+   {
+    "id": "SPW_1",
+    "label": "SPW_1",
+    "capacity": 0.9375
+   },
+   {
+    "id": "SPE_1",
+    "label": "SPE_1",
+    "capacity": 0.9375
+   }
+  ],
+  "flowTime": 90.35421595857764,
+  "N": 527
+ },
+ {
+  "case": "Mezzanine/loge only (486)",
+  "maxFlow": 13.997100000000003,
+  "cut": [
+   {
+    "id": "FC1",
+    "label": "FC1",
+    "capacity": 1.8915000000000002
+   },
+   {
+    "id": "FC2",
+    "label": "FC2",
+    "capacity": 1.8915000000000002
+   },
+   {
+    "id": "FC3",
+    "label": "FC3",
+    "capacity": 1.8915000000000002
+   },
+   {
+    "id": "P1",
+    "label": "P1",
+    "capacity": 1.6393000000000002
+   },
+   {
+    "id": "P2",
+    "label": "P2",
+    "capacity": 1.6393000000000002
+   },
+   {
+    "id": "P3",
+    "label": "P3",
+    "capacity": 1.6393000000000002
+   },
+   {
+    "id": "P4",
+    "label": "P4",
+    "capacity": 1.6393000000000002
+   },
+   {
+    "id": "SDW",
+    "label": "Stage escape door W",
+    "capacity": 0.8826999999999999
+   },
+   {
+    "id": "SDE",
+    "label": "Stage escape door E",
+    "capacity": 0.8826999999999999
+   }
+  ],
+  "flowTime": 34.72147802044709,
+  "N": 486
+ },
+ {
+  "case": "Balcony only (316)",
+  "maxFlow": 4.364999999999999,
+  "cut": [
+   {
+    "id": "BSF1W",
+    "label": "Balcony stair W flight 1",
+    "capacity": 1.2997999999999998
+   },
+   {
+    "id": "BSF1E",
+    "label": "Balcony stair E flight 1",
+    "capacity": 1.2997999999999998
+   },
+   {
+    "id": "BNDW",
+    "label": "BNW door",
+    "capacity": 0.8826999999999999
+   },
+   {
+    "id": "BNDE",
+    "label": "BNE door",
+    "capacity": 0.8826999999999999
+   }
+  ],
+  "flowTime": 72.39404352806416,
+  "N": 316
+ }
+]

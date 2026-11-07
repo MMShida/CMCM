@@ -1,0 +1,38 @@
+13 cells x 30 seeds, models A+B: 403 jobs on 11 workers (0 cells cached)
+  [180 s] 33/403 Concert emergency (6 Crowd Managers) done
+  [333 s] 67/403 1. Concert emergency, no guidance (baseline) done
+  [440 s] 100/403 2. + Crowd Managers (6) done
+  [543 s] 129/403 3. + LED guidance (with CMs) done
+  [659 s] 158/403 4. + corridor barriers W1/E1 (with CMs) done
+  [752 s] 188/403 5. CMs + LED + barriers done
+  [909 s] 224/403 6. One blocked exit (FC2, discovered) done
+  [1010 s] 319/403 7. Lecture, no Crowd Managers done
+  [1016 s] 325/403 10% occupancy done
+  [1027 s] 338/403 25% occupancy done
+  [1061 s] 358/403 50% occupancy done
+  [1129 s] 382/403 75% occupancy done
+  [1163 s] 403/403 100% occupancy done
+done in 1164 s -> results/comparison/report.json, results/comparison/runs.csv, public/results/comparison-report.json, docs/COMPARISON_RESULTS.md
+baseline: A 299.4 s, B 243.1 s, C_imm 101 s, C_pre 176 s
+19 cells x 15 seeds, models A+B: 304 jobs on 11 workers (0 cells cached)
+  [125 s] 17/304 baseline done
+  [244 s] 36/304 Door clear widths (all doors) x0.8 done
+  [272 s] 51/304 Door clear widths (all doors) x1.2 done
+  [348 s] 69/304 Stair / access-point widths x0.8 done
+  [410 s] 83/304 Stair / access-point widths x1.2 done
+  [513 s] 110/304 Door specific flow (p/(s m)) 1.0 done
+  [543 s] 119/304 Door specific flow (p/(s m)) 1.6 done
+  [605 s] 146/304 Stair specific flow (p/(s m)) 0.8 done
+  [634 s] 158/304 Stair specific flow (p/(s m)) 1.3 done
+  [661 s] 173/304 Reaction times (recognition + response medians) x0.5 done
+  [697 s] 191/304 Reaction times (recognition + response medians) x1.5 done
+  [732 s] 207/304 Exit preference (share of habitual decision makers) 0.15 done
+  [791 s] 227/304 Exit preference (share of habitual decision makers) 0.55 done
+  [841 s] 239/304 Crowd Manager compliance 0.5 done
+  [898 s] 263/304 Crowd Manager compliance 0.95 done
+  [919 s] 274/304 Mean walking speed (m/s) 1.0 done
+  [968 s] 293/304 Mean walking speed (m/s) 1.4 done
+  [991 s] 298/304 Crowd Manager effectiveness (voice range, response factor) weak done
+  [1015 s] 304/304 Crowd Manager effectiveness (voice range, response factor) strong done
+done in 1015 s -> results/comparison/report.json, results/comparison/runs.csv, public/results/comparison-report.json, docs/COMPARISON_RESULTS.md
+baseline: A 299.4 s, B 243.1 s, C_imm 101 s, C_pre 176 s
