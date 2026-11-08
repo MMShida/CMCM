@@ -280,6 +280,9 @@ export interface AdaptiveConfig {
   // ---- Crowd Managers ----
   /** a person can hear a manager if the walking distance through the building is <= reachFactor x voice radius (walls block) */
   reachFactor: number;
+  /** true: a person hears every manager they pass (one version counter per person and manager);
+   *  false: only the first manager met, until an instruction changes (the previous model's rule; ablation) */
+  hearEvery: boolean;
   /** managers see queues at gates within this range (m), same floor, walking distance <= reachFactor x range */
   observeRange: number;
   /** observations become usable after this delay (s) */
@@ -334,6 +337,7 @@ export const DEFAULT_ADAPTIVE: AdaptiveConfig = {
   socialSusSd: 0.3,
   congestionInfo: 'local',
   reachFactor: 1.4,
+  hearEvery: true,
   observeRange: 18,
   observeDelay: 2,
   comm: 'radio',
@@ -586,6 +590,7 @@ export const PARAM_INFO: ParamInfo[] = [
   { path: 'population.groupMeetOutside', label: 'Intervention: groups agree to meet outside (no waiting / cohesion)', unit: '-', status: 'ASSUMPTION', source: 'operational message; effect of groups on start times: Bode et al. 2015 (direction)', uncertainty: 'compliance not modelled (all groups follow)' },
   { path: 'assist.*', label: 'Assisted descent of wheelchair users: 2 teams free from 60 s, 60 s per descent', unit: 's', status: 'ASSUMPTION', source: 'no evacuation-chair data extracted; affects street-level time only, not T_evac', uncertainty: 'descent 30-180 s' },
   { path: 'adaptive.*', label: 'Dynamic behaviour: memory 60 s, uncertainty weight 0.5, commitment 10 s, event thresholds 1.5x / 12 s / 10 s, urgency effect 0.5, trust -0.25 / +0.05', unit: '-', status: 'ASSUMPTION', source: 'mechanisms from the literature (information, queues, trust: Kinateder & Warren; Haghani 2020 review; Lovreglio et al. 2016); every magnitude assumed', uncertainty: 'high: see docs/ADAPTIVE.md' },
+  { path: 'adaptive.hearEvery', label: 'Every manager passed is heard (off: only the first one, as in the previous model)', unit: '-', status: 'ASSUMPTION', source: 'structural choice; ablation switch', uncertainty: 'on / off' },
   { path: 'adaptive.reachFactor', label: 'Voice reach needs walking distance <= 1.4 x radius (walls and closed rooms block)', unit: '-', status: 'ASSUMPTION', source: 'geometric proxy for line of sight / acoustics; not measured', uncertainty: '1.1-2' },
   { path: 'adaptive.observe*', label: 'Managers see gates within 18 m (same floor, walkable), observations usable after 2 s', unit: 'm, s', status: 'ASSUMPTION', source: '-', uncertainty: 'range 10-30 m, delay 0-10 s' },
   { path: 'adaptive.comm*', label: 'Radio between managers: 90 % of messages arrive after 3 s', unit: '-', status: 'ASSUMPTION', source: 'no Bailey Hall data', uncertainty: 'reliability 0.5-1, delay 1-15 s' },

@@ -133,7 +133,9 @@ function stats(runs: RunSummary[]) {
     p180: w,
     meanExit: mean((r) => r.meanExit),
     insideAt180: mean((r) => r.insideAt180 ?? NaN),
-    unresolved: mean((r) => r.unresolvedInside + r.trapped),
+    // persons never reaching the street (inside includes the trapped ones)
+    unresolved: mean((r) => r.unresolvedInside),
+    trapped: mean((r) => r.trapped),
     regions: Object.fromEntries(
       KEY_REGIONS.map((id) => [
         id,

@@ -174,6 +174,7 @@ Every value in this section is an **ASSUMPTION**. The mechanisms are motivated b
 | `adaptive.conflictDelay` | 3 s | Hesitation after contradictory instructions | 0-10 s |
 | `adaptive.socialSusSd` | 0.3 | Spread of social susceptibility | 0-0.6 |
 | `adaptive.congestionInfo` | local | none / local / global (global = idealised benchmark only) | - |
+| `adaptive.hearEvery` | true | Every manager passed is heard (false: only the first one, as in the previous model; ablation) | on / off |
 | `adaptive.reachFactor` | 1.4 | Voice through a door: walking distance <= 1.4 × radius | 1.1-2 |
 | `adaptive.observeRange`, `observeDelay` | 18 m, 2 s | Manager observation range and delay | 10-30 m, 0-10 s |
 | `adaptive.comm`, `commReliability`, `commDelay` | radio, 0.9, 3 s | Radio between managers | 0.5-1, 1-15 s |

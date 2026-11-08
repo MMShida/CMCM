@@ -1266,10 +1266,12 @@ export class NetworkSimulation {
           cm.version++;
           cm.reviewNow = true;
         }
+        const every = this.cfg.adaptive.hearEvery !== false;
         const k = i * nCM + cm.idx;
-        if (this.heardBy[k] >= cm.version) continue;
+        if (every ? this.heardBy[k] >= cm.version : this.heard[i] >= cm.version) continue;
         if (this.rngGuide.random() > pHear) continue;
-        this.heardBy[k] = cm.version;
+        if (every) this.heardBy[k] = cm.version;
+        else this.heard[i] = cm.version;
         this.instructAdaptive(n, cm);
       }
     }

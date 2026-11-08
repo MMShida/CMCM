@@ -216,7 +216,7 @@ Without radio, contradictions are possible. When a person receives one, it is co
 - **Who can hear.** A person on the same floor within 12 m in a straight line **and** either:
   - in the same room, or
   - within 1.4 × 12 m on foot through a door.
-- **How often.** Each (person, manager) pair has its own version counter, so a person can hear several managers.
+- **How often.** Each (person, manager) pair has its own version counter, so a person can hear several managers. `adaptive.hearEvery = false` restores the previous model's rule (only the first manager met is heard until an instruction changes); it is an ablation switch used in §9.
 - **Compliance.** `uCM < complianceProb × trust(t)`.
 - **Trust changes.**
   - Confirmation by another manager: +0.05.
@@ -422,7 +422,7 @@ The first experiment runs showed implausible results, which were traced to defec
 8. **Queue visibility and voice passed through walls.** They are now room-based in the adaptive mode.
 9. **Double counting at the redirect target (found in the first 40-seed run, decision layout +59 s).** After a redirect the people already queuing at the new destination were counted both in its observed wait and as load still to come, so the next review reversed the decision ("FOYER better by 139 s" 20 s after "STAGE_W better by 23 s"); 33-43 A→B→A flips per run. The moved load is no longer added to the current destination.
 10. **A lead ignored the people its followers move.** The front manager decided for the room using its own earshot only, while the back manager applied the same decision to about 500 more people. The lead now counts its followers' people, forecasts the remaining flow (see Decision rule), and evaluates the routes from every member's post (a portico route from the back runs through the mid-side access doors, which built queues of about 100).
-11. **Remaining, not explained by a defect:** in the decision-point layout, adaptive managers that never redirect (`place-decision-noredirect`) are still slower than fixed managers in the same posts (8 seeds: about +20 s). Ablations (no radio, unlimited voice through doors, no conflict delay, no trust gain, no congestion sharing) did not isolate a single mechanism at 8 seeds. The difference between the two voice rules is that every manager is heard (fixed: only the first one met), and each hearing is an occasion to re-plan; at central posts more people are kept on the default plan, which loads the foyer (foyer use 844 vs 788). See §9.
+11. **Explained, not a defect: corridor posts cannot speak to seated people through a wall.** In the decision-point layout, adaptive managers that never redirect (`place-decision-noredirect`) are as slow as the full adaptive layout, so the penalty is not the policy. Running fixed and adaptive delivery in lock-step (same seed, legacy hearing rule, unlimited reach through doors) shows the first difference at t = 7 s: a seated person 11 m from DP4 is instructed in the fixed model but not in the adaptive one. DP3 / DP4 (like BN4, HY5 / HY6, RB4 and BN1) stand in the corridor, behind the auditorium wall, while the nearest-centroid rule gives them orchestra seating zones. The previous voice rule passes through walls: in the fixed runs the corridor posts give 140-295 instructions per run through a wall (DP3 177, DP4 162, HY5 184, HY6 190, RB4 295, BN4 140; existing posts at most 53). With walls blocking the voice these people are not instructed while seated (longer pre-movement, habit = foyer). The fixed model therefore flatters layouts with corridor posts. Ablation (16 seeds, managers only): hearing only the first manager (`hearEvery = false`) instead of every one costs +12.7 s at the existing posts (266.9 vs 254.2 s; fixed 263.5 s) and +8.7 s at the decision posts (299.2 vs 290.5 s), so the measured benefit of adaptive managers at the existing posts comes from people re-evaluating their route each time they hear a manager, not from redirections (manager switches ~0 in Model A, see §9).
 
 All the paired fixed-model results are unaffected, because they were reproduced exactly at every step. The results of the run before fixes 9-10 are kept in `results/adaptive/superseded-2026-11-07/` for traceability only.
 
@@ -432,7 +432,104 @@ All the paired fixed-model results are unaffected, because they were reproduced 
 
 See §9 of the summary in [ADAPTIVE_RESULTS.md](ADAPTIVE_RESULTS.md) (generated) and the discussion below.
 
-<!-- RESULTS-DISCUSSION -->
+All figures: 40 paired seeds per configuration (same audiences everywhere), run on 2026-11-08 after fixes 9-10 of §8. "Δ" is the paired difference against the stated reference, with its 95 % CI; a CI that contains 0 means no detectable difference. T = time the last person leaves the building. P(T ≤ 180 s) is 0 % in every concert configuration of both models, so it is only discussed for the package. Full tables: [ADAPTIVE_RESULTS.md](ADAPTIVE_RESULTS.md).
+
+### 9.1 Fixed vs dynamic individuals vs adaptive managers vs both
+
+| Configuration | Model A T (s) | Δ vs fixed | Model B T (s) | Δ vs fixed |
+|---|---|---|---|---|
+| 1. Previous fixed model | 263.9 [259.8, 268.1] | – | 229.1 [224.2, 234.1] | – |
+| 2. Dynamic individuals | 262.3 | −1.6 [−6.2, 2.9] | 219.8 | −9.4 [−15.9, −2.8] |
+| 3. Adaptive managers | 253.1 | −10.8 [−15.2, −6.3] | 221.1 | −8.0 [−12.9, −3.0] |
+| 4. Both | 255.7 | −8.2 [−11.8, −4.7] | 217.7 | −11.4 [−16.3, −6.6] |
+
+- Adaptive managers shorten the evacuation by about 8-11 s in both models. Dynamic individuals help in Model B but not detectably in Model A. The two effects do not add up: "both" is no better than the better of the two alone.
+- **The managers' gain does not come from redirections.** Managers change their instruction 0.0 times per run on average in these four configurations (both models). An ablation (16 seeds, managers only, existing posts) attributes the gain to how instructions are delivered. When every manager passed is heard, each hearing is an occasion to re-evaluate the route with the queues in sight: 254.2 s, against 266.9 s when only the first manager is heard (`hearEvery = false`) and 263.5 s with fixed managers. Also, 682 people comply with CM3 or CM4 in the adaptive mode against 188-256 in the fixed one, because they hear them again.
+- The redirection rule rarely fires because it is all-or-nothing per planned exit and the moved flow is forecast conservatively (§3). Moving a whole zone's remaining people to a portico is almost never 20 s better. Partial redirection ("this aisle to the portico") is not modelled, and it is the obvious next step.
+- Exit switches rise from 57 to 80 per run (A) and from 45 to 56 (B). Flip-flops stay below the 2 % test limit.
+
+### 9.2 Placements
+
+| Layout (six managers) | A, fixed model: Δ vs existing | A, both adaptive: Δ vs existing | B, fixed: Δ | B, both: Δ |
+|---|---|---|---|---|
+| Decision points | +2.1 [−2.9, 7.2] | **+30.4 [24.6, 36.1]** | −4.3 [−11.1, 2.5] | +2.4 [−2.0, 6.8] |
+| Bottlenecks | +6.1 [0.9, 11.2] | +10.8 [6.1, 15.4] | +2.8 [−3.7, 9.3] | +3.6 [−1.2, 8.4] |
+| Hybrid 2-2-2 | +5.7 [0.9, 10.5] | **+31.6 [26.2, 37.0]** | +6.2 [−1.7, 14.0] | +5.1 [−0.3, 10.5] |
+| Robust | +12.0 [6.6, 17.3] | +17.1 [13.3, 21.0] | −3.1 [−7.9, 1.6] | +3.6 [−1.2, 8.3] |
+
+- **No alternative layout beats the existing posts** in either model or mode. In Model A with adaptive managers, the decision-point and hybrid layouts are about 30 s slower.
+- **The redirection policy is not the cause.** `place-decision-noredirect` (the same layout, never redirecting) gives exactly the same result in both models (Δ +0.0 s).
+- **The cause is the wall (§8, item 11).** These layouts put two managers in the corridor behind the auditorium wall (DP3/DP4, HY5/HY6; BN1/BN4 and RB4 are corridor posts too), while the planning rule gives them orchestra seating zones. The previous voice rule passes through walls: in the fixed runs these posts give 140-295 instructions per run through a wall, against at most 53 for the existing posts. With walls blocking the voice, the side-orchestra people are not instructed while seated, which means a longer pre-movement and habit, i.e. the foyer.
+- **Consequence:** the fixed model makes corridor posts look nearly as good as posts inside the hall. This one is a modelling result, not a statistical one. Managers must stand in the room whose occupants they are responsible for.
+- Model B is much less sensitive (all CIs within about ±10 s), because its voice and route choice act on network edges.
+
+### 9.3 Blocked exits
+
+| Case | Model A | Model B |
+|---|---|---|
+| FC2 blocked (discovered on arrival), fixed → both adaptive | 269.9 → 262.4, Δ −7.5 [−10.9, −4.0] | 240.3 → 224.5, Δ −15.8 [−19.0, −12.7] |
+| Foyer blocked (FC1-3, announced after 30 s) | T undefined in every run (see below) | T undefined in every run |
+| … person-seconds above 2 p/m² (fixed / both / both, robust layout) | 58 867 / 70 212 / 62 454 | 19 526 / 38 119 / 35 491 |
+| … mean individual exposure (p·s/m²) | 104.7 / 117.4 / 108.9 | 74.7 / 86.4 / 87.7 |
+| … exit switches per run | 570 / 203 / 427 | 752 / 331 / 488 |
+
+- A discovered closure is where adaptation helps most in Model B (−16 s). People who meet the closed door and managers who are told about it pass the information on.
+- With the whole foyer closed, **T is undefined because the three wheelchair users are trapped in every run**. The only step-free route is through the foyer (state TRAPPED; checked on seed 777). This is a property of the scenario, not a gridlock. The generated tables reported "6 unresolved", which counted the same three people twice (`inside` already includes the trapped); that is fixed in `scripts/adaptive-experiments.ts`, and the recomputed values (unresolved 3, trapped 3 in all six blocked-foyer configurations) are in `results/adaptive/experiments-blocked-foyer-corrected.json`.
+- With adaptive behaviour, far fewer people switch exits (570 → 203 in A). However, the time spent above 2 p/m² rises (+19 % in A, ×2 in B): people commit to the porticos and stage exits earlier and queue there, instead of spreading out by trial and error. The robust layout recovers part of this in Model A.
+
+### 9.4 Information and communication (both adaptive; Δ vs both)
+
+| Level | Model A Δ | Model B Δ |
+|---|---|---|
+| No queue information at all | +146.9 [141.5, 152.3] | +56.2 [51.9, 60.4] |
+| Managers do not pass on congestion | +1.7 [−0.8, 4.3] | +1.5 [−3.1, 6.1] |
+| No radio between managers | −0.7 [−2.7, 1.3] | +2.0 [−1.5, 5.5] |
+| Idealised: every queue visible to everyone | −13.2 [−16.3, −10.1] | −3.4 [−7.7, 1.0] |
+
+- **"No queue information" is a lower bound, not a realistic level.** It removes even the local queue perception that the previous fixed model has, so everyone follows habit and the plan. It shows that seeing queues is the strongest single mechanism in the model.
+- Radio and congestion sharing make no detectable difference, which is consistent with §9.1: the managers hardly redirect, so what they would coordinate is rarely used.
+- Perfect information is worth about 13 s in Model A, which is an upper bound for any information system (screens, apps) acting through exit choice alone.
+
+### 9.5 Compliance (Δ both vs fixed at the same compliance)
+
+| Compliance | A: fixed T | A: Δ both | B: fixed T | B: Δ both |
+|---|---|---|---|---|
+| 0.5 | 275.3 | −9.5 [−14.5, −4.5] | 224.0 | −1.8 [−5.9, 2.3] |
+| 0.8 (default) | 263.9 | −8.2 [−11.8, −4.7] | 229.1 | −11.4 [−16.3, −6.6] |
+| 0.95 | 258.3 | −3.0 [−7.5, 1.5] | 226.0 | −7.9 [−14.0, −1.9] |
+
+In Model A higher compliance helps the fixed model, and the advantage of adaptation shrinks as compliance rises. In Model B the fixed model is not monotone in compliance (0.5 is faster than 0.8), so the plan itself is not optimal for Model B. These interactions are model dependent and should not be generalised.
+
+### 9.6 The 180 s package
+
+| | Model A | Model B |
+|---|---|---|
+| Package, fixed | 227.3 [223.3, 231.3], P(≤180) 0 % | 195.3 [191.3, 199.4], P(≤180) 5 % |
+| Package, both adaptive | 239.8 [236.1, 243.4], P(≤180) 0 % | 185.1 [181.6, 188.6], P(≤180) **33 %** |
+| Δ | **+12.5 [7.8, 17.2]** (worse in 83 % of seeds) | −10.3 [−15.2, −5.4] |
+
+- The package's fixed variant uses the previous **omniscient** rebalancing: every manager knows every queue in the building and redirects every 5 s; it makes 12.9 changes per run in Model A. The adaptive mode replaces it with managers who know only what they see or hear by radio, and who change their instruction 3.9 times per run. The Model A loss is therefore the value of omniscience, not a defect of adaptation. Before fixes 9-10 the loss was +42.7 s.
+- In Model B the adaptive package is the best configuration of this study: a third of the runs meet 180 s. The two models disagree on the sign, so whether adaptive managers help the package is uncertain.
+
+### 9.7 Regional density and exposure
+
+- The central orchestra aisles (AW/AE, 1.1 m) reach about 4.0 p/m² (region average) in every Model A configuration and stay above 2 p/m² for 125-138 s. Dynamic individuals shorten this time by about 12 s, while adaptive managers alone do not. In Model B the peak is 3.6-3.9 p/m² for about 90 s.
+- The foyer region stays below 1 p/m² (A) and 0.4 p/m² (B). The foyer's problem is the door capacity, not the density in the foyer itself.
+- Mean individual exposure (∫max(0, ρ − 2) dt) rises with both switches in Model A (18.0 → 21.7 p·s/m²; p95 67 → 83), while the total person-seconds above 2 p/m² is unchanged (22 785 → 22 373). More people take the side passages and porticos, so the exposure is spread over more people. In Model B exposure falls (19.5 → 16.2).
+- These densities are analytical outputs of uncalibrated models. The 2 p/m² reference is not a validated safety threshold (§5).
+
+### 9.8 Manager workload
+
+- At the existing posts, CM3/CM4 (mezzanine radial aisles) have up to about 390 people within earshot and a workload index above 1 for 170-184 s per run (max W ≈ 5.7-5.9). CM5/CM6 (balcony) stay near 1.3. The index is an operational indicator with an assumed reference of 80 persons, not a validated measure.
+- Contradictory instructions: 0 per run at the existing posts.
+
+### 9.9 Unexpected outcomes and what explains them
+
+1. Adaptive managers help without redirecting (§9.1): the cause is re-hearing and re-evaluation, shown by the `hearEvery` ablation.
+2. Alternative layouts look fine in the fixed model but not with walls (§9.2): the cause is corridor posts behind walls, shown by the lock-step comparison and the through-wall counts.
+3. The adaptive package is worse in Model A and better in Model B (§9.6): it is a trade between omniscient and local information, and the models disagree.
+4. With the foyer blocked, adaptive behaviour cuts exit switching but increases high-density time (§9.3).
+5. The first 40-seed run showed the decision layout at +59 s, with oscillating managers. That was caused by defects (double counting, follower load), fixed and tested; the superseded results are kept in `results/adaptive/superseded-2026-11-07/`.
 
 ---
 

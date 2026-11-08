@@ -389,10 +389,12 @@ export class GuidanceSystem {
         cm.version++;
         cm.reviewNow = true;
       }
+      const every = sim.cfg.adaptive.hearEvery !== false;
       const k = a.id * nCM + mi;
-      if (this.heardBy[k] >= cm.version) return;
+      if (every ? this.heardBy[k] >= cm.version : this.heardVersion[a.id] >= cm.version) return;
       if (this.rng.random() > pHear) return;
-      this.heardBy[k] = cm.version;
+      if (every) this.heardBy[k] = cm.version;
+      else this.heardVersion[a.id] = cm.version;
       this.instructAdaptive(a, cm);
     });
   }
