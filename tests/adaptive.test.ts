@@ -7,6 +7,7 @@ import { BAILEY_HALL } from '../src/geometry/BaileyHall';
 import { NetworkSimulation, runNetworkSimulation } from '../src/network/NetworkSimulation';
 import { ST } from '../src/simulation/Agent';
 import { buildRegions } from '../src/simulation/DensityRegions';
+import { balanceRedirects } from '../src/simulation/PartialRedirect';
 import type { CrowdManagerRT } from '../src/simulation/Guidance';
 import type { PolicyEnv } from '../src/simulation/ManagerPolicy';
 import { ManagerPolicy, newManager } from '../src/simulation/ManagerPolicy';
@@ -413,5 +414,61 @@ describe('density over time', () => {
   it('capacity constraints still hold with adaptive behaviour (gate passes per second)', () => {
     const r = runSimulation(geo, adaptive(), 14);
     for (const G of r.gates) if (G.passes > 0) expect(G.maxPassesPerSecond).toBeLessThanOrEqual(Math.ceil(G.capacity * 1.2) + 1);
+  });
+});
+
+describe('partial redirection by managers who see everything (Model A only)', () => {
+  it('balancing moves the analytical number of people: n* = (Q_a/c_a - dw) / (1/c_a + 1/c_b)', () => {
+    // 200 people queue for an exit draining 4 p/s (50 s); an empty alternative drains 1 p/s, 15 s further
+    const res = [
+      { T: 50, cap: 4 },
+      { T: 0, cap: 1 },
+    ];
+    const cands = Array.from({ length: 200 }, () => ({ stayRes: [0], stayWalk: 0, alt: [{ to: 1, res: [1], walk: 15 }], w: 1 }));
+    const { moved } = balanceRedirects(res, cands, 0, () => true);
+    // n* = (50 - 15) / (0.25 + 1) = 28: both exits then finish after about 43 s
+    expect(moved).toBe(28);
+    expect(Math.abs(res[0].T - res[1].T)).toBeLessThan(1.5);
+  });
+
+  it('a person who does not comply is not counted as moved, and more people are asked instead', () => {
+    const res = [
+      { T: 50, cap: 4 },
+      { T: 0, cap: 1 },
+    ];
+    const cands = Array.from({ length: 200 }, () => ({ stayRes: [0], stayWalk: 0, alt: [{ to: 1, res: [1], walk: 15 }], w: 1 }));
+    let k = 0;
+    const out = balanceRedirects(res, cands, 0, () => k++ % 2 === 0);
+    expect(out.moved).toBe(28);
+    expect(out.asked).toBeGreaterThan(50);
+  });
+
+  it('a shared bottleneck is not relieved by sending people to another exit behind it', () => {
+    // both exits are reached through the same hall door (resource 0): moving gains nothing
+    const res = [
+      { T: 80, cap: 2 },
+      { T: 10, cap: 4 },
+      { T: 0, cap: 4 },
+    ];
+    const cands = Array.from({ length: 50 }, () => ({ stayRes: [0, 1], stayWalk: 0, alt: [{ to: 2, res: [0, 2], walk: 5 }], w: 1 }));
+    expect(balanceRedirects(res, cands, 0, () => true).moved).toBe(0);
+  });
+
+  it('in the simulation: people are redirected, nobody twice, every exit is valid, runs are reproducible, default unchanged', () => {
+    const c = adaptive('concert-emergency', true, true, (x) => (x.adaptive.redirectMode = 'partial'));
+    const sim = new SimulationEngine(geo, c, 21);
+    const r = sim.run();
+    const G = sim.guidance as unknown as { partialAsked: number; partialMoved: number };
+    expect(G.partialAsked).toBeGreaterThan(20);
+    expect(G.partialMoved).toBeGreaterThan(5);
+    expect(G.partialMoved).toBeLessThanOrEqual(G.partialAsked);
+    for (const a of sim.agents) if (!a.inside && a.exitLink >= 0) expect(sim.graph.links[a.exitLink].exterior).toBe(true);
+    expect(r.unresolved.trapped).toBe(0);
+    const r2 = runSimulation(geo, c, 21);
+    expect(r2.tEvac).toBe(r.tEvac);
+    // the default (zone) mode never uses the partial mechanism
+    const z = new SimulationEngine(geo, adaptive(), 21);
+    z.run();
+    expect((z.guidance as unknown as { partialAsked: number }).partialAsked).toBe(0);
   });
 });

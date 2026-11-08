@@ -174,6 +174,10 @@ Every value in this section is an **ASSUMPTION**. The mechanisms are motivated b
 | `adaptive.conflictDelay` | 3 s | Hesitation after contradictory instructions | 0-10 s |
 | `adaptive.socialSusSd` | 0.3 | Spread of social susceptibility | 0-0.6 |
 | `adaptive.congestionInfo` | local | none / local / global (global = idealised benchmark only) | - |
+| `adaptive.redirectMode` | zone | zone = whole planned exit; partial = managers see everything and move individual people (Model A only) | - |
+| `adaptive.redirectMargin` | 5 s | Partial: minimum gain per person (40-seed results for 5 / 15 / 30 s in ADAPTIVE.md §9.10) | 0-30 s |
+| `adaptive.redirectMaxDetour` | 20 s | Partial: alternative at most this much longer on foot; no U-turn | 10-40 s |
+| `adaptive.redirectCounterflow` | 0.5 p/m² | Partial: no route against a denser opposing stream | 0.2-1.5 |
 | `adaptive.hearEvery` | true | Every manager passed is heard (false: only the first one, as in the previous model; ablation) | on / off |
 | `adaptive.reachFactor` | 1.4 | Voice through a door: walking distance <= 1.4 × radius | 1.1-2 |
 | `adaptive.observeRange`, `observeDelay` | 18 m, 2 s | Manager observation range and delay | 10-30 m, 0-10 s |

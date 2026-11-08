@@ -29,6 +29,8 @@ interface Exp {
   /** key of the paired reference configuration */
   ref?: string;
   build: () => SimConfig;
+  /** run in Model A only (the mechanism exists only there) */
+  onlyA?: boolean;
 }
 
 const mk = (scenario: string, f: (c: SimConfig) => void = () => {}) => () => {
@@ -106,6 +108,31 @@ const EXPS: Exp[] = [
     { key: `comp${p}-both`, group: 'Compliance', label: `Compliance ${p}, both adaptive`, ref: `comp${p}-fixed`, build: mk('concert-emergency', (c) => (BOTH(c), (c.crowdManagers.complianceProb = p))) },
   ]),
   // the 180 s package from the previous round, with and without adaptation
+  // 9: partial, capacity-sized redirection by managers who see everything (MODEL A ONLY)
+  ...[5, 15, 30].map((m) => ({
+    key: `partial-m${m}`,
+    group: 'Partial redirection (Model A only, both adaptive)',
+    label: `Managers see everything, partial redirection, margin ${m} s`,
+    ref: 'both',
+    onlyA: true,
+    build: mk('concert-emergency', (c) => {
+      BOTH(c);
+      c.adaptive.redirectMode = 'partial';
+      c.adaptive.redirectMargin = m;
+    }),
+  })),
+  {
+    key: 'partial-mgr-m15',
+    group: 'Partial redirection (Model A only, both adaptive)',
+    label: 'Partial redirection, margin 15 s, previous (fixed) individuals',
+    ref: 'managers',
+    onlyA: true,
+    build: mk('concert-emergency', (c) => {
+      MG(c);
+      c.adaptive.redirectMode = 'partial';
+      c.adaptive.redirectMargin = 15;
+    }),
+  },
   { key: 'pkg-fixed', group: '180 s package', label: '180 s package, fixed', build: mk('package-180') },
   { key: 'pkg-both', group: '180 s package', label: '180 s package, both adaptive', ref: 'pkg-fixed', build: mk('package-180', BOTH) },
 ];
@@ -190,6 +217,7 @@ async function main() {
   const ordered = [...exps].sort((x, y) => (x.ref ? 1 : 0) - (y.ref ? 1 : 0));
   for (const model of MODELS)
     for (const e of ordered) {
+      if (e.onlyA && model !== 'A') continue;
       if (e.ref && !runsBy.has(`${model}|${e.ref}`) && !exps.some((x) => x.key === e.ref)) {
         const ref = EXPS.find((x) => x.key === e.ref)!;
         runsBy.set(`${model}|${ref.key}`, await pool.run(ref.build(), SEEDS, model));

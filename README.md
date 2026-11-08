@@ -230,7 +230,7 @@ The 36 network and comparison tests (`tests/network-flow.test.ts`, `tests/networ
 - **Framework:** ordering of the C benchmarks, shared-clock synchronisation of the two live
   engines, door-width sensitivity direction, paired statistics and report assembly.
 
-`tests/improvements.test.ts` (21 tests) covers the first improvement round, and `tests/adaptive.test.ts` (24 tests) covers dynamic behaviour, adaptive managers, scope, placements and density over time; see [docs/ADAPTIVE.md](docs/ADAPTIVE.md) §7. The suite has **119 tests**. `npx tsx scripts/legacy-reference.ts` checks that the fixed model is unchanged, and `node scripts/ui-check-dynamics.mjs <url>` checks the new tabs in headless Chrome.
+`tests/improvements.test.ts` (21 tests) covers the first improvement round, and `tests/adaptive.test.ts` (28 tests) covers dynamic behaviour, adaptive managers, scope, placements and density over time; see [docs/ADAPTIVE.md](docs/ADAPTIVE.md) §7. The suite has **123 tests**. `npx tsx scripts/legacy-reference.ts` checks that the fixed model is unchanged, and `node scripts/ui-check-dynamics.mjs <url>` checks the new tabs in headless Chrome.
 
 The development log with the problems found and fixed is in [docs/PROGRESS.md](docs/PROGRESS.md).
 

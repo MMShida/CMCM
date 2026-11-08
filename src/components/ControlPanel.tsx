@@ -234,6 +234,15 @@ export function ControlPanel({ cfg, geo, scenarioId, onScenario, update, replace
             <Slider label="Observation delay" value={cfg.adaptive.observeDelay} min={0} max={15} step={1} unit="s" onChange={(v) => update((c) => (c.adaptive.observeDelay = v))} />
             <Slider label="Minimum instruction hold" value={cfg.adaptive.minHold} min={0} max={60} step={1} unit="s" onChange={(v) => update((c) => (c.adaptive.minHold = v))} />
             <Slider label="Switch threshold" value={cfg.adaptive.switchThreshold} min={5} max={60} step={1} unit="s" onChange={(v) => update((c) => (c.adaptive.switchThreshold = v))} />
+            <Select
+              label="How managers redirect"
+              value={cfg.adaptive.redirectMode ?? 'zone'}
+              options={[
+                { value: 'zone', label: 'Whole planned exit (local view)' },
+                { value: 'partial', label: 'Part of the flow, sized to free capacity (see everything; Model A only)' },
+              ]}
+              onChange={(v) => update((c) => (c.adaptive.redirectMode = v as any))}
+            />
             <Toggle label="Coordinated (one lead manager per planned exit)" value={cfg.adaptive.coordination} onChange={(v) => update((c) => (c.adaptive.coordination = v))} />
             <Toggle label="Managers tell people the congestion they know" value={cfg.adaptive.shareCongestion} onChange={(v) => update((c) => (c.adaptive.shareCongestion = v))} />
             <Toggle label="Formal reassignment when a manager's area is clear" value={cfg.adaptive.reassign === 'whenClear'} onChange={(v) => update((c) => (c.adaptive.reassign = v ? 'whenClear' : 'none'))} />

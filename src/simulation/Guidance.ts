@@ -53,6 +53,8 @@ import type { ManagerState, PolicyEnv } from './ManagerPolicy';
 import { ManagerPolicy, newManager, plannedGroups, reassign, workloadIndex } from './ManagerPolicy';
 import { planExitIndex } from './Plan';
 import { placementPosts } from './Placements';
+import type { RedirectCandidate, Resource } from './PartialRedirect';
+import { balanceRedirects } from './PartialRedirect';
 import { RNG } from './Random';
 import type { SimulationEngine } from './SimulationEngine';
 
@@ -88,12 +90,26 @@ export class GuidanceSystem {
   readonly conflictLog: { t: number; agent: number; from: number; to: number; had: number; now: number; planned: number }[] = [];
   /** number of redirections made by queue rebalancing (diagnostics) */
   redirections = 0;
+  /** partial redirection (adaptive.redirectMode = 'partial', Model A only) */
+  readonly partial: boolean;
+  /** exit group a manager personally assigned to each person (-1 = none); known to every manager */
+  private assigned: Int16Array = new Int16Array(0);
+  /** partial mode: pooled bottleneck (parallel doors) of every gate link, -1 for other links */
+  private resOf: Int32Array | null = null;
+  private resCap: number[] = [];
+  private routeRes = new Map<number, number[]>();
+  private lastPartial = -Infinity;
+  /** partial redirection totals: instructions given / adopted */
+  partialAsked = 0;
+  partialMoved = 0;
 
   constructor(sim: SimulationEngine) {
     this.sim = sim;
     this.rng = new RNG(sim.seed, 'guidance');
     const C = sim.cfg.crowdManagers;
     this.adaptive = !!sim.cfg.adaptive?.managers;
+    this.partial = this.adaptive && sim.cfg.adaptive.redirectMode === 'partial';
+    if (this.partial) this.assigned = new Int16Array(sim.agents.length).fill(-1);
     const n = C.count < 0 ? Math.ceil(sim.agents.length / 250) : C.count;
     const all = sim.geo.crowdManagerPosts;
     const custom = placementPosts(sim.geo, C.placement);
@@ -138,7 +154,10 @@ export class GuidanceSystem {
         route: (node, gi, knows) => this.route(node, gi, knows),
         groupCap: EXIT_GROUPS.map((_, gi) => sim.graph.links.reduce((s, L, li) => s + (L.exterior && L.exitGroup === gi && L.gate ? sim.gates.cap[li] : 0), 0)),
       };
-      this.policy = new ManagerPolicy(sim.cfg, this.cms, env, sim.seed, 'cm-policy');
+      // partial mode: the zone-level redirection of the policy is switched off (closures are still
+      // acted on at once); people are redirected individually by partialRedirect()
+      const pcfg = this.partial ? { ...sim.cfg, adaptive: { ...sim.cfg.adaptive, switchThreshold: Infinity } } : sim.cfg;
+      this.policy = new ManagerPolicy(pcfg, this.cms, env, sim.seed, 'cm-policy');
     }
     this.preassign();
   }
@@ -228,7 +247,17 @@ export class GuidanceSystem {
     const A = sim.cfg.adaptive;
     const R = A?.observeRange ?? 18;
     const f = A?.reachFactor ?? 1.4;
+    const all = this.partial; // partial mode: the managers see every gate of the building
     for (const cm of this.cms) {
+      if (all) {
+        const fl = cm.post.floor === 2 ? 2 : 1;
+        g.links.forEach((L, li) => {
+          if (L.prohibited || L.isRow) return;
+          if (sim.nodeFloorDisp[L.a] === fl && Math.hypot(g.nodes[L.a].x - cm.post.x, g.nodes[L.a].y - cm.post.y) <= R) cm.obsLinks.push(li);
+          if (L.gate) cm.obsGates.push(li);
+        });
+        continue;
+      }
       const fl = cm.post.floor === 2 ? 2 : 1;
       g.links.forEach((L, li) => {
         if (L.isRow || L.prohibited) return;
@@ -290,6 +319,8 @@ export class GuidanceSystem {
     const sim = this.sim;
     let gi = planExitIndex(plan, sim.geo, a.seat);
     if (cm && cm.redirect.has(gi)) gi = cm.redirect.get(gi)!;
+    // a personal assignment (partial mode) is known to every manager and replaces the plan
+    if (cm && this.partial && this.assigned[a.id] >= 0 && !sim.staffPlanBlocked(this.assigned[a.id])) return this.assigned[a.id];
     if (knowsBlocked && dynamic) {
       // the staff member knows the true state of the building: pick the cheapest open exit
       // if the planned one is unreachable or much worse
@@ -337,6 +368,10 @@ export class GuidanceSystem {
     if (this.policy) {
       this.policy.step(t);
       if (sim.cfg.adaptive.reassign === 'whenClear' && reassign(this.cms, t, (x, y) => (x as CrowdManagerRT).dist[y.node], C.plan)) this.refreshZoneMasks();
+      if (this.partial && t - this.lastPartial >= sim.cfg.adaptive.decisionInterval - 1e-9) {
+        this.lastPartial = t;
+        this.partialRedirect(t, R);
+      }
       for (let i = 0; i < this.cms.length; i++) this.adaptiveBroadcast(this.cms[i], i, R, pHear);
     } else {
       const RB = C.rebalance;
@@ -356,6 +391,174 @@ export class GuidanceSystem {
       }
     }
     this.record(t, R);
+  }
+
+  /**
+   * Partial, capacity-sized redirection (see PartialRedirect.ts). Candidates are the people within
+   * earshot of an active manager (walls block the voice) who have not been re-assigned yet; group
+   * members following their leader move with the leader. Each instruction is delivered at once and
+   * counts as moved only if the person adopts it.
+   */
+  private partialRedirect(t: number, R: number) {
+    const sim = this.sim;
+    const g = sim.graph;
+    const C = sim.cfg.crowdManagers;
+    const nG = EXIT_GROUPS.length;
+    if (!this.resOf) this.setupResources();
+    const resOf = this.resOf!;
+    const fields = sim.staffFields(false);
+    const open = EXIT_GROUPS.map((_, gi) => !sim.staffPlanBlocked(gi));
+    // pooled bottlenecks on the static staff route from node u to exit group gi (cached)
+    const staticRes = (u: number, gi: number): number[] => {
+      const key = u * 16 + gi;
+      const hit = this.routeRes.get(key);
+      if (hit) return hit;
+      const out: number[] = [];
+      const f = fields[gi];
+      let v = u;
+      for (let guard = 0; guard < 2000 && v >= 0 && f.next[v] >= 0; guard++) {
+        const e = g.adj[v][f.next[v]];
+        const k = resOf[e.link];
+        if (k >= 0 && !out.includes(k)) out.push(k);
+        v = e.other;
+      }
+      this.routeRes.set(key, out);
+      return out;
+    };
+    // the managers see the crowd: a route that walks against a dense opposing stream (opposing
+    // persons / link area > redirectCounterflow on any non-row link) is not offered
+    const cfMax = sim.cfg.adaptive.redirectCounterflow;
+    const mv = sim.movement;
+    const againstCrowd = (u: number, gi: number): boolean => {
+      const f = fields[gi];
+      let v = u;
+      for (let guard = 0; guard < 2000 && v >= 0 && f.next[v] >= 0; guard++) {
+        const e = g.adj[v][f.next[v]];
+        const L = g.links[e.link];
+        if (!L.isRow && L.len > 0.5) {
+          const opp = mv.dirCount[2 * e.link + (L.a === v ? 1 : 0)];
+          if (opp / (L.len * Math.max(0.5, L.width)) > cfMax) return true;
+        }
+        v = e.other;
+      }
+      return false;
+    };
+    const headingFor = (a: Agent) => (a.targetGroup >= 0 ? a.targetGroup : a.cmGroup >= 0 ? a.cmGroup : planExitIndex(C.plan, sim.geo, a.seat));
+    // current route resources of a person: the remaining planned path, else the static route
+    const currentRes = (a: Agent, gh: number): number[] => {
+      if (a.pathValid && a.targetGroup === gh && a.pathPos < a.pathNodes.length) {
+        const out: number[] = [];
+        for (let i = a.pathPos; i < a.pathNodes.length; i++) {
+          const ad = a.pathAdj[i];
+          if (ad < 0) continue;
+          const k = resOf[g.adj[a.pathNodes[i]][ad].link];
+          if (k >= 0 && !out.includes(k)) out.push(k);
+        }
+        return out;
+      }
+      return staticRes(sim.routing.estimateFrom(a, fields[gh]).node, gh);
+    };
+    const res: Resource[] = this.resCap.map((c) => ({ T: 0, cap: c }));
+    const cur = new Map<number, number[]>();
+    for (const a of sim.agents) {
+      if (a.done || !a.inside || a.wheelchair) continue;
+      const gh = headingFor(a);
+      if (gh < 0 || !open[gh]) continue;
+      const rs = currentRes(a, gh);
+      cur.set(a.id, rs);
+      for (const k of rs) res[k].T += 1;
+    }
+    for (const r of res) r.T = r.cap > 0 ? r.T / r.cap : 0;
+    const followers = (a: Agent) =>
+      a.group >= 0 && a.groupLeader && !sim.groupBroken[a.group] && !sim.cfg.population.groupMeetOutside
+        ? sim.groups[a.group].map((id) => sim.agents[id]).filter((m) => m !== a && !m.done && m.inside && !m.groupLeader)
+        : [];
+    const cands: RedirectCandidate[] = [];
+    const who: { a: Agent; cm: CrowdManagerRT; members: Agent[]; from: number }[] = [];
+    const seen = new Uint8Array(sim.agents.length);
+    for (const cm of this.cms) {
+      if (t < cm.tActive) continue;
+      sim.forEachNear(cm.post.x, cm.post.y, cm.post.floor, R, (a) => {
+        if (seen[a.id] || a.done || !a.inside || a.wheelchair || this.assigned[a.id] >= 0) return;
+        // only people already walking: the crowd they will meet is visible now (a seated person sent
+        // to the stage at t = 10 s walks there a minute later against the stream going up)
+        if (a.state < ST.MOVING || a.state > ST.REUNITING) return;
+        if (a.group >= 0 && !a.groupLeader && !sim.groupBroken[a.group] && !sim.cfg.population.groupMeetOutside) return; // follows the leader
+        if (!this.inReach(cm, a, R)) return;
+        const gh = headingFor(a);
+        if (gh < 0 || !cur.has(a.id)) return;
+        seen[a.id] = 1;
+        const members = followers(a);
+        const alt: RedirectCandidate['alt'] = [];
+        const stayWalk = sim.routing.estimateFrom(a, fields[gh]).cost;
+        const maxDetour = sim.cfg.adaptive.redirectMaxDetour;
+        for (let gi = 0; gi < nG; gi++) {
+          if (gi === gh || !open[gi]) continue;
+          const est = sim.routing.estimateFrom(a, fields[gi]);
+          if (!Number.isFinite(est.cost)) continue;
+          // physically sensible only: no long detour (it means walking against the crowd in the
+          // aisles) and no U-turn on the link the person is walking along
+          if (est.cost > stayWalk + maxDetour) continue;
+          if (a.link >= 0 && fields[gi].next[est.node] >= 0 && g.adj[est.node][fields[gi].next[est.node]].link === a.link) continue;
+          if (againstCrowd(est.node, gi)) continue;
+          alt.push({ to: gi, res: staticRes(est.node, gi), walk: est.cost });
+        }
+        if (!alt.length) return;
+        cands.push({ stayRes: cur.get(a.id)!, stayWalk, alt, w: 1 + members.length });
+        who.push({ a, cm, members, from: gh });
+      });
+    }
+    if (!cands.length) return;
+    const moves = new Map<string, number>();
+    const out = balanceRedirects(res, cands, sim.cfg.adaptive.redirectMargin, (i, to) => {
+      const { a, cm, members, from } = who[i];
+      this.assigned[a.id] = to;
+      a.knownExits |= 1 << to;
+      this.instructAdaptive(a, cm, true);
+      this.heardBy[a.id * this.cms.length + cm.idx] = cm.version;
+      const ok = a.cmGroup === to && (a.targetGroup === to || a.state < ST.MOVING);
+      if (ok) {
+        // the group goes with its leader: the managers then tell the members the same exit
+        for (const m of members) {
+          this.assigned[m.id] = to;
+          m.knownExits |= 1 << to;
+        }
+        const k = `${cm.idx}|${from}|${to}`;
+        moves.set(k, (moves.get(k) ?? 0) + cands[i].w);
+      }
+      return ok;
+    });
+    this.partialAsked += out.asked;
+    this.partialMoved += out.moved;
+    for (const [k, n] of moves) {
+      const [mi, from, to] = k.split('|').map(Number);
+      this.cms[mi].history.push({ t, planned: from, from, to, reason: `${n} people sent from ${EXIT_GROUPS[from]} to ${EXIT_GROUPS[to]} (bottleneck balancing)` });
+    }
+  }
+
+  /** pooled bottlenecks: doors joining the same two rooms are one resource; every other gate is its own */
+  private setupResources() {
+    const sim = this.sim;
+    const g = sim.graph;
+    const resOf = new Int32Array(g.links.length).fill(-1);
+    const key = new Map<string, number>();
+    const caps: number[] = [];
+    g.links.forEach((L, li) => {
+      if (!L.gate || L.prohibited) return;
+      const sa = this.space[L.a];
+      const sb = this.space[L.b];
+      const k = L.kind === 'door' || L.exterior ? `d${Math.min(sa, sb)}-${Math.max(sa, sb)}-${L.exterior ? 'x' : ''}` : `g${li}`;
+      let id = key.get(k);
+      if (id === undefined) {
+        id = caps.length;
+        key.set(k, id);
+        caps.push(0);
+      }
+      resOf[li] = id;
+      caps[id] += Math.max(0, sim.gates.cap[li]);
+    });
+    this.resOf = resOf;
+    this.resCap = caps;
   }
 
   private refreshZoneMasks() {
@@ -431,7 +634,7 @@ export class GuidanceSystem {
   }
 
   /** adaptive instruction: trust-dependent compliance, conflicts, congestion information */
-  private instructAdaptive(a: Agent, cm: CrowdManagerRT) {
+  private instructAdaptive(a: Agent, cm: CrowdManagerRT, coordinated = false) {
     const sim = this.sim;
     const C = sim.cfg.crowdManagers;
     const A = sim.cfg.adaptive;
@@ -458,7 +661,8 @@ export class GuidanceSystem {
       }
     }
     // contradiction with a recent instruction from another manager
-    if (a.cmGroup >= 0 && a.cmSource >= 0 && a.cmSource !== cm.idx) {
+    // a coordinated re-assignment (partial mode) is an update all managers agree on, not a contradiction
+    if (!coordinated && a.cmGroup >= 0 && a.cmSource >= 0 && a.cmSource !== cm.idx) {
       if (a.cmGroup !== gi && t - a.cmTime < 60) {
         if (this.conflictLog.length < 500) this.conflictLog.push({ t, agent: a.id, from: a.cmSource, to: cm.idx, had: a.cmGroup, now: gi, planned: planExitIndex(C.plan, sim.geo, a.seat) });
         a.conflicts++;

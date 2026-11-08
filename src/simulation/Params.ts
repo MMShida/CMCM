@@ -283,6 +283,15 @@ export interface AdaptiveConfig {
   /** true: a person hears every manager they pass (one version counter per person and manager);
    *  false: only the first manager met, until an instruction changes (the previous model's rule; ablation) */
   hearEvery: boolean;
+  /** 'zone': a manager redirects a whole planned exit (default); 'partial' (MODEL A ONLY): managers see
+   *  the whole building and move individual people until the exits' drain times are balanced */
+  redirectMode: 'zone' | 'partial';
+  /** partial mode: a person is moved only if they finish at least this much earlier (s) */
+  redirectMargin: number;
+  /** partial mode: an alternative may be at most this much longer on foot (s); no U-turns */
+  redirectMaxDetour: number;
+  /** partial mode: a route with an opposing stream denser than this (persons/m2) on a link is not offered */
+  redirectCounterflow: number;
   /** managers see queues at gates within this range (m), same floor, walking distance <= reachFactor x range */
   observeRange: number;
   /** observations become usable after this delay (s) */
@@ -338,6 +347,10 @@ export const DEFAULT_ADAPTIVE: AdaptiveConfig = {
   congestionInfo: 'local',
   reachFactor: 1.4,
   hearEvery: true,
+  redirectMode: 'zone',
+  redirectMargin: 5,
+  redirectMaxDetour: 20,
+  redirectCounterflow: 0.5,
   observeRange: 18,
   observeDelay: 2,
   comm: 'radio',
@@ -590,6 +603,10 @@ export const PARAM_INFO: ParamInfo[] = [
   { path: 'population.groupMeetOutside', label: 'Intervention: groups agree to meet outside (no waiting / cohesion)', unit: '-', status: 'ASSUMPTION', source: 'operational message; effect of groups on start times: Bode et al. 2015 (direction)', uncertainty: 'compliance not modelled (all groups follow)' },
   { path: 'assist.*', label: 'Assisted descent of wheelchair users: 2 teams free from 60 s, 60 s per descent', unit: 's', status: 'ASSUMPTION', source: 'no evacuation-chair data extracted; affects street-level time only, not T_evac', uncertainty: 'descent 30-180 s' },
   { path: 'adaptive.*', label: 'Dynamic behaviour: memory 60 s, uncertainty weight 0.5, commitment 10 s, event thresholds 1.5x / 12 s / 10 s, urgency effect 0.5, trust -0.25 / +0.05', unit: '-', status: 'ASSUMPTION', source: 'mechanisms from the literature (information, queues, trust: Kinateder & Warren; Haghani 2020 review; Lovreglio et al. 2016); every magnitude assumed', uncertainty: 'high: see docs/ADAPTIVE.md' },
+  { path: 'adaptive.redirectMode', label: 'Partial redirection: managers see the whole building and move individual people until the drain times of the exits are balanced (Model A only)', unit: '-', status: 'ASSUMPTION', source: 'project premise (managers see everything, share one plan); drain capacity = max flow through the gates', uncertainty: 'zone / partial' },
+  { path: 'adaptive.redirectMargin', label: 'Partial redirection: minimum gain per person', unit: 's', status: 'ASSUMPTION', source: 'avoids moves for marginal gains; not measured', uncertainty: '0-20 s' },
+  { path: 'adaptive.redirectMaxDetour', label: 'Partial redirection: alternative at most 20 s longer on foot, no U-turn (long detours mean walking against the crowd)', unit: 's', status: 'ASSUMPTION', source: 'physical plausibility; not measured', uncertainty: '10-40 s' },
+  { path: 'adaptive.redirectCounterflow', label: 'Partial redirection: no route against an opposing stream denser than 0.5 p/m2', unit: 'p/m2', status: 'ASSUMPTION', source: 'counterflow in narrow aisles is slow (direction from bidirectional-flow experiments); threshold not measured', uncertainty: '0.2-1.5' },
   { path: 'adaptive.hearEvery', label: 'Every manager passed is heard (off: only the first one, as in the previous model)', unit: '-', status: 'ASSUMPTION', source: 'structural choice; ablation switch', uncertainty: 'on / off' },
   { path: 'adaptive.reachFactor', label: 'Voice reach needs walking distance <= 1.4 x radius (walls and closed rooms block)', unit: '-', status: 'ASSUMPTION', source: 'geometric proxy for line of sight / acoustics; not measured', uncertainty: '1.1-2' },
   { path: 'adaptive.observe*', label: 'Managers see gates within 18 m (same floor, walkable), observations usable after 2 s', unit: 'm, s', status: 'ASSUMPTION', source: '-', uncertainty: 'range 10-30 m, delay 0-10 s' },
