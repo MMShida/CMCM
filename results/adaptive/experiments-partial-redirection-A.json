@@ -1,5 +1,5 @@
 {
- "date": "2026-11-08T08:40:03.639Z",
+ "date": "2026-11-08T09:18:10.354Z",
  "runs": 40,
  "seeds": [
   1375190847,
@@ -47,192 +47,6 @@
   "A"
  ],
  "results": {
-  "A|partial-m5": {
-   "model": "A",
-   "key": "partial-m5",
-   "group": "Partial redirection (Model A only, both adaptive)",
-   "label": "Managers see everything, partial redirection, margin 5 s",
-   "ref": "both",
-   "n": 40,
-   "T": {
-    "mean": 276.9175000000001,
-    "ciLow": 272.6755947671341,
-    "ciHigh": 281.15940523286605,
-    "sd": 13.26388749720313,
-    "p95": 294.3999999999999,
-    "min": 256.5,
-    "max": 319.4
-   },
-   "p180": {
-    "p": 0,
-    "lo": 0,
-    "hi": 0.08762160245846368
-   },
-   "meanExit": 138.79534612490593,
-   "insideAt180": 355.125,
-   "unresolved": 0,
-   "trapped": 0,
-   "regions": {
-    "orchCentralAisles": {
-     "peak": 4.0958749999999995,
-     "timeAboveRef": 122.65,
-     "peakOcc": 147.45
-    },
-    "orchAccess": {
-     "peak": 4.049999999999999,
-     "timeAboveRef": 84.1,
-     "peakOcc": 40.5
-    },
-    "mezzExits": {
-     "peak": 1.3378500000000004,
-     "timeAboveRef": 0,
-     "peakOcc": 39.325
-    },
-    "corrSouth": {
-     "peak": 0.6307500000000001,
-     "timeAboveRef": 0,
-     "peakOcc": 28.625
-    },
-    "foyer": {
-     "peak": 0.695775,
-     "timeAboveRef": 0,
-     "peakOcc": 95.25
-    },
-    "portico": {
-     "peak": 0.6355000000000001,
-     "timeAboveRef": 0,
-     "peakOcc": 85.925
-    },
-    "balStairs": {
-     "peak": 1.4676250000000002,
-     "timeAboveRef": 0,
-     "peakOcc": 123.575
-    }
-   },
-   "personTimeAboveRef": 30080.8,
-   "exposure": {
-    "mean": 36.808,
-    "p95": 145.838975,
-    "shareExposed": 0.906175
-   },
-   "usage": {
-    "FOYER": 534.575,
-    "PORTICO_W": 277.675,
-    "PORTICO_E": 264.425,
-    "STAGE_W": 76.17500000000003,
-    "STAGE_E": 76.35000000000001,
-    "BAL_NW": 50.425000000000004,
-    "BAL_NE": 49.37500000000001
-   },
-   "behaviour": {
-    "exitSwitches": 318.7,
-    "events": 5262.55,
-    "flipFlops": 4.4,
-    "conflicts": 6.575,
-    "managerSwitches": 90.7,
-    "complied": 1055.7,
-    "followedShare": 0.68765,
-    "meanTrust": 1.037175
-   },
-   "managers": [
-    {
-     "id": "CM1",
-     "maxR": 214,
-     "maxH": 312.15,
-     "meanH": 98.6625,
-     "maxI": 186.725,
-     "reached": 417.95,
-     "complied": 332.825,
-     "changed": 63.825,
-     "switches": 25.425,
-     "overload": 150.8,
-     "maxW": 4.970000000000001,
-     "throughWall": 0,
-     "conflicts": 2.75
-    },
-    {
-     "id": "CM2",
-     "maxR": 214,
-     "maxH": 308.025,
-     "meanH": 99.31499999999997,
-     "maxI": 179.95,
-     "reached": 418.4,
-     "complied": 333.85,
-     "changed": 63.125,
-     "switches": 26.825,
-     "overload": 150.325,
-     "maxW": 4.92275,
-     "throughWall": 0,
-     "conflicts": 3.35
-    },
-    {
-     "id": "CM3",
-     "maxR": 307,
-     "maxH": 385.525,
-     "meanH": 127.53750000000002,
-     "maxI": 134.15,
-     "reached": 852.775,
-     "complied": 630.65,
-     "changed": 66.95,
-     "switches": 19.95,
-     "overload": 179.575,
-     "maxW": 5.699999999999999,
-     "throughWall": 0,
-     "conflicts": 2.875
-    },
-    {
-     "id": "CM4",
-     "maxR": 309,
-     "maxH": 385.575,
-     "meanH": 122.88250000000005,
-     "maxI": 146.075,
-     "reached": 848.8,
-     "complied": 624.3,
-     "changed": 13.575,
-     "switches": 3.8,
-     "overload": 173.9,
-     "maxW": 5.7112500000000015,
-     "throughWall": 0,
-     "conflicts": 3.95
-    },
-    {
-     "id": "CM5",
-     "maxR": 158,
-     "maxH": 102.775,
-     "meanH": 14.327499999999997,
-     "maxI": 57.975,
-     "reached": 108.5,
-     "complied": 86.2,
-     "changed": 12.45,
-     "switches": 7.65,
-     "overload": 71.55,
-     "maxW": 2.1487500000000006,
-     "throughWall": 0,
-     "conflicts": 0.1
-    },
-    {
-     "id": "CM6",
-     "maxR": 158,
-     "maxH": 102.025,
-     "meanH": 14.102500000000001,
-     "maxI": 55.3,
-     "reached": 107.825,
-     "complied": 85.875,
-     "changed": 11.925,
-     "switches": 7.05,
-     "overload": 67.375,
-     "maxW": 2.1799999999999997,
-     "throughWall": 0,
-     "conflicts": 0.125
-    }
-   ],
-   "pairedVsRef": {
-    "meanDiff": 21.2325,
-    "ciLow": 16.3017406653085,
-    "ciHigh": 26.163259334691503,
-    "worseShare": 0.925
-   }
-  },
   "A|partial-m15": {
    "model": "A",
    "key": "partial-m15",
@@ -241,181 +55,181 @@
    "ref": "both",
    "n": 40,
    "T": {
-    "mean": 266.33500000000004,
-    "ciLow": 263.713084080275,
-    "ciHigh": 268.9569159197251,
-    "sd": 8.19839102413488,
-    "p95": 278.965,
-    "min": 252.4,
-    "max": 288.6
+    "mean": 284.2299999999999,
+    "ciLow": 277.50370996583246,
+    "ciHigh": 290.95629003416735,
+    "sd": 21.032236551517155,
+    "p95": 316.87,
+    "min": 250.7,
+    "max": 340.2
    },
    "p180": {
     "p": 0,
     "lo": 0,
     "hi": 0.08762160245846368
    },
-   "meanExit": 137.1215349887133,
-   "insideAt180": 339.025,
+   "meanExit": 132.46617945823928,
+   "insideAt180": 296.9,
    "unresolved": 0,
    "trapped": 0,
    "regions": {
     "orchCentralAisles": {
-     "peak": 4.077725,
-     "timeAboveRef": 118.875,
-     "peakOcc": 146.8
+     "peak": 4.088875000000001,
+     "timeAboveRef": 121.3,
+     "peakOcc": 147.2
     },
     "orchAccess": {
-     "peak": 3.915,
-     "timeAboveRef": 76.275,
-     "peakOcc": 39.15
+     "peak": 4.097499999999998,
+     "timeAboveRef": 85.475,
+     "peakOcc": 40.975
     },
     "mezzExits": {
-     "peak": 1.4570249999999993,
+     "peak": 1.2815249999999998,
      "timeAboveRef": 0,
-     "peakOcc": 42.825
+     "peakOcc": 37.675
     },
     "corrSouth": {
-     "peak": 0.6406499999999998,
+     "peak": 1.0625999999999998,
      "timeAboveRef": 0,
-     "peakOcc": 29.075
+     "peakOcc": 48.25
     },
     "foyer": {
-     "peak": 0.714175,
+     "peak": 0.8932,
      "timeAboveRef": 0,
-     "peakOcc": 97.775
+     "peakOcc": 122.275
     },
     "portico": {
-     "peak": 0.6634500000000002,
+     "peak": 0.592575,
      "timeAboveRef": 0,
-     "peakOcc": 89.7
+     "peakOcc": 80.1
     },
     "balStairs": {
-     "peak": 1.47325,
+     "peak": 1.4765749999999995,
      "timeAboveRef": 0,
-     "peakOcc": 124.05
+     "peakOcc": 124.325
     }
    },
-   "personTimeAboveRef": 27184.125,
+   "personTimeAboveRef": 29225.825,
    "exposure": {
-    "mean": 35.05522499999999,
-    "p95": 140.02449999999996,
-    "shareExposed": 0.9094000000000001
+    "mean": 25.781075000000005,
+    "p95": 110.62910000000004,
+    "shareExposed": 0.9125
    },
    "usage": {
-    "FOYER": 541.9499999999998,
-    "PORTICO_W": 278.8750000000001,
-    "PORTICO_E": 268.375,
-    "STAGE_W": 70.05,
-    "STAGE_E": 69.70000000000003,
-    "BAL_NW": 50.67499999999997,
-    "BAL_NE": 49.37500000000001
+    "FOYER": 737.0249999999999,
+    "PORTICO_W": 172.90000000000006,
+    "PORTICO_E": 176.05000000000007,
+    "STAGE_W": 77.125,
+    "STAGE_E": 77.97500000000001,
+    "BAL_NW": 43.80000000000001,
+    "BAL_NE": 44.12500000000001
    },
    "behaviour": {
-    "exitSwitches": 249.725,
-    "events": 5255.85,
-    "flipFlops": 2.675,
-    "conflicts": 4.625,
-    "managerSwitches": 70.275,
-    "complied": 1055.85,
-    "followedShare": 0.7352000000000001,
-    "meanTrust": 1.0367
+    "exitSwitches": 256.425,
+    "events": 4991.75,
+    "flipFlops": 6.55,
+    "conflicts": 9.475,
+    "managerSwitches": 85.2,
+    "complied": 1056.7,
+    "followedShare": 0.7924999999999999,
+    "meanTrust": 1.0390000000000001
    },
    "managers": [
     {
      "id": "CM1",
      "maxR": 214,
-     "maxH": 311.85,
-     "meanH": 100.78,
-     "maxI": 188.775,
-     "reached": 411.325,
-     "complied": 325.975,
-     "changed": 45.425,
-     "switches": 19.05,
-     "overload": 148.725,
-     "maxW": 4.92675,
+     "maxH": 308.85,
+     "meanH": 89.65,
+     "maxI": 179.875,
+     "reached": 406.675,
+     "complied": 320.7,
+     "changed": 75.3,
+     "switches": 30.2,
+     "overload": 128.05,
+     "maxW": 4.98225,
      "throughWall": 0,
-     "conflicts": 2.1
+     "conflicts": 3.5
     },
     {
      "id": "CM2",
      "maxR": 214,
-     "maxH": 308.225,
-     "meanH": 102.36249999999998,
-     "maxI": 184.075,
-     "reached": 411.425,
-     "complied": 327.525,
-     "changed": 43.725,
-     "switches": 20.375,
-     "overload": 149,
-     "maxW": 4.9045,
+     "maxH": 305.2,
+     "meanH": 91.1125,
+     "maxI": 176.025,
+     "reached": 409.1,
+     "complied": 324.45,
+     "changed": 73.15,
+     "switches": 30.25,
+     "overload": 130.2,
+     "maxW": 4.9795,
      "throughWall": 0,
-     "conflicts": 2.375
+     "conflicts": 3.925
     },
     {
      "id": "CM3",
      "maxR": 307,
-     "maxH": 385.125,
-     "meanH": 130.03500000000003,
-     "maxI": 135.425,
-     "reached": 844.9,
-     "complied": 624.75,
-     "changed": 53.5,
-     "switches": 14.95,
-     "overload": 175.575,
-     "maxW": 5.6415,
+     "maxH": 387.075,
+     "meanH": 134.1175,
+     "maxI": 138.35,
+     "reached": 884.95,
+     "complied": 667.45,
+     "changed": 35.225,
+     "switches": 16.075,
+     "overload": 177.875,
+     "maxW": 5.830999999999999,
      "throughWall": 0,
-     "conflicts": 1.85
+     "conflicts": 5.525
     },
     {
      "id": "CM4",
      "maxR": 309,
-     "maxH": 384.8,
-     "meanH": 124.68499999999997,
-     "maxI": 149.65,
-     "reached": 840.4,
-     "complied": 620.25,
-     "changed": 11.225,
-     "switches": 3,
-     "overload": 171.1,
-     "maxW": 5.638750000000002,
+     "maxH": 386.275,
+     "meanH": 129.68750000000003,
+     "maxI": 173.5,
+     "reached": 880.25,
+     "complied": 663.4,
+     "changed": 13.675,
+     "switches": 4.575,
+     "overload": 174.15,
+     "maxW": 5.858500000000002,
      "throughWall": 0,
-     "conflicts": 2.625
+     "conflicts": 5.975
     },
     {
      "id": "CM5",
      "maxR": 158,
      "maxH": 102.75,
-     "meanH": 14.5725,
-     "maxI": 58.15,
-     "reached": 108.475,
-     "complied": 86.15,
-     "changed": 11.4,
-     "switches": 6.925,
-     "overload": 71.1,
-     "maxW": 2.1370000000000005,
+     "meanH": 13.810000000000002,
+     "maxI": 70.15,
+     "reached": 108.55,
+     "complied": 86.25,
+     "changed": 3.075,
+     "switches": 1.65,
+     "overload": 65.475,
+     "maxW": 2.133,
      "throughWall": 0,
-     "conflicts": 0.2
+     "conflicts": 0.025
     },
     {
      "id": "CM6",
      "maxR": 158,
-     "maxH": 102.025,
-     "meanH": 14.52,
-     "maxI": 55.85,
-     "reached": 107.85,
-     "complied": 85.75,
-     "changed": 10.85,
-     "switches": 5.975,
-     "overload": 67.95,
-     "maxW": 2.15825,
+     "maxH": 102.05,
+     "meanH": 13.407500000000002,
+     "maxI": 67.45,
+     "reached": 107.65,
+     "complied": 85.7,
+     "changed": 4.7,
+     "switches": 2.45,
+     "overload": 63.075,
+     "maxW": 2.1412500000000003,
      "throughWall": 0,
-     "conflicts": 0.1
+     "conflicts": 0
     }
    ],
    "pairedVsRef": {
-    "meanDiff": 10.649999999999995,
-    "ciLow": 7.217813057690268,
-    "ciHigh": 14.082186942309722,
+    "meanDiff": 28.544999999999987,
+    "ciLow": 20.338045059868556,
+    "ciHigh": 36.75195494013142,
     "worseShare": 0.825
    }
   },
@@ -427,182 +241,182 @@
    "ref": "both",
    "n": 40,
    "T": {
-    "mean": 258.99999999999994,
-    "ciLow": 254.551848204318,
-    "ciHigh": 263.4481517956819,
-    "sd": 13.722302246611843,
-    "p95": 271.36000000000007,
-    "min": 243.2,
-    "max": 324.2
+    "mean": 283.68749999999994,
+    "ciLow": 276.49337506177176,
+    "ciHigh": 290.88162493822813,
+    "sd": 22.495095619336162,
+    "p95": 316.31499999999994,
+    "min": 247.7,
+    "max": 351.8
    },
    "p180": {
     "p": 0,
     "lo": 0,
     "hi": 0.08762160245846368
    },
-   "meanExit": 135.38033156778206,
-   "insideAt180": 318.725,
-   "unresolved": 0.425,
+   "meanExit": 131.8845993227991,
+   "insideAt180": 289.95,
+   "unresolved": 0,
    "trapped": 0,
    "regions": {
     "orchCentralAisles": {
-     "peak": 4.089625,
-     "timeAboveRef": 121.05,
-     "peakOcc": 147.225
+     "peak": 4.096525,
+     "timeAboveRef": 119.125,
+     "peakOcc": 147.475
     },
     "orchAccess": {
-     "peak": 3.8849999999999993,
-     "timeAboveRef": 71.425,
-     "peakOcc": 38.85
+     "peak": 4.084999999999998,
+     "timeAboveRef": 82.425,
+     "peakOcc": 40.85
     },
     "mezzExits": {
-     "peak": 1.456175,
+     "peak": 1.3846999999999996,
      "timeAboveRef": 0,
-     "peakOcc": 42.8
+     "peakOcc": 40.7
     },
     "corrSouth": {
-     "peak": 0.8128,
+     "peak": 1.0549,
      "timeAboveRef": 0,
-     "peakOcc": 36.9
+     "peakOcc": 47.9
     },
     "foyer": {
-     "peak": 0.75955,
+     "peak": 0.8884749999999997,
      "timeAboveRef": 0,
-     "peakOcc": 103.975
+     "peakOcc": 121.625
     },
     "portico": {
-     "peak": 0.662425,
+     "peak": 0.6143499999999998,
      "timeAboveRef": 0,
-     "peakOcc": 89.575
+     "peakOcc": 83.05
     },
     "balStairs": {
-     "peak": 1.4817999999999998,
+     "peak": 1.4694749999999996,
      "timeAboveRef": 0,
-     "peakOcc": 124.775
+     "peakOcc": 123.725
     }
    },
-   "personTimeAboveRef": 25569.475,
+   "personTimeAboveRef": 28505.15,
    "exposure": {
-    "mean": 31.154975,
-    "p95": 129.725375,
-    "shareExposed": 0.9101500000000001
+    "mean": 26.547374999999995,
+    "p95": 112.91399999999999,
+    "shareExposed": 0.9136000000000003
    },
    "usage": {
-    "FOYER": 587.4999999999998,
-    "PORTICO_W": 257.35,
-    "PORTICO_E": 255.34999999999997,
-    "STAGE_W": 66.05,
-    "STAGE_E": 63.324999999999996,
-    "BAL_NW": 49.82499999999999,
-    "BAL_NE": 49.175
+    "FOYER": 722.1999999999999,
+    "PORTICO_W": 181,
+    "PORTICO_E": 185.8,
+    "STAGE_W": 77.42500000000003,
+    "STAGE_E": 77.2,
+    "BAL_NW": 43.09999999999999,
+    "BAL_NE": 42.275
    },
    "behaviour": {
-    "exitSwitches": 194.45,
-    "events": 5112.1,
-    "flipFlops": 2.35,
-    "conflicts": 3.425,
-    "managerSwitches": 49.275,
-    "complied": 1056.225,
-    "followedShare": 0.768225,
-    "meanTrust": 1.037725
+    "exitSwitches": 210.075,
+    "events": 4946.825,
+    "flipFlops": 4.725,
+    "conflicts": 5.2,
+    "managerSwitches": 62.5,
+    "complied": 1056.525,
+    "followedShare": 0.80885,
+    "meanTrust": 1.0391499999999998
    },
    "managers": [
     {
      "id": "CM1",
      "maxR": 214,
-     "maxH": 311.925,
-     "meanH": 99.53,
-     "maxI": 190.3,
-     "reached": 405.6,
-     "complied": 321.55,
-     "changed": 31.35,
-     "switches": 13.2,
-     "overload": 141.275,
-     "maxW": 4.9282499999999985,
+     "maxH": 309.45,
+     "meanH": 89.1825,
+     "maxI": 182.55,
+     "reached": 402.45,
+     "complied": 317.3,
+     "changed": 61.075,
+     "switches": 23.35,
+     "overload": 126.075,
+     "maxW": 4.943,
      "throughWall": 0,
-     "conflicts": 1.425
+     "conflicts": 2.175
     },
     {
      "id": "CM2",
      "maxR": 214,
-     "maxH": 308.05,
-     "meanH": 102.1975,
-     "maxI": 185.075,
-     "reached": 408.125,
-     "complied": 324.575,
-     "changed": 29.75,
-     "switches": 13.425,
-     "overload": 143.575,
-     "maxW": 4.909750000000001,
+     "maxH": 305.95,
+     "meanH": 92.45750000000001,
+     "maxI": 179.625,
+     "reached": 407.725,
+     "complied": 323.85,
+     "changed": 58.925,
+     "switches": 24.725,
+     "overload": 130.225,
+     "maxW": 4.895999999999999,
      "throughWall": 0,
-     "conflicts": 1.85
+     "conflicts": 3.125
     },
     {
      "id": "CM3",
      "maxR": 307,
-     "maxH": 385.45,
-     "meanH": 131.69249999999997,
-     "maxI": 136.3,
-     "reached": 855.775,
-     "complied": 637.775,
-     "changed": 41.075,
-     "switches": 11.65,
-     "overload": 176.975,
-     "maxW": 5.634,
+     "maxH": 387.275,
+     "meanH": 132.575,
+     "maxI": 140.125,
+     "reached": 879.05,
+     "complied": 662.55,
+     "changed": 26.875,
+     "switches": 10.25,
+     "overload": 175.85,
+     "maxW": 5.718999999999999,
      "throughWall": 0,
-     "conflicts": 1.45
+     "conflicts": 2.35
     },
     {
      "id": "CM4",
      "maxR": 309,
-     "maxH": 384.975,
-     "meanH": 127.05249999999998,
-     "maxI": 151.775,
-     "reached": 850.825,
-     "complied": 630.65,
-     "changed": 9.325,
-     "switches": 2,
-     "overload": 172.95,
-     "maxW": 5.6492499999999986,
+     "maxH": 386.5,
+     "meanH": 128.32,
+     "maxI": 175.825,
+     "reached": 874.7,
+     "complied": 656.775,
+     "changed": 9.275,
+     "switches": 2.425,
+     "overload": 172,
+     "maxW": 5.735749999999999,
      "throughWall": 0,
-     "conflicts": 2
+     "conflicts": 2.75
     },
     {
      "id": "CM5",
      "maxR": 158,
-     "maxH": 102.75,
-     "meanH": 14.545000000000005,
-     "maxI": 59.925,
-     "reached": 108.5,
-     "complied": 86.175,
-     "changed": 9.275,
-     "switches": 5.25,
-     "overload": 70.5,
-     "maxW": 2.13425,
+     "maxH": 102.775,
+     "meanH": 14.097500000000002,
+     "maxI": 70.8,
+     "reached": 108.35,
+     "complied": 86.2,
+     "changed": 1.6,
+     "switches": 0.75,
+     "overload": 63.55,
+     "maxW": 2.124499999999999,
      "throughWall": 0,
-     "conflicts": 0.05
+     "conflicts": 0
     },
     {
      "id": "CM6",
      "maxR": 158,
-     "maxH": 102.025,
-     "meanH": 14.334999999999999,
-     "maxI": 59.575,
-     "reached": 107.95,
-     "complied": 85.775,
-     "changed": 7.525,
-     "switches": 3.75,
-     "overload": 68.425,
-     "maxW": 2.14525,
+     "maxH": 102.05,
+     "meanH": 13.7975,
+     "maxI": 69.15,
+     "reached": 107.6,
+     "complied": 85.275,
+     "changed": 2.7,
+     "switches": 1,
+     "overload": 61.425,
+     "maxW": 2.1614999999999998,
      "throughWall": 0,
-     "conflicts": 0.075
+     "conflicts": 0
     }
    ],
    "pairedVsRef": {
-    "meanDiff": 3.089743589743588,
-    "ciLow": -1.2684085858325047,
-    "ciHigh": 7.4478957653196805,
-    "worseShare": 0.5897435897435898
+    "meanDiff": 28.002499999999998,
+    "ciLow": 19.04787546699941,
+    "ciHigh": 36.95712453300058,
+    "worseShare": 0.875
    }
   },
   "A|partial-mgr-m15": {
@@ -613,182 +427,182 @@
    "ref": "managers",
    "n": 40,
    "T": {
-    "mean": 252.41499999999996,
-    "ciLow": 248.40353491236755,
-    "ciHigh": 256.4264650876324,
-    "sd": 12.54333105064814,
-    "p95": 273.06499999999994,
-    "min": 228.3,
-    "max": 279.2
+    "mean": 265.84000000000003,
+    "ciLow": 260.2373394650441,
+    "ciHigh": 271.44266053495596,
+    "sd": 17.518792839807848,
+    "p95": 296.16499999999996,
+    "min": 236,
+    "max": 301.6
    },
    "p180": {
     "p": 0,
     "lo": 0,
     "hi": 0.08762160245846368
    },
-   "meanExit": 132.29066591422125,
-   "insideAt180": 283.4,
+   "meanExit": 131.1123570353649,
+   "insideAt180": 291.275,
    "unresolved": 0,
    "trapped": 0,
    "regions": {
     "orchCentralAisles": {
-     "peak": 4.08815,
-     "timeAboveRef": 129.875,
-     "peakOcc": 147.175
+     "peak": 4.0867499999999986,
+     "timeAboveRef": 134.875,
+     "peakOcc": 147.125
     },
     "orchAccess": {
-     "peak": 3.7950000000000004,
-     "timeAboveRef": 64.775,
-     "peakOcc": 37.95
+     "peak": 4.01,
+     "timeAboveRef": 70.65,
+     "peakOcc": 40.1
     },
     "mezzExits": {
-     "peak": 1.36255,
+     "peak": 1.2423999999999995,
      "timeAboveRef": 0,
-     "peakOcc": 40.05
+     "peakOcc": 36.525
     },
     "corrSouth": {
-     "peak": 0.7588999999999999,
+     "peak": 1.0471749999999997,
      "timeAboveRef": 0,
-     "peakOcc": 34.45
+     "peakOcc": 47.55
     },
     "foyer": {
-     "peak": 0.7032750000000001,
+     "peak": 0.8543750000000001,
      "timeAboveRef": 0,
-     "peakOcc": 96.275
+     "peakOcc": 116.95
     },
     "portico": {
-     "peak": 0.6307,
+     "peak": 0.5764750000000001,
      "timeAboveRef": 0,
-     "peakOcc": 85.275
+     "peakOcc": 77.925
     },
     "balStairs": {
-     "peak": 1.4640999999999997,
+     "peak": 1.4491999999999998,
      "timeAboveRef": 0,
-     "peakOcc": 123.275
+     "peakOcc": 122.025
     }
    },
-   "personTimeAboveRef": 24668.55,
+   "personTimeAboveRef": 26245.575,
    "exposure": {
-    "mean": 24.432074999999998,
-    "p95": 108.71195,
-    "shareExposed": 0.8801749999999998
+    "mean": 19.667499999999997,
+    "p95": 75.973025,
+    "shareExposed": 0.888475
    },
    "usage": {
-    "FOYER": 626.775,
-    "PORTICO_W": 245.22499999999997,
-    "PORTICO_E": 237.95000000000007,
-    "STAGE_W": 64.075,
-    "STAGE_E": 62.225,
-    "BAL_NW": 46.92500000000001,
-    "BAL_NE": 45.82500000000001
+    "FOYER": 778.5250000000001,
+    "PORTICO_W": 166.34999999999997,
+    "PORTICO_E": 167.12499999999997,
+    "STAGE_W": 67.4,
+    "STAGE_E": 67.62500000000001,
+    "BAL_NW": 41.575,
+    "BAL_NE": 40.39999999999999
    },
    "behaviour": {
-    "exitSwitches": 198.25,
+    "exitSwitches": 213,
     "events": 0,
-    "flipFlops": 2.475,
-    "conflicts": 3.5,
-    "managerSwitches": 72.45,
-    "complied": 1055.75,
-    "followedShare": 0.68985,
-    "meanTrust": 1.0390999999999997
+    "flipFlops": 4.825,
+    "conflicts": 7.8,
+    "managerSwitches": 79.975,
+    "complied": 1056.55,
+    "followedShare": 0.760025,
+    "meanTrust": 1.040575
    },
    "managers": [
     {
      "id": "CM1",
      "maxR": 214,
-     "maxH": 309.55,
-     "meanH": 101.89000000000001,
-     "maxI": 179.4,
-     "reached": 402.375,
-     "complied": 319.175,
-     "changed": 35.725,
-     "switches": 17.775,
-     "overload": 144.975,
-     "maxW": 4.8755,
+     "maxH": 307.075,
+     "meanH": 93.96499999999997,
+     "maxI": 171.8,
+     "reached": 398.625,
+     "complied": 314.575,
+     "changed": 62.375,
+     "switches": 26.675,
+     "overload": 129.575,
+     "maxW": 4.895750000000001,
      "throughWall": 0,
-     "conflicts": 1.475
+     "conflicts": 2.55
     },
     {
      "id": "CM2",
      "maxR": 214,
-     "maxH": 306.625,
-     "meanH": 103.24749999999999,
-     "maxI": 173.6,
-     "reached": 403.825,
-     "complied": 320.8,
-     "changed": 35.4,
-     "switches": 19.05,
-     "overload": 143.575,
-     "maxW": 4.821,
+     "maxH": 303.85,
+     "meanH": 96.06249999999999,
+     "maxI": 166.675,
+     "reached": 397.075,
+     "complied": 315,
+     "changed": 63.525,
+     "switches": 28.325,
+     "overload": 134.225,
+     "maxW": 4.808,
      "throughWall": 0,
-     "conflicts": 1.65
+     "conflicts": 2.7
     },
     {
      "id": "CM3",
      "maxR": 307,
-     "maxH": 386.15,
-     "meanH": 140.97750000000002,
-     "maxI": 129,
-     "reached": 891.9,
-     "complied": 660.525,
-     "changed": 52.55,
-     "switches": 18.65,
-     "overload": 180.975,
-     "maxW": 5.70525,
+     "maxH": 387.7,
+     "meanH": 147.1175,
+     "maxI": 133.25,
+     "reached": 922.575,
+     "complied": 693,
+     "changed": 37.1,
+     "switches": 15.925,
+     "overload": 190.075,
+     "maxW": 5.778750000000001,
      "throughWall": 0,
-     "conflicts": 1.75
+     "conflicts": 5.2
     },
     {
      "id": "CM4",
      "maxR": 309,
-     "maxH": 386.05,
-     "meanH": 135.91750000000008,
-     "maxI": 142.75,
-     "reached": 888.275,
-     "complied": 654.425,
-     "changed": 10.625,
-     "switches": 2.775,
-     "overload": 177.325,
-     "maxW": 5.698500000000001,
+     "maxH": 387.8,
+     "meanH": 142.84500000000003,
+     "maxI": 167.675,
+     "reached": 917.75,
+     "complied": 687.7,
+     "changed": 14.15,
+     "switches": 4.35,
+     "overload": 186.1,
+     "maxW": 5.81175,
      "throughWall": 0,
-     "conflicts": 1.925
+     "conflicts": 5.1
     },
     {
      "id": "CM5",
      "maxR": 158,
      "maxH": 102.75,
-     "meanH": 15.329999999999998,
-     "maxI": 54.35,
-     "reached": 108.7,
-     "complied": 86.4,
-     "changed": 11.025,
-     "switches": 7.25,
-     "overload": 73.225,
-     "maxW": 2.1715000000000004,
+     "meanH": 14.690000000000007,
+     "maxI": 66.55,
+     "reached": 108.5,
+     "complied": 86,
+     "changed": 3.375,
+     "switches": 1.925,
+     "overload": 69.8,
+     "maxW": 2.153,
      "throughWall": 0,
-     "conflicts": 0.1
+     "conflicts": 0.025
     },
     {
      "id": "CM6",
      "maxR": 158,
-     "maxH": 102.05,
-     "meanH": 15.052500000000006,
-     "maxI": 52.55,
-     "reached": 108.1,
-     "complied": 85.95,
-     "changed": 11.525,
-     "switches": 6.95,
-     "overload": 69.05,
-     "maxW": 2.1717499999999994,
+     "maxH": 102.025,
+     "meanH": 14.412500000000003,
+     "maxI": 63.6,
+     "reached": 107.85,
+     "complied": 85.55,
+     "changed": 4.925,
+     "switches": 2.775,
+     "overload": 66.125,
+     "maxW": 2.155,
      "throughWall": 0,
-     "conflicts": 0.1
+     "conflicts": 0.025
     }
    ],
    "pairedVsRef": {
-    "meanDiff": -0.722499999999998,
-    "ciLow": -5.77763173626631,
-    "ciHigh": 4.332631736266313,
-    "worseShare": 0.575
+    "meanDiff": 12.702500000000004,
+    "ciLow": 6.20989679630922,
+    "ciHigh": 19.19510320369079,
+    "worseShare": 0.725
    }
   }
  }

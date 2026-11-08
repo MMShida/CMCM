@@ -1,0 +1,423 @@
+{
+ "date": "2026-11-08T08:58:58.596Z",
+ "runs": 40,
+ "seeds": [
+  1375190847,
+  1617371447,
+  845147624,
+  1401266910,
+  932136484,
+  513390313,
+  120337599,
+  1306833093,
+  416219162,
+  1974685126,
+  186240223,
+  567401738,
+  712291124,
+  239976273,
+  730749566,
+  324303681,
+  81221400,
+  2119916241,
+  1050268850,
+  1207849285,
+  1933721248,
+  331084209,
+  1319677955,
+  1149041317,
+  240321180,
+  1089275072,
+  524858644,
+  1709148190,
+  1944894010,
+  1874376101,
+  839198163,
+  1900434865,
+  1901915069,
+  912258884,
+  1608296752,
+  658313570,
+  895877759,
+  1524572454,
+  215013422,
+  496533374
+ ],
+ "models": [
+  "A"
+ ],
+ "results": {
+  "A|partial-m15": {
+   "model": "A",
+   "key": "partial-m15",
+   "group": "Partial redirection (Model A only, both adaptive)",
+   "label": "Managers see everything, partial redirection, margin 15 s",
+   "ref": "both",
+   "n": 40,
+   "T": {
+    "mean": 286.6574999999999,
+    "ciLow": 280.13291471474565,
+    "ciHigh": 293.1820852852542,
+    "sd": 20.401531962336957,
+    "p95": 322.18499999999995,
+    "min": 254.4,
+    "max": 341.1
+   },
+   "p180": {
+    "p": 0,
+    "lo": 0,
+    "hi": 0.08762160245846368
+   },
+   "meanExit": 137.52173626787055,
+   "insideAt180": 341.75,
+   "unresolved": 0,
+   "trapped": 0,
+   "regions": {
+    "orchCentralAisles": {
+     "peak": 4.099950000000001,
+     "timeAboveRef": 124.5,
+     "peakOcc": 147.6
+    },
+    "orchAccess": {
+     "peak": 4.067499999999999,
+     "timeAboveRef": 92.4,
+     "peakOcc": 40.675
+    },
+    "mezzExits": {
+     "peak": 1.3131499999999996,
+     "timeAboveRef": 0,
+     "peakOcc": 38.6
+    },
+    "corrSouth": {
+     "peak": 0.74075,
+     "timeAboveRef": 0,
+     "peakOcc": 33.625
+    },
+    "foyer": {
+     "peak": 0.7346999999999999,
+     "timeAboveRef": 0,
+     "peakOcc": 100.575
+    },
+    "portico": {
+     "peak": 0.6231500000000001,
+     "timeAboveRef": 0,
+     "peakOcc": 84.25
+    },
+    "balStairs": {
+     "peak": 1.4726249999999996,
+     "timeAboveRef": 0,
+     "peakOcc": 124
+    }
+   },
+   "personTimeAboveRef": 31357.775,
+   "exposure": {
+    "mean": 35.35412500000001,
+    "p95": 146.8132,
+    "shareExposed": 0.904625
+   },
+   "usage": {
+    "FOYER": 577.675,
+    "PORTICO_W": 247.84999999999997,
+    "PORTICO_E": 250.45000000000002,
+    "STAGE_W": 80.32499999999999,
+    "STAGE_E": 78.55000000000001,
+    "BAL_NW": 48.099999999999994,
+    "BAL_NE": 46.05000000000001
+   },
+   "behaviour": {
+    "exitSwitches": 314.075,
+    "events": 5171.625,
+    "flipFlops": 5.05,
+    "conflicts": 5.775,
+    "managerSwitches": 103.025,
+    "complied": 1055.875,
+    "followedShare": 0.6995499999999999,
+    "meanTrust": 1.037625
+   },
+   "managers": [
+    {
+     "id": "CM1",
+     "maxR": 214,
+     "maxH": 312.1,
+     "meanH": 94.62500000000001,
+     "maxI": 189.5,
+     "reached": 408.9,
+     "complied": 324.225,
+     "changed": 68.1,
+     "switches": 29.8,
+     "overload": 140.35,
+     "maxW": 4.968750000000001,
+     "throughWall": 0,
+     "conflicts": 2.55
+    },
+    {
+     "id": "CM2",
+     "maxR": 214,
+     "maxH": 307.75,
+     "meanH": 97.10999999999999,
+     "maxI": 182.575,
+     "reached": 410.225,
+     "complied": 326.65,
+     "changed": 66,
+     "switches": 30.15,
+     "overload": 143.725,
+     "maxW": 4.9095,
+     "throughWall": 0,
+     "conflicts": 2.825
+    },
+    {
+     "id": "CM3",
+     "maxR": 307,
+     "maxH": 385.15,
+     "meanH": 126.68250000000003,
+     "maxI": 135.625,
+     "reached": 865.275,
+     "complied": 642.15,
+     "changed": 68.325,
+     "switches": 25.15,
+     "overload": 178.5,
+     "maxW": 5.657000000000002,
+     "throughWall": 0,
+     "conflicts": 2.6
+    },
+    {
+     "id": "CM4",
+     "maxR": 309,
+     "maxH": 385.225,
+     "meanH": 122.81249999999997,
+     "maxI": 151.95,
+     "reached": 861.4,
+     "complied": 636.225,
+     "changed": 12.475,
+     "switches": 3.8,
+     "overload": 175.4,
+     "maxW": 5.671500000000001,
+     "throughWall": 0,
+     "conflicts": 3.2
+    },
+    {
+     "id": "CM5",
+     "maxR": 158,
+     "maxH": 102.75,
+     "meanH": 13.965,
+     "maxI": 60.825,
+     "reached": 108.3,
+     "complied": 86.1,
+     "changed": 11.25,
+     "switches": 6.95,
+     "overload": 68.575,
+     "maxW": 2.12925,
+     "throughWall": 0,
+     "conflicts": 0.2
+    },
+    {
+     "id": "CM6",
+     "maxR": 158,
+     "maxH": 102.025,
+     "meanH": 13.887499999999998,
+     "maxI": 59.225,
+     "reached": 107.825,
+     "complied": 85.875,
+     "changed": 12.25,
+     "switches": 7.175,
+     "overload": 65.975,
+     "maxW": 2.1805,
+     "throughWall": 0,
+     "conflicts": 0.175
+    }
+   ],
+   "pairedVsRef": {
+    "meanDiff": 30.972500000000004,
+    "ciLow": 23.896514230278672,
+    "ciHigh": 38.04848576972134,
+    "worseShare": 0.9
+   }
+  },
+  "A|partial-m30": {
+   "model": "A",
+   "key": "partial-m30",
+   "group": "Partial redirection (Model A only, both adaptive)",
+   "label": "Managers see everything, partial redirection, margin 30 s",
+   "ref": "both",
+   "n": 40,
+   "T": {
+    "mean": 283.07749999999993,
+    "ciLow": 276.5582562908887,
+    "ciHigh": 289.59674370911114,
+    "sd": 20.38482954652861,
+    "p95": 316.645,
+    "min": 252.7,
+    "max": 322.6
+   },
+   "p180": {
+    "p": 0,
+    "lo": 0,
+    "hi": 0.08762160245846368
+   },
+   "meanExit": 136.58210308502635,
+   "insideAt180": 332.675,
+   "unresolved": 0,
+   "trapped": 0,
+   "regions": {
+    "orchCentralAisles": {
+     "peak": 4.0951,
+     "timeAboveRef": 121.625,
+     "peakOcc": 147.425
+    },
+    "orchAccess": {
+     "peak": 4.004999999999998,
+     "timeAboveRef": 88.925,
+     "peakOcc": 40.05
+    },
+    "mezzExits": {
+     "peak": 1.3599249999999996,
+     "timeAboveRef": 0,
+     "peakOcc": 39.975
+    },
+    "corrSouth": {
+     "peak": 0.7016999999999999,
+     "timeAboveRef": 0,
+     "peakOcc": 31.85
+    },
+    "foyer": {
+     "peak": 0.7410749999999998,
+     "timeAboveRef": 0,
+     "peakOcc": 101.45
+    },
+    "portico": {
+     "peak": 0.6425750000000001,
+     "timeAboveRef": 0,
+     "peakOcc": 86.875
+    },
+    "balStairs": {
+     "peak": 1.4810249999999996,
+     "timeAboveRef": 0,
+     "peakOcc": 124.7
+    }
+   },
+   "personTimeAboveRef": 30338.725,
+   "exposure": {
+    "mean": 34.98752499999999,
+    "p95": 145.50840000000002,
+    "shareExposed": 0.9058749999999998
+   },
+   "usage": {
+    "FOYER": 576.325,
+    "PORTICO_W": 252.025,
+    "PORTICO_E": 253.14999999999992,
+    "STAGE_W": 78.35,
+    "STAGE_E": 75.30000000000001,
+    "BAL_NW": 47.099999999999994,
+    "BAL_NE": 46.75
+   },
+   "behaviour": {
+    "exitSwitches": 281.05,
+    "events": 5179.45,
+    "flipFlops": 4.425,
+    "conflicts": 4.6,
+    "managerSwitches": 87.325,
+    "complied": 1056.45,
+    "followedShare": 0.723975,
+    "meanTrust": 1.037575
+   },
+   "managers": [
+    {
+     "id": "CM1",
+     "maxR": 214,
+     "maxH": 312.025,
+     "meanH": 96.70000000000002,
+     "maxI": 190.85,
+     "reached": 407.925,
+     "complied": 323.775,
+     "changed": 62.9,
+     "switches": 26.875,
+     "overload": 140.2,
+     "maxW": 4.9597500000000005,
+     "throughWall": 0,
+     "conflicts": 2.35
+    },
+    {
+     "id": "CM2",
+     "maxR": 214,
+     "maxH": 307.7,
+     "meanH": 98.57500000000002,
+     "maxI": 185.125,
+     "reached": 411.975,
+     "complied": 327.475,
+     "changed": 58.175,
+     "switches": 27.425,
+     "overload": 142.825,
+     "maxW": 4.873000000000001,
+     "throughWall": 0,
+     "conflicts": 2.15
+    },
+    {
+     "id": "CM3",
+     "maxR": 307,
+     "maxH": 385.2,
+     "meanH": 127.07249999999999,
+     "maxI": 136,
+     "reached": 860.65,
+     "complied": 640.225,
+     "changed": 57.425,
+     "switches": 20.3,
+     "overload": 176.45,
+     "maxW": 5.619499999999999,
+     "throughWall": 0,
+     "conflicts": 2.1
+    },
+    {
+     "id": "CM4",
+     "maxR": 309,
+     "maxH": 384.875,
+     "meanH": 122.15,
+     "maxI": 154.275,
+     "reached": 856.15,
+     "complied": 633.575,
+     "changed": 11.3,
+     "switches": 3.525,
+     "overload": 173.175,
+     "maxW": 5.639249999999999,
+     "throughWall": 0,
+     "conflicts": 2.275
+    },
+    {
+     "id": "CM5",
+     "maxR": 158,
+     "maxH": 102.75,
+     "meanH": 14.1125,
+     "maxI": 63.85,
+     "reached": 108.325,
+     "complied": 85.975,
+     "changed": 8.475,
+     "switches": 5.025,
+     "overload": 67.425,
+     "maxW": 2.12125,
+     "throughWall": 0,
+     "conflicts": 0.225
+    },
+    {
+     "id": "CM6",
+     "maxR": 158,
+     "maxH": 102.025,
+     "meanH": 13.805000000000001,
+     "maxI": 63.9,
+     "reached": 107.8,
+     "complied": 85.7,
+     "changed": 8.375,
+     "switches": 4.175,
+     "overload": 64.325,
+     "maxW": 2.153,
+     "throughWall": 0,
+     "conflicts": 0.1
+    }
+   ],
+   "pairedVsRef": {
+    "meanDiff": 27.392499999999995,
+    "ciLow": 20.846171748631004,
+    "ciHigh": 33.93882825136899,
+    "worseShare": 0.925
+   }
+  }
+ }
+}

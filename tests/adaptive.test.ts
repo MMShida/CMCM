@@ -7,7 +7,7 @@ import { BAILEY_HALL } from '../src/geometry/BaileyHall';
 import { NetworkSimulation, runNetworkSimulation } from '../src/network/NetworkSimulation';
 import { ST } from '../src/simulation/Agent';
 import { buildRegions } from '../src/simulation/DensityRegions';
-import { balanceRedirects } from '../src/simulation/PartialRedirect';
+import { FluidQueue, balanceRedirects, buildLoad } from '../src/simulation/PartialRedirect';
 import type { CrowdManagerRT } from '../src/simulation/Guidance';
 import type { PolicyEnv } from '../src/simulation/ManagerPolicy';
 import { ManagerPolicy, newManager } from '../src/simulation/ManagerPolicy';
@@ -418,40 +418,59 @@ describe('density over time', () => {
 });
 
 describe('partial redirection by managers who see everything (Model A only)', () => {
+  // 200 people queue for an exit draining 4 p/s (50 s); an empty alternative drains 1 p/s, 15 s further
+  const twoExits = () => {
+    const qs = [new FluidQueue(4), new FluidQueue(1)];
+    for (let i = 0; i < 200; i++) qs[0].add(0, i);
+    for (const q of qs) q.build();
+    const cands = Array.from({ length: 200 }, (_, i) => ({
+      ids: [i],
+      start: 0,
+      stay: { to: 0, stops: [{ k: 0, walk: 0 }], tail: 0 },
+      alt: [{ to: 1, stops: [{ k: 1, walk: 15 }], tail: 0 }],
+    }));
+    return { qs, cands };
+  };
+
   it('balancing moves the analytical number of people: n* = (Q_a/c_a - dw) / (1/c_a + 1/c_b)', () => {
-    // 200 people queue for an exit draining 4 p/s (50 s); an empty alternative drains 1 p/s, 15 s further
-    const res = [
-      { T: 50, cap: 4 },
-      { T: 0, cap: 1 },
-    ];
-    const cands = Array.from({ length: 200 }, () => ({ stayRes: [0], stayWalk: 0, alt: [{ to: 1, res: [1], walk: 15 }], w: 1 }));
-    const { moved } = balanceRedirects(res, cands, 0, () => true);
+    const { qs, cands } = twoExits();
+    const { moved } = balanceRedirects(qs, cands, 0, () => true);
     // n* = (50 - 15) / (0.25 + 1) = 28: both exits then finish after about 43 s
     expect(moved).toBe(28);
-    expect(Math.abs(res[0].T - res[1].T)).toBeLessThan(1.5);
+    const lastA = qs[0].dep[qs[0].dep.length - 1];
+    const lastB = qs[1].dep[qs[1].dep.length - 1];
+    expect(Math.abs(lastA - lastB)).toBeLessThan(1.5);
+  });
+
+  it('a person keeps their place in the queue: only the people at the back are moved', () => {
+    const { qs, cands } = twoExits();
+    const movedIds: number[] = [];
+    balanceRedirects(qs, cands, 0, (i) => (movedIds.push(i), true));
+    expect(Math.min(...movedIds)).toBeGreaterThanOrEqual(200 - 28);
   });
 
   it('a person who does not comply is not counted as moved, and more people are asked instead', () => {
-    const res = [
-      { T: 50, cap: 4 },
-      { T: 0, cap: 1 },
-    ];
-    const cands = Array.from({ length: 200 }, () => ({ stayRes: [0], stayWalk: 0, alt: [{ to: 1, res: [1], walk: 15 }], w: 1 }));
+    const { qs, cands } = twoExits();
     let k = 0;
-    const out = balanceRedirects(res, cands, 0, () => k++ % 2 === 0);
-    expect(out.moved).toBe(28);
-    expect(out.asked).toBeGreaterThan(50);
+    const out = balanceRedirects(qs, cands, 0, () => k++ % 2 === 0);
+    expect(out.moved).toBeGreaterThan(18);
+    expect(out.moved).toBeLessThanOrEqual(28);
+    expect(out.asked).toBeGreaterThanOrEqual(2 * out.moved - 1);
   });
 
   it('a shared bottleneck is not relieved by sending people to another exit behind it', () => {
-    // both exits are reached through the same hall door (resource 0): moving gains nothing
-    const res = [
-      { T: 80, cap: 2 },
-      { T: 10, cap: 4 },
-      { T: 0, cap: 4 },
-    ];
-    const cands = Array.from({ length: 50 }, () => ({ stayRes: [0, 1], stayWalk: 0, alt: [{ to: 2, res: [0, 2], walk: 5 }], w: 1 }));
-    expect(balanceRedirects(res, cands, 0, () => true).moved).toBe(0);
+    // 160 people pass one hall door (2 p/s, 80 s) to the foyer; the portico is also behind that door
+    const stay = { to: 0, stops: [{ k: 0, walk: 0 }, { k: 1, walk: 2 }], tail: 0 };
+    const qs = buildLoad([2, 4, 4], Array.from({ length: 160 }, (_, i) => ({ id: i, start: 0, route: stay })), 3);
+    // chained arrivals: the foyer door behind the hall door has no queue of its own
+    expect(qs[1].dep[159] - qs[1].arr[159]).toBeLessThan(0.3);
+    const cands = Array.from({ length: 160 }, (_, i) => ({
+      ids: [i],
+      start: 0,
+      stay: { to: 0, stops: [{ k: 0, walk: 0 }, { k: 1, walk: 2 }], tail: 0 },
+      alt: [{ to: 1, stops: [{ k: 0, walk: 0 }, { k: 2, walk: 5 }], tail: 0 }],
+    }));
+    expect(balanceRedirects(qs, cands, 0, () => true).moved).toBe(0);
   });
 
   it('in the simulation: people are redirected, nobody twice, every exit is valid, runs are reproducible, default unchanged', () => {

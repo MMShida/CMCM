@@ -53,8 +53,9 @@ import type { ManagerState, PolicyEnv } from './ManagerPolicy';
 import { ManagerPolicy, newManager, plannedGroups, reassign, workloadIndex } from './ManagerPolicy';
 import { planExitIndex } from './Plan';
 import { placementPosts } from './Placements';
-import type { RedirectCandidate, Resource } from './PartialRedirect';
-import { balanceRedirects } from './PartialRedirect';
+import type { PlanRoute, RedirectCandidate } from './PartialRedirect';
+import { balanceRedirects, buildLoad } from './PartialRedirect';
+import { OUTWARD_ONLY } from './Routing';
 import { RNG } from './Random';
 import type { SimulationEngine } from './SimulationEngine';
 
@@ -94,14 +95,24 @@ export class GuidanceSystem {
   readonly partial: boolean;
   /** exit group a manager personally assigned to each person (-1 = none); known to every manager */
   private assigned: Int16Array = new Int16Array(0);
-  /** partial mode: pooled bottleneck (parallel doors) of every gate link, -1 for other links */
+  /** partial mode: bottleneck (a gate, or parallel doors close together) of every gate link, -1 otherwise */
   private resOf: Int32Array | null = null;
   private resCap: number[] = [];
-  private routeRes = new Map<number, number[]>();
+  /** static route shapes (links, directions, reference walking time) from a node to an exit group */
+  private routeShape = new Map<number, { links: number[]; dirs: number[]; dt: number[]; valid: boolean }>();
   private lastPartial = -Infinity;
+  /** partial mode: links that are walkway bottlenecks (their congestion is in the queue, not in the speed) */
+  private isWalkRes: Uint8Array = new Uint8Array(0);
+  /** per gate: passes and queue at the previous review, measured throughput while saturated (NaN = none) */
+  private gPasses: Int32Array = new Int32Array(0);
+  private gQueued: Uint8Array = new Uint8Array(0);
+  private gRate: Float64Array = new Float64Array(0);
+  private gLastT = -Infinity;
   /** partial redirection totals: instructions given / adopted */
   partialAsked = 0;
   partialMoved = 0;
+  /** diagnostics: predicted finish (absolute time) of people moved (first 3000) */
+  readonly partialLog: { t: number; agent: number; from: number; to: number; finish: number; stay: number }[] = [];
 
   constructor(sim: SimulationEngine) {
     this.sim = sim;
@@ -394,81 +405,154 @@ export class GuidanceSystem {
   }
 
   /**
-   * Partial, capacity-sized redirection (see PartialRedirect.ts). Candidates are the people within
-   * earshot of an active manager (walls block the voice) who have not been re-assigned yet; group
-   * members following their leader move with the leader. Each instruction is delivered at once and
-   * counts as moved only if the person adopts it.
+   * Partial, capacity-sized redirection (see PartialRedirect.ts). The managers predict every
+   * person's own exit time with first-come-first-served queues at the bottlenecks (arrival times
+   * from the crowd's current speed), and move people within earshot who are already walking and
+   * have not been re-assigned yet (group members move with the leader) when another exit is
+   * clearly earlier for them. Each instruction counts as moved only if the person adopts it.
    */
   private partialRedirect(t: number, R: number) {
     const sim = this.sim;
     const g = sim.graph;
     const C = sim.cfg.crowdManagers;
+    const A = sim.cfg.adaptive;
     const nG = EXIT_GROUPS.length;
     if (!this.resOf) this.setupResources();
     const resOf = this.resOf!;
     const fields = sim.staffFields(false);
     const open = EXIT_GROUPS.map((_, gi) => !sim.staffPlanBlocked(gi));
-    // pooled bottlenecks on the static staff route from node u to exit group gi (cached)
-    const staticRes = (u: number, gi: number): number[] => {
-      const key = u * 16 + gi;
-      const hit = this.routeRes.get(key);
-      if (hit) return hit;
-      const out: number[] = [];
-      const f = fields[gi];
-      let v = u;
-      for (let guard = 0; guard < 2000 && v >= 0 && f.next[v] >= 0; guard++) {
-        const e = g.adj[v][f.next[v]];
-        const k = resOf[e.link];
-        if (k >= 0 && !out.includes(k)) out.push(k);
-        v = e.other;
-      }
-      this.routeRes.set(key, out);
-      return out;
-    };
-    // the managers see the crowd: a route that walks against a dense opposing stream (opposing
-    // persons / link area > redirectCounterflow on any non-row link) is not offered
-    const cfMax = sim.cfg.adaptive.redirectCounterflow;
     const mv = sim.movement;
-    const againstCrowd = (u: number, gi: number): boolean => {
+    const nL = g.links.length;
+    // what the managers see on every link: walkers per direction (desired vs actual speed, the desired
+    // speed already includes stairs) and people standing in a queue (and for which gate)
+    const sDes = new Float64Array(2 * nL);
+    const sV = new Float64Array(2 * nL);
+    const standing = new Float64Array(nL);
+    const standingFor = new Map<number, Map<number, number>>();
+    for (const a of sim.agents) {
+      if (a.done || !a.inside || a.link < 0) continue;
+      if (a.waitTarget >= 0) {
+        standing[a.link]++;
+        let m = standingFor.get(a.link);
+        if (!m) standingFor.set(a.link, (m = new Map()));
+        m.set(a.waitTarget, (m.get(a.waitTarget) ?? 0) + 1);
+        continue;
+      }
+      if (a.state < ST.MOVING || a.state > ST.REUNITING) continue;
+      const d = 2 * a.link + (a.dir > 0 ? 0 : 1);
+      sDes[d] += a.vDes > 0 ? a.vDes : a.v0;
+      sV[d] += a.v;
+    }
+    const cfMax = A.redirectCounterflow;
+    // people on link li who are in the way of somebody walking in direction d whose next gate is `next`
+    const obstacles = (li: number, d: number, next: number) => {
+      const own = next >= 0 ? (standingFor.get(li)?.get(next) ?? 0) : 0;
+      const oppWalk = Math.max(0, mv.dirCount[2 * li + (1 - d)]);
+      return Math.max(0, oppWalk + standing[li] - own);
+    };
+    const slowDir = (li: number, d: number, next: number) => {
+      const k = 2 * li + d;
+      if (sDes[k] > 0) return Math.min(10, Math.max(1, sDes[k] / Math.max(0.05 * sDes[k], sV[k])));
+      const L = g.links[li];
+      const o = obstacles(li, d, next);
+      // nobody walks this way: slowed by the people in the way (assumed: x3 at 1 person/m2)
+      return o > 0 ? Math.min(10, 1 + (2 * o) / (L.len * Math.max(0.5, L.width))) : 1;
+    };
+    // static route shape from node u to exit group gi (stops at the exterior door; invalid if it
+    // would pass an outward-only door inwards)
+    const shape = (u: number, gi: number) => {
+      const key = u * 16 + gi;
+      const hit = this.routeShape.get(key);
+      if (hit) return hit;
       const f = fields[gi];
+      const sh = { links: [] as number[], dirs: [] as number[], dt: [] as number[], valid: Number.isFinite(f.dist[u]) };
       let v = u;
       for (let guard = 0; guard < 2000 && v >= 0 && f.next[v] >= 0; guard++) {
         const e = g.adj[v][f.next[v]];
         const L = g.links[e.link];
-        if (!L.isRow && L.len > 0.5) {
-          const opp = mv.dirCount[2 * e.link + (L.a === v ? 1 : 0)];
-          if (opp / (L.len * Math.max(0.5, L.width)) > cfMax) return true;
-        }
+        const d = L.a === v ? 0 : 1;
+        if (d === 1 && OUTWARD_ONLY.test(L.id)) sh.valid = false;
+        sh.links.push(e.link);
+        sh.dirs.push(d);
+        sh.dt.push(Math.max(0, f.dist[v] - f.dist[e.other]));
+        if (L.exterior) break;
         v = e.other;
       }
-      return false;
+      this.routeShape.set(key, sh);
+      return sh;
+    };
+    // a person's route as the managers predict it (walk times at the crowd's speed); `blocked` if it
+    // walks against a dense opposing stream or through standing people (> redirectCounterflow p/m2)
+    const plan = (a: Agent, gi: number): (PlanRoute & { blocked: boolean; walk: number; first: number }) | null => {
+      const est = sim.routing.estimateFrom(a, fields[gi]);
+      if (!Number.isFinite(est.cost)) return null;
+      const sh = shape(est.node, gi);
+      if (!sh.valid) return null;
+      const ts = 1.2 / Math.max(0.3, a.v0);
+      let acc = Math.max(0, est.cost - fields[gi].dist[est.node] * ts);
+      if (a.link >= 0) acc *= slowDir(a.link, a.dir > 0 ? 0 : 1, sh.links.length && resOf[sh.links[0]] >= 0 ? sh.links[0] : -1);
+      let walk = acc;
+      let blocked = false;
+      const stops: PlanRoute['stops'] = [];
+      for (let i = 0; i < sh.links.length; i++) {
+        const li = sh.links[i];
+        const k = resOf[li];
+        if (k >= 0) {
+          stops.push({ k, walk: acc });
+          acc = 0;
+        }
+        const next = i + 1 < sh.links.length && resOf[sh.links[i + 1]] >= 0 ? sh.links[i + 1] : -1;
+        const L = g.links[li];
+        if (!L.isRow && L.len > 0.5 && obstacles(li, sh.dirs[i], next) / (L.len * Math.max(0.5, L.width)) > cfMax && sDes[2 * li + sh.dirs[i]] === 0) blocked = true;
+        const dt = sh.dt[i] * ts;
+        acc += dt * (this.isWalkRes[li] ? 1 : slowDir(li, sh.dirs[i], next));
+        walk += dt;
+      }
+      return { to: gi, stops, tail: acc, blocked, walk, first: sh.links[0] ?? -1 };
     };
     const headingFor = (a: Agent) => (a.targetGroup >= 0 ? a.targetGroup : a.cmGroup >= 0 ? a.cmGroup : planExitIndex(C.plan, sim.geo, a.seat));
-    // current route resources of a person: the remaining planned path, else the static route
-    const currentRes = (a: Agent, gh: number): number[] => {
-      if (a.pathValid && a.targetGroup === gh && a.pathPos < a.pathNodes.length) {
-        const out: number[] = [];
-        for (let i = a.pathPos; i < a.pathNodes.length; i++) {
-          const ad = a.pathAdj[i];
-          if (ad < 0) continue;
-          const k = resOf[g.adj[a.pathNodes[i]][ad].link];
-          if (k >= 0 && !out.includes(k)) out.push(k);
-        }
-        return out;
-      }
-      return staticRes(sim.routing.estimateFrom(a, fields[gh]).node, gh);
+    // expected time until a seated person starts walking (the managers know the typical response)
+    const startDelay = (a: Agent) => {
+      if (a.state >= ST.MOVING) return 0;
+      const aware = Number.isNaN(a.tAware) ? a.tRecognition : a.tAware;
+      return Math.max(0, aware + a.tResponse + a.tPrepare - t);
     };
-    const res: Resource[] = this.resCap.map((c) => ({ T: 0, cap: c }));
-    const cur = new Map<number, number[]>();
+    // everybody's load at the bottlenecks of their predicted route (arrivals chained through the queues)
+    const stayRoute = new Map<number, ReturnType<typeof plan>>();
+    const people: { id: number; start: number; route: PlanRoute }[] = [];
     for (const a of sim.agents) {
       if (a.done || !a.inside || a.wheelchair) continue;
       const gh = headingFor(a);
       if (gh < 0 || !open[gh]) continue;
-      const rs = currentRes(a, gh);
-      cur.set(a.id, rs);
-      for (const k of rs) res[k].T += 1;
+      const r = plan(a, gh);
+      if (!r) continue;
+      stayRoute.set(a.id, r);
+      people.push({ id: a.id, start: startDelay(a), route: r });
     }
-    for (const r of res) r.T = r.cap > 0 ? r.T / r.cap : 0;
+    // the managers see how many people actually get through a door that has a queue: per gate, the
+    // passes between two reviews when it had a queue (>= 2 waiting) at both; used only while it is
+    // still queued; a pool counts saturated doors at their measured rate and the others at their rating
+    {
+      const dt = t - this.gLastT;
+      for (let li = 0; li < nL; li++) {
+        if (!g.links[li].gate) continue;
+        const qn = sim.gates.queueNow[li] >= 2 ? 1 : 0;
+        if (Number.isFinite(dt) && dt > 0 && qn && this.gQueued[li]) {
+          const r = (sim.gates.passes[li] - this.gPasses[li]) / dt;
+          this.gRate[li] = Number.isNaN(this.gRate[li]) ? r : 0.5 * this.gRate[li] + 0.5 * r;
+        } else if (!qn) this.gRate[li] = NaN;
+        this.gPasses[li] = sim.gates.passes[li];
+        this.gQueued[li] = qn;
+      }
+      this.gLastT = t;
+    }
+    const capNow = this.resCap.slice();
+    for (let li = 0; li < nL; li++) {
+      const k = resOf[li];
+      if (k < 0 || !g.links[li].gate || Number.isNaN(this.gRate[li])) continue;
+      capNow[k] -= Math.max(0, sim.gates.cap[li] - Math.max(0.05, Math.min(sim.gates.cap[li], this.gRate[li])));
+    }
+    const qs = buildLoad(capNow.map((c) => Math.max(0.05, c)), people, 3);
     const followers = (a: Agent) =>
       a.group >= 0 && a.groupLeader && !sim.groupBroken[a.group] && !sim.cfg.population.groupMeetOutside
         ? sim.groups[a.group].map((id) => sim.agents[id]).filter((m) => m !== a && !m.done && m.inside && !m.groupLeader)
@@ -480,85 +564,109 @@ export class GuidanceSystem {
       if (t < cm.tActive) continue;
       sim.forEachNear(cm.post.x, cm.post.y, cm.post.floor, R, (a) => {
         if (seen[a.id] || a.done || !a.inside || a.wheelchair || this.assigned[a.id] >= 0) return;
-        // only people already walking: the crowd they will meet is visible now (a seated person sent
-        // to the stage at t = 10 s walks there a minute later against the stream going up)
+        // only people already walking: the crowd they will meet is visible now
         if (a.state < ST.MOVING || a.state > ST.REUNITING) return;
         if (a.group >= 0 && !a.groupLeader && !sim.groupBroken[a.group] && !sim.cfg.population.groupMeetOutside) return; // follows the leader
         if (!this.inReach(cm, a, R)) return;
         const gh = headingFor(a);
-        if (gh < 0 || !cur.has(a.id)) return;
+        const stay = stayRoute.get(a.id);
+        if (gh < 0 || !stay) return;
         seen[a.id] = 1;
         const members = followers(a);
-        const alt: RedirectCandidate['alt'] = [];
-        const stayWalk = sim.routing.estimateFrom(a, fields[gh]).cost;
-        const maxDetour = sim.cfg.adaptive.redirectMaxDetour;
+        const alt: PlanRoute[] = [];
         for (let gi = 0; gi < nG; gi++) {
           if (gi === gh || !open[gi]) continue;
-          const est = sim.routing.estimateFrom(a, fields[gi]);
-          if (!Number.isFinite(est.cost)) continue;
-          // physically sensible only: no long detour (it means walking against the crowd in the
-          // aisles) and no U-turn on the link the person is walking along
-          if (est.cost > stayWalk + maxDetour) continue;
-          if (a.link >= 0 && fields[gi].next[est.node] >= 0 && g.adj[est.node][fields[gi].next[est.node]].link === a.link) continue;
-          if (againstCrowd(est.node, gi)) continue;
-          alt.push({ to: gi, res: staticRes(est.node, gi), walk: est.cost });
+          const r = plan(a, gi);
+          if (!r || r.blocked) continue;
+          // no long detour and no U-turn on the link being walked
+          if (r.walk > stay.walk + A.redirectMaxDetour) continue;
+          if (a.link >= 0 && r.first === a.link && g.links[a.link] && stay.first !== a.link) continue;
+          alt.push(r);
         }
         if (!alt.length) return;
-        cands.push({ stayRes: cur.get(a.id)!, stayWalk, alt, w: 1 + members.length });
+        cands.push({ ids: [a.id, ...members.map((m) => m.id)], start: 0, stay, alt });
         who.push({ a, cm, members, from: gh });
       });
     }
     if (!cands.length) return;
     const moves = new Map<string, number>();
-    const out = balanceRedirects(res, cands, sim.cfg.adaptive.redirectMargin, (i, to) => {
+    const out = balanceRedirects(qs, cands, A.redirectMargin, (i, to, finish, stay) => {
       const { a, cm, members, from } = who[i];
-      this.assigned[a.id] = to;
       a.knownExits |= 1 << to;
+      this.assigned[a.id] = to;
       this.instructAdaptive(a, cm, true);
       this.heardBy[a.id * this.cms.length + cm.idx] = cm.version;
       const ok = a.cmGroup === to && (a.targetGroup === to || a.state < ST.MOVING);
-      if (ok) {
-        // the group goes with its leader: the managers then tell the members the same exit
-        for (const m of members) {
-          this.assigned[m.id] = to;
-          m.knownExits |= 1 << to;
-        }
-        const k = `${cm.idx}|${from}|${to}`;
-        moves.set(k, (moves.get(k) ?? 0) + cands[i].w);
+      if (!ok) return false;
+      if (this.partialLog.length < 3000) this.partialLog.push({ t, agent: a.id, from, to, finish: t + finish, stay: t + stay });
+      // the group goes with its leader: the managers then tell the members the same exit
+      for (const m of members) {
+        this.assigned[m.id] = to;
+        m.knownExits |= 1 << to;
       }
-      return ok;
+      const k = `${cm.idx}|${from}|${to}`;
+      moves.set(k, (moves.get(k) ?? 0) + 1 + members.length);
+      return true;
     });
     this.partialAsked += out.asked;
     this.partialMoved += out.moved;
     for (const [k, n] of moves) {
       const [mi, from, to] = k.split('|').map(Number);
-      this.cms[mi].history.push({ t, planned: from, from, to, reason: `${n} people sent from ${EXIT_GROUPS[from]} to ${EXIT_GROUPS[to]} (bottleneck balancing)` });
+      this.cms[mi].history.push({ t, planned: from, from, to, reason: `${n} people sent from ${EXIT_GROUPS[from]} to ${EXIT_GROUPS[to]} (own exit time earlier)` });
     }
   }
 
-  /** pooled bottlenecks: doors joining the same two rooms are one resource; every other gate is its own */
+  /**
+   * Bottlenecks: every gate is one, except that doors joining the same two rooms AND lying within
+   * 6 m of each other (F1-F5, FC1-FC3, P1+P2, ...) form one pool with the summed capacity; doors of
+   * the same rooms far apart (D1 ... D9 around the hall) stay separate.
+   */
   private setupResources() {
     const sim = this.sim;
     const g = sim.graph;
     const resOf = new Int32Array(g.links.length).fill(-1);
-    const key = new Map<string, number>();
     const caps: number[] = [];
+    const pools: { key: string; pts: [number, number][]; id: number }[] = [];
     g.links.forEach((L, li) => {
       if (!L.gate || L.prohibited) return;
-      const sa = this.space[L.a];
-      const sb = this.space[L.b];
-      const k = L.kind === 'door' || L.exterior ? `d${Math.min(sa, sb)}-${Math.max(sa, sb)}-${L.exterior ? 'x' : ''}` : `g${li}`;
-      let id = key.get(k);
-      if (id === undefined) {
+      const na = g.nodes[L.a];
+      const nb = g.nodes[L.b];
+      const mid: [number, number] = [(na.x + nb.x) / 2, (na.y + nb.y) / 2];
+      let id = -1;
+      if (L.kind === 'door' || L.exterior) {
+        const sa = this.space[L.a];
+        const sb = this.space[L.b];
+        const key = `${Math.min(sa, sb)}-${Math.max(sa, sb)}-${L.exterior ? 'x' : ''}-${sim.nodeFloorDisp[L.a]}`;
+        const pool = pools.find((p) => p.key === key && p.pts.some((q) => Math.hypot(q[0] - mid[0], q[1] - mid[1]) <= 6));
+        if (pool) {
+          pool.pts.push(mid);
+          id = pool.id;
+        } else {
+          id = caps.length;
+          caps.push(0);
+          pools.push({ key, pts: [mid], id });
+        }
+      } else {
         id = caps.length;
-        key.set(k, id);
         caps.push(0);
       }
       resOf[li] = id;
       caps[id] += Math.max(0, sim.gates.cap[li]);
     });
+    // narrow walkways (aisles, side passages, corridors up to 2.5 m) are bottlenecks too: capacity =
+    // width x the specific flow used for doors (movement.doorFlow); stairs are gated already
+    const q = sim.cfg.movement.doorFlow;
+    g.links.forEach((L, li) => {
+      if (L.gate || L.isRow || L.prohibited || L.exterior || L.len < 2 || L.width > 2.5) return;
+      resOf[li] = caps.length;
+      caps.push(Math.max(0.5, L.width * q));
+    });
     this.resOf = resOf;
     this.resCap = caps;
+    this.isWalkRes = Uint8Array.from(g.links, (L, li) => (resOf[li] >= 0 && !L.gate ? 1 : 0));
+    this.gPasses = new Int32Array(g.links.length);
+    this.gQueued = new Uint8Array(g.links.length);
+    this.gRate = new Float64Array(g.links.length).fill(NaN);
   }
 
   private refreshZoneMasks() {

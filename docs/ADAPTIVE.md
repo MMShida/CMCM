@@ -225,28 +225,37 @@ Without radio, contradictions are possible. When a person receives one, it is co
 
 ### Partial redirection by managers who see everything (`redirectMode = 'partial'`, Model A only)
 
-This mode was added to test a project premise: from their posts the managers see the whole building, they all know the same plan and the same state (so they agree), and they redirect **part** of a flow, sized to the free capacity, instead of a whole planned exit. Model B keeps the zone rule. Code: `src/simulation/PartialRedirect.ts` and `GuidanceSystem.partialRedirect`.
+This mode tests a project premise. From their posts the managers see the whole building, and they all know the same plan and the same state, so they agree. Instead of moving a whole planned exit, they redirect **part** of a flow: the end of the foyer queue goes to other exits as long as that is faster for those people. Model B keeps the zone rule. Code: `src/simulation/PartialRedirect.ts`, `GuidanceSystem.partialRedirect` and `setupResources`.
 
-- **View:** every manager observes every gate of the building (with the observation delay); the zone-level redirection of the policy is switched off, while closures are still acted on at once.
-- **Bottlenecks, not exits:** a resource is a set of parallel doors (all doors joining the same two rooms, e.g. F1-F4 or FC1-FC3) or a single other gate (stair entry). Its capacity is the sum of the gate capacities. Its clearing time T_k starts as (persons whose route crosses it) / capacity.
-- **Every review (5 s), for each person within earshot who is already walking** and has not been re-assigned yet (a group leader moves with the group), most delayed first:
-
-      stay         = max(walk to the current exit, max T_k on the current route)
-      finish via b = max over the resources k on the route to b of ( max(T_k, walk_b) + w / c_k )
-      move to the best b if finish < stay - redirectMargin; then update T_k on both routes
-
-  For one exit with an empty alternative this moves n* = (Q_a/c_a - Δw) / (1/c_a + 1/c_b) people (tested). Shared hall doors count once, so sending people from the foyer to a portico through the same auditorium door gains nothing and is not done.
+- **What the managers see:**
+  - every queue, every person's position and heading, and the speed of the crowd on every link and direction (desired speed vs actual speed, with stairs included in the desired speed);
+  - the people standing in queues;
+  - the throughput of every door that has a queue.
+- **Bottlenecks:**
+  - every gate (doors, stair entries);
+  - doors joining the same two rooms *and* within 6 m of each other form one pool (F1-F5, FC1-FC3, P1+P2, ...), while D1-D9 around the hall stay separate;
+  - every narrow walkway (aisles, side passages, corridors up to 2.5 m wide), with capacity = width × `movement.doorFlow`.
+  - On a door with a queue at two consecutive reviews, the measured throughput replaces the rating while the queue lasts.
+- **Each person's own exit time** (what the managers predict):
+  - every bottleneck is a first-come-first-served queue: d_i = max(a_i, d_{i-1}) + 1/c;
+  - everybody's arrivals are chained through the queues (three passes), so people held back at an upstream door do not appear early at the doors behind it;
+  - seated people arrive after their expected response time;
+  - a person's exit time along a route is chained door by door; at the queues they are already in, they keep their place.
+- **Rule (every 5 s):**
+  - for each person within earshot who is already walking and has not been re-assigned yet (a group leader moves with the group), from the latest predicted exit down;
+  - move them to the alternative with the earliest own exit if it is earlier than staying by more than `redirectMargin`;
+  - then update the queues.
+  - With one queued exit and an empty alternative this moves exactly n* = (Q_a/c_a − Δw)/(1/c_a + 1/c_b) (tested: 28 in the worked example).
 - **Physical limits:**
-  - at most `redirectMaxDetour` = 20 s longer on foot;
-  - no U-turn on the link being walked;
-  - no route against an opposing stream denser than `redirectCounterflow` = 0.5 p/m² on any link;
-  - only people already walking, because a seated person sent to the stage at t = 10 s walks there a minute later against the stream going up.
+  - no detour above `redirectMaxDetour` = 20 s;
+  - no U-turn;
+  - no route against an opposing stream or through standing people denser than `redirectCounterflow` = 0.5 p/m²;
+  - no route that passes an outward-only door inwards.
 - **Delivery:**
-  - the instruction is personal and coordinated (no contradiction is counted);
+  - the instruction is personal and coordinated (not counted as a contradiction);
   - it is adopted only with compliance × trust and the person's own choice;
-  - every manager then tells that person the same exit;
-  - the next review starts from the real state.
-- All three limits and the margin are assumptions; none is measured.
+  - every manager then gives that person the same exit.
+- The margin, the limits, the 6 m pooling distance and the walkway capacity are assumptions.
 
 ### Formal reassignment (`reassign = 'whenClear'`)
 
@@ -369,7 +378,7 @@ The UI is checked by `scripts/ui-check-dynamics.mjs` (headless Chrome, no page e
 
 ## 7. Validation (automated tests, `tests/adaptive.test.ts`)
 
-All 28 new tests pass; the whole suite is 123 tests.
+All 29 new tests pass; the whole suite is 124 tests.
 
 - **Legacy:** both switches off reproduce the stored pre-change results exactly (A and B).
 - **Information:** beliefs are learned with time stamps and confidence; no belief is from the future.
@@ -390,7 +399,12 @@ All 28 new tests pass; the whole suite is 123 tests.
   - a closure is acted on at once;
   - no double counting: people already sent to the instructed exit are not added to its load again;
   - a lead counts the people its following peers would move (and not when coordination is off);
-  - partial redirection: the balancing moves the analytical n* (28 in the worked example), non-compliers are not counted as moved, a shared bottleneck is not "relieved" by another exit behind it, and in the simulation nobody is redirected twice, every exit is valid, runs are reproducible and the default mode is unchanged.
+  - partial redirection:
+    - the balancing moves the analytical n* (28 in the worked example);
+    - a person keeps their place in the queue (only the people at the back are moved);
+    - non-compliers are not counted as moved;
+    - chained arrivals leave no phantom queue behind an upstream door, and a shared bottleneck is not "relieved" by another exit behind it;
+    - in the simulation nobody is redirected twice, every exit is valid, runs are reproducible and the default mode is unchanged.
 - **Scope:**
   - reach changes as people move (more than 10 enter and more than 10 leave a manager's reach between 25 s and 70 s);
   - walls block the voice;
@@ -551,22 +565,34 @@ In Model A higher compliance helps the fixed model, and the advantage of adaptat
 
 ### 9.10 Partial redirection by managers who see everything (Model A only)
 
-40 paired seeds, both adaptive unless stated; Δ against "both adaptive" with the usual zone rule. Results file: `results/adaptive/experiments-partial-redirection-A.json`.
+40 paired seeds; Δ against "both adaptive" with the usual zone rule (255.7 s) unless stated. Final results: `results/adaptive/experiments-partial-redirection-A.json`; the two earlier versions are kept in `results/adaptive/superseded-2026-11-08-partial/`.
 
-| Configuration | T (s) | Δ [95 % CI] | Worse in | Exposure mean | Manager instructions changed / run |
-|---|---|---|---|---|---|
-| Both adaptive, zone rule (reference) | 255.7 | – | – | 21.7 | 0.0 |
-| Partial, margin 5 s | 276.9 | **+21.2 [16.3, 26.2]** | 93 % | 36.8 | 90.7 |
-| Partial, margin 15 s | 266.3 | +10.6 [7.2, 14.1] | 83 % | 35.1 | 70.3 |
-| Partial, margin 30 s | 259.0 | +3.1 [−1.3, 7.4] | 59 % | 31.2 | 49.3 |
-| Partial 15 s, previous individuals (vs adaptive managers 253.1) | 252.4 | −0.7 [−5.8, 4.3] | 57 % | 24.4 | 72.5 |
+| Estimator version | Margin | T (s) | Δ [95 % CI] | Worse in |
+|---|---|---|---|---|
+| v1: exit-level drain times (first version) | 5 / 15 / 30 s | 276.9 / 266.3 / 259.0 | +21.2 / +10.6 / +3.1 [−1.3, 7.4] | 93 / 83 / 59 % |
+| v2: + crowd speed, pooled measured throughput (defective, see below) | 15 / 30 s | 286.7 / 283.1 | +31.0 / +27.4 | 90 / 93 % |
+| **v3 (current): own exit time, chained FCFS queues, aisles as bottlenecks** | 15 / 30 s | 284.2 / 283.7 | **+28.5 [20.3, 36.8] / +28.0 [19.0, 37.0]** | 83 / 88 % |
+| v3 with the previous (non-adaptive) individuals, vs adaptive managers (253.1 s) | 15 s | 265.8 | +12.7 [6.2, 19.2] | 73 % |
 
-- **Even with a perfect view, partial redirection does not shorten the evacuation in Model A.** The more aggressive it is, the worse it gets; at a 30 s margin, or with the previous (non-adaptive) individuals, it makes no detectable difference.
-- **Why:**
-  1. **The jam in the centre is upstream of the exits.** It is the queue for the hall doors Access W3 / E3 (about 125 people), which the foyer and portico routes share. Sending people to another exit behind the same door adds no capacity; with the shared doors counted correctly, few such moves pass.
-  2. **The stage exits are small** (about 1 p/s each), and from the centre they are reached down the aisle against the stream going up. During development, versions without the counterflow and "already walking" limits were 30-100 s slower on single seeds: the stage route then finished last.
-  3. **Adaptive individuals already re-balance locally.** Redirections come on top of their own switches (exit switches 80 → 194-319 per run), the target exits overshoot and exposure above 2 p/m² rises (21.7 → 31-37).
-- **Consequence for the 180 s question:** the gain has to come from capacity or timing before the jam forms, not from redirecting people once they queue in the centre. That means a plan that assigns rows to the stage and portico exits before people move (the optimised plan of the package), more width at the shared hall doors, or a shorter pre-movement. The theoretical n* only helps when the alternative has its own capacity and can be reached without crossing the main stream.
+- **No version shortens the evacuation.** The best one is neutral (v1 with a 30 s margin). The more precise v3 is worse.
+- **How v3 was checked:**
+  - Every person moved was logged with the predicted and the actual exit time.
+  - After the fixes, moves between the foyer and the porticos are predicted to within 7-18 s, and the people moved leave earlier than predicted for staying.
+  - **Moves to the stage exits stay 35-100 s too optimistic.** Those decisions are made early (t ≈ 20-50 s), before the aisles fill. The congestion that forms when everybody else starts walking is not visible yet. The stage exits are small (≈ 1 p/s) and lie down the aisle, against the stream going up. Once 20-30 extra people are sent there, the stage exits finish last.
+  - A diagnostic run without stage targets (5 seeds, not kept in the code) is neutral: 255.5 vs 254.7 s. There the managers even move people *from* the porticos *to* the foyer.
+- **The v2 defects** were found by an independent review (44 agents, every finding checked by two skeptics); all were fixed in v3:
+  1. D1-D9 were pooled as one 9-door bottleneck;
+  2. throughput was measured on unsaturated pools;
+  3. standing queues were ignored in the crowd speed;
+  4. the clearing time of a whole resource was used instead of the person's own exit time;
+  5. arrivals downstream of a queue were unchained;
+  6. stairs were counted twice;
+  7. routes passed outward-only doors inwards.
+- **Why the premise does not deliver here:**
+  1. The adaptive individuals already balance the exits by themselves: in 4 of 5 seeds the remaining imbalance comes from people who start late and walk through jammed aisles, not from a misallocation between exits.
+  2. Seeing the present is not seeing the future: early decisions cannot see the jams that form a minute later.
+  3. The only exits with spare capacity (stage) are small and lie against the main stream.
+- **Consequence for the 180 s question:** as in 9.1-9.6, the gain has to come from capacity at the shared hall doors and aisles, a plan that assigns rows before people move (the optimised plan of the package), or a shorter pre-movement, not from redirecting people once they queue.
 
 ### 9.9 Unexpected outcomes and what explains them
 
@@ -574,7 +600,7 @@ In Model A higher compliance helps the fixed model, and the advantage of adaptat
 2. Alternative layouts look fine in the fixed model but not with walls (§9.2): the cause is corridor posts behind walls, shown by the lock-step comparison and the through-wall counts.
 3. The adaptive package is worse in Model A and better in Model B (§9.6): it is a trade between omniscient and local information, and the models disagree.
 4. With the foyer blocked, adaptive behaviour cuts exit switching but increases high-density time (§9.3).
-5. Managers who see everything and redirect part of the flow do not help (§9.10): the jam is at shared hall doors, the small stage exits lie against the stream, and adaptive individuals already re-balance.
+5. Managers who see everything and redirect part of the flow do not help (§9.10): adaptive individuals already re-balance the exits, early decisions cannot see the jams that form later, and the only spare exits (stage) are small and against the main stream.
 6. The first 40-seed run showed the decision layout at +59 s, with oscillating managers. That was caused by defects (double counting, follower load), fixed and tested; the superseded results are kept in `results/adaptive/superseded-2026-11-07/`.
 
 ---
