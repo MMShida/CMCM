@@ -1,0 +1,53 @@
+{
+  "date": "2026-11-08T21:43:31.553Z",
+  "sourceHash": "43879575cdff64784d22e59cf9e2185d627b5afd17b16cea9cd2d84818b7a82b",
+  "geometrySHA256": "589ec717bcd756e68d99b1e1f344b2886e90f32bf293d73637a335677b49066f",
+  "tests": {
+    "passed": 149,
+    "files": 12,
+    "logSHA256": "1bb42901d20935f5025170bef69e316a2c7d071073acb07b5f2d48d5e0f946d1"
+  },
+  "build": {
+    "passed": true,
+    "logSHA256": "8734e7a289bbb957f22aeb29fb1f684e43b17815e3c0955e80791797cf37b1a7",
+    "warning": "Existing Vite bundle-size advisory"
+  },
+  "publishedReplay": {
+    "runs": 1000,
+    "passed": true,
+    "report": "reproduction-audit.json"
+  },
+  "browser": {
+    "historicalA40Mean": 231.2475,
+    "currentLite40Mean": 194.2075,
+    "reports": [
+      "browser-verification.json",
+      "browser-placements.json"
+    ]
+  },
+  "blockedFinalState": {
+    "runs": 36,
+    "zeroBlockedDoorPassages": true,
+    "all1329Outside": true,
+    "report": "blocked-verification.json"
+  },
+  "newExperiments": {
+    "runs": 1200,
+    "screen": 84,
+    "shortlist": 17,
+    "staffPerCase": 6
+  },
+  "pdfs": {
+    "modelPages": 22,
+    "resultsPages": 22,
+    "auditPages": 17,
+    "executiveSummaryPages": 1,
+    "modelEquationCount": 28,
+    "validation": "../lite-study/pdf-validation.json"
+  },
+  "cli": {
+    "defaultManagers": 6,
+    "seed": 1466857514,
+    "expectedClearance": 219
+  }
+}

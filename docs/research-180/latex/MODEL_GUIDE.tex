@@ -764,6 +764,47 @@ Every person in transit or waiting consumes storage. Opposing ready heads can ex
 
 The separate \textbf{SIMPLIFICATION\_AUDIT.pdf} derives these rules, audits every major mechanism, reports ablations, independent comparisons, blocked exits and time-step checks, and identifies lost effects. Finite-storage pedestrian flow is supported as a modelling family by \href{https://doi.org/10.1016/j.trb.2010.09.009}{Guo, Huang and Wong (2011)}; representational queue deadlocks are discussed by \href{https://doi.org/10.1016/j.ejor.2017.10.039}{Palmer, Harper and Knight (2018)}. Neither validates this Bailey hybrid. A-Lite rejects falls and separated-group stress, and does not model injury or fire tenability.
 
+
+\section{Original brief and fixed-budget placement study}\label{sec:20}
+
+The original seven-page \emph{Bail(ey)ing Out} PDF requires building departure from emergency declaration (pp. 1–2), at least six managers for a full-house concert (p. 2), and prohibits evacuation by elevator (p. 3). The new comparison addresses Questions 2 and 4 with \textbf{exactly six managers}, following the user's narrower resource constraint. It keeps 1,329 people including three wheelchair users, all original geometry, rates, speeds, response and compliance. Earlier 10/18-manager results are historical resource comparisons. The full page-by-page audit is \code{CONSTRAINTS.md}; the results PDF contains its concise constraint table and the required executive summary.
+
+
+Temporary barriers in the semicircular corridor are expressly allowed by Question 4. A hard panel closes only its existing corridor slot; a rope keeps it traversable with the inherited assumed 15 s perceived crossing cost. Paired W0/E0, W1/E1 and W2/E2 panels, asymmetric W0/E2 and W2/E0 panels, W1/E1 ropes and no barriers are compared. No positive capacity factor is attached to an obstacle. Every candidate retains graph reachability, including a stair-free route from each wheelchair seat to an outside assistance point. This is a connectivity check, not an installation approval or a crowd-pressure prediction.
+
+
+The new floor-strip representation adds a finite polyline on an existing walkable link to the earlier point-sign schema. It retains the same one-time notice and acceptance draws and fixed public exit message. Twelve 2 m strips give each layout exactly \textbf{24 m installed length}; location is varied between early approach, decision areas and corridor/exit approach. These are localized directional strips, not a claim of continuously illuminated routes throughout the building. The arrow follows a shortest open route to the named exit at installation time. A static strip does not acquire knowledge of a later obstruction.
+
+
+\begin{equation}
+\begin{aligned}
+\lambda^*&=\operatorname{clip}_{[0,1]}\!\left(\frac{(x-a)\cdot(b-a)}{\lVert b-a\rVert^2}\right),\qquad
+p^*=a+\lambda^*(b-a) \\
+D(x,S)&=\min_{p\in\mathcal P(S)}\{\lVert x-p\rVert:\operatorname{floor}(x)=\operatorname{floor}(S),\ [x,p]\text{ unoccluded}\} \\
+\text{eligible}(x,S)&=\mathbf 1\{D(x,S)\le R\},\qquad R=12\,\mathrm m
+\end{aligned}
+\tag{25}\label{eq:25}
+\end{equation}
+
+For each segment from a to b, the candidate set contains the closest projection plus samples no farther than 0.5 m apart, including endpoints. The minimum over visible candidates allows a partly hidden strip to remain detectable; it is an approximation to continuous visibility. Floor strips are viewable from either side, unlike a wall sign's facing cone. This does not model heads, height, photometry or smoke optics. The 12 m range, 24 m device budget and 2 m segment length are experimental design assumptions. Range and notice sensitivities accompany the main comparison.
+
+
+Bernardini et al. \cite{R20} compared passive and active wayfinding systems using isolated participants in VR. Continuous low-level cues supported some wayfinding tasks, while changing active instructions could confuse users. This supports testing strip location and message consistency, not importing a measured dense-crowd time reduction. Galea et al. \cite{R8} also show the importance of consistent voice and visual instructions. Here the staff and pre-announcement use a seat-block plan; a public strip may disagree with that plan, and the inherited conflict hesitation remains active. Barrier research \cite{R11,R12,R17} motivates testing both benefit and harm without a capacity bonus.
+
+
+A and A-Lite call the \textbf{same guidance and strip-visibility code}, while retaining their distinct movement equations. A-Lite's simpler queue coordinates can change who sees a strip; this is measured model sensitivity, not a reason to assume the same numerical effect. Placement maps and exact coordinate/configuration tables are in the companion results report. Guidance choreography and sign legibility must be understandable to imperfectly informed occupants; a favorable training result alone is insufficient grounds for a sanguine claim about real evacuation.
+
+
+\section{Reproducing a number in the interface}\label{sec:21}
+
+A study mean is not a single simulation. The historical refined A plan uses six existing managers, hard W1/E1 corridor panels, pre-announcement, abstract LEDs, adaptive managers and conservative gate service. Its published mean is \textbf{231.2475 s on 40 specified audiences}, whereas the original default A baseline on those audiences is \textbf{268.645 s}. The raw configuration seed 1 is not the batch's first seed; the confirmation generator uses base seed 20261108. Repeating seed 1 repeats one audience rather than estimating the mean.
+
+
+The study tab now offers both a known individual replay and an exact batch replay, plus configuration downloads. The live view separates the last building crossing from the ongoing simulation clock, which includes outdoor travel and wheelchair assistance. Changing a preset replaces the study settings; changing controls after a run has started requires reset. Saved browser settings persist. The 04:20 research checkout is separately identified because older local checkouts may serve different ports and code.
+
+
+A separate replay audit checks all published main confirmation runs against the current engine, and browser checks exercise the actual live controls and worker pool. The generic Monte Carlo report now suppresses a finite full-house mean if any audience is unresolved. Verification establishes agreement with the implemented equations and archived records; empirical accuracy still requires suitable Bailey observations.
+
 \clearpage
 \begin{thebibliography}{L-R19}
 \addcontentsline{toc}{section}{References}
@@ -804,5 +845,7 @@ The separate \textbf{SIMPLIFICATION\_AUDIT.pdf} derives these rules, audits ever
 \bibitem[R18]{R18} Spearpoint, M. \& Xiang, X. (2011). \emph{Calculating evacuation times from lecture theatre type rooms using a network model.} Fire Safety Science 10, 599–612. \href{https://publications.iafss.org/publications/fss/10/599/view}{Primary paper}, \href{https://doi.org/10.3801/IAFSS.FSS.10-599}{DOI}. Campus trials supported constrained network modelling and found row-speed reduction could overpredict time. Their mostly young, familiar audience is not Bailey's mixed population.
 
 \bibitem[R19]{R19} Johansson, A. (2009). \emph{Constant-net-time headway as a key mechanism behind pedestrian flow dynamics.} Physical Review E 80, 026120. \href{https://arxiv.org/pdf/0908.3118}{Author manuscript}, \href{https://doi.org/10.1103/PhysRevE.80.026120}{DOI}. Provides a mechanism and empirical comparison for net headway, not a venue-specific replacement parameter.
+
+\bibitem[R20]{R20} Bernardini, G., Lovreglio, R., Quagliarini, E. \& D'Orazio, M. (2023). \emph{Can active and passive wayfinding systems support fire evacuation in buildings? Insights from a virtual reality-based experiment.} Journal of Building Engineering 74:106778. \href{https://doi.org/10.1016/j.jobe.2023.106778}{Primary article}. Isolated-user VR comparison; does not identify Bailey dense-crowd detection, acceptance or clearance time.
 \end{thebibliography}
 \end{document}

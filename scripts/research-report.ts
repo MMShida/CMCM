@@ -39,7 +39,7 @@ const matrixRows=all.filter(r=>r.file==='mateus-matrix.json');
 if(existsSync(doc+'MATEUS_MATRIX.md')&&!existsSync(doc+'MATEUS_MATRIX_DETAILED.md'))writeFileSync(doc+'MATEUS_MATRIX_DETAILED.md','> Original detailed export: time statistics condition on completed runs. Use MATEUS_MATRIX.md for failure-aware full-house comparisons.\n\n'+readFileSync(doc+'MATEUS_MATRIX.md','utf8'));
 writeFileSync(doc+'MATEUS_MATRIX.md','# Reproduced 04:20 experiment matrix\n\n40 matched audiences per row, seed base 777. Unresolved runs suppress the all-person mean. Compliance, closures, ideal information and the voice/meet-outside package are inherited sensitivity cases, excluded from the primary guidance/barrier search.\n\n'+table(['Case','Model','Mean s [95% CI]','Unresolved','Runs ≤180','Inside at 180'],matrixRows.map(r=>[r.id,r.model,interval(r),`${r.stats.failures}/40`,`${Math.round(r.stats.p180.p*40)}/40`,f(r.stats.inside180)]))+'\n');
 mkdirSync('public/results',{recursive:true});
-const report={date:new Date().toISOString(),baseCommit:'3e4bcf08e258e5db41b0035e307415bf129bc011',replications:40,recordedReplications:recorded,selectedIds:{A:a.id,B:b.id},conclusion,rows:rows.map(({runs,...r}:any)=>r)};
+const report={date:new Date().toISOString(),baseCommit:'3e4bcf08e258e5db41b0035e307415bf129bc011',replications:40,recordedReplications:recorded,selectedIds:{A:a.id,B:b.id},conclusion,rows:rows.map(({runs,...r}:any)=>({...r,times:runs.map(({seed,tEvac,tSafe,tSafeAll}:any)=>({seed,tEvac,tSafe,tSafeAll}))}))};
 writeFileSync('public/results/research-180-summary.json',JSON.stringify(report,null,2));
 writeFileSync(root+'summary.json',JSON.stringify(report,null,2));
 const channels=all.filter(r=>r.file==='followup.json'&&/^best[AB]-(none|cm6|cm10|led|pre|cm-led|cm-pre|led-pre)$/.test(r.id));
@@ -197,7 +197,7 @@ If the final A refinement was selected, its additional confirmation uses \`refin
 
 **Calibration audit:** \`node --import tsx scripts/research-study.ts --mode evaluate --cases results/research-180/calibration-cases.json --runs 12 --out results/research-180/calibration.json\`; run \`research-network-audit.ts --id refined-A\` and \`--id visible-B\` with the same Node/tsx invocation, then \`research-calibration-report.ts\`. These retain training seeds and do not replace confirmation.
 
-**Regenerate documents:** \`node --import tsx scripts/research-report.ts\`, \`python3 scripts/build-research-pdfs.py\`, then \`node scripts/render-research-pdfs.mjs\` (Chrome required). Full mathematical derivations, equations and source-specific scope limits are in **MODEL_GUIDE.pdf**. The data remain available for independent review, including failures and out-of-scope inherited sensitivity cases.
+**Regenerate documents:** \`node --import tsx scripts/research-report.ts\`, \`python3 scripts/build-research-pdfs.py\`, then \`python3 scripts/placement-report.py\` and \`python3 scripts/build-latex-docs.py --compile\` (native LaTeX). Full mathematical derivations, equations and source-specific scope limits are in **MODEL_GUIDE.pdf**. The data remain available for independent review, including failures and out-of-scope inherited sensitivity cases.
 `;
 writeFileSync(doc+'RESULTS_AND_CHANGES.md',text);
 console.log(conclusion,recorded,'recorded replications');

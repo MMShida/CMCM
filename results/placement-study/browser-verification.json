@@ -1,0 +1,38 @@
+{
+  "date": "2026-11-08T21:36:39.210Z",
+  "url": "http://127.0.0.1:5180/",
+  "checks": [
+    {
+      "id": "mateus-fixed",
+      "model": "A",
+      "seed": 2132682877,
+      "expected": 269.1,
+      "display": "269.1 s",
+      "configExact": true
+    },
+    {
+      "id": "refined-A",
+      "model": "A",
+      "seed": 2132682877,
+      "expected": 235.1,
+      "display": "235.1 s",
+      "configExact": true
+    },
+    {
+      "id": "selected-B",
+      "model": "B",
+      "seed": 2132682877,
+      "expected": 179.5,
+      "display": "179.5 s",
+      "configExact": true
+    },
+    {
+      "id": "refined-A",
+      "model": "A",
+      "browserWorkerRuns": 40,
+      "mean": 231.2475,
+      "exact": true
+    }
+  ],
+  "errors": []
+}

@@ -47,7 +47,7 @@
 {\color{ink}\rule{\linewidth}{0.7pt}}\par
 \vspace{5mm}
 \textbf{Abstract}\par
-This report records the original guidance-and-barrier investigation and its independent confirmation. It distinguishes the predictions of spatial Model A and network Model B, and reports numerical checks, calibration sensitivities and evidence limits. The later A-Lite extension has a separate audit and comparison report; historical panel configurations are not installation recommendations.
+This report leads with the fixed six-manager comparison of physical LED strips and removable corridor barriers, with placement maps, independent confirmation and a replay audit. It also preserves the original guidance-and-barrier investigation. It distinguishes the predictions of spatial Model A and network Model B, and reports numerical checks, calibration sensitivities and evidence limits. The later A-Lite extension has a separate audit and comparison report; historical panel configurations are not installation recommendations.
 \vfill
 \begin{tabular}{@{}ll@{}}
 Study & Bailey Hall, full-house evacuation\\
@@ -58,14 +58,332 @@ Scope & Research model; assumptions and calibration limits stated explicitly
 \end{tabular}
 \vspace{9mm}
 \end{titlepage}
+\thispagestyle{empty}\section*{Executive summary}
+\textbf{To: Mr. Timothy Ryan, University Fire Marshal and Director of Fire Protection and Emergency Services}
+
+
+\textbf{Subject: Bailey Hall full-house evacuation, six-manager guidance and removable interventions}
+
+
+We address Questions 2 and 4 of the CMCM brief: emergency departure of a concert audience, an initially unknown blocked exit, and temporary corridor barriers and directional LED strips. The audience remains 1,329 people including three wheelchair users. All new intervention cases use exactly six crowd managers, with the original building, stair/door capacities, movement parameters, response distributions and imperfect compliance. The elevator remains unavailable. Time runs from emergency declaration to the last person crossing the building boundary; assisted travel to street level is a separate endpoint.
+
+
+We compared 84 arrangements of three staff layouts, three equal-length LED layouts or no LEDs, and seven barrier choices. Each LED layout has twelve 2 m floor strips (24 m total) carrying fixed public exit messages. Hard panels restrict existing corridor slots; ropes remain crossable. The model respects walls and panels in sign visibility. A longer training shortlist selected two plans before independent confirmation on 40 audiences each; blocked-exit and visibility sensitivities use additional audiences.
+
+
+The prespecified combined plan uses six coverage posts, decision-area LED strips and W1/E1 ropes. Its mean last-person times are \textbf{230.1 s in spatial Model A}, \textbf{194.2 s in A-Lite}, and \textbf{182.6 s in aggregate Model B}. A-Lite's 95\% interval is \textbf{[189.1, 199.3] s}. The mean 180-second target is not demonstrated. A-Lite with the same ropes but LEDs disabled gives 194.7 s; a small observed LED difference does not justify claiming a reliable benefit.
+
+
+The models differ in how they represent individual following, groups and finite queues. We therefore report them separately. A full replay reproduced all 1,000 published main confirmation runs, and actual browser checks reproduced the historical Model A mean of 231.2475 s. This verifies computational consistency, not real-building calibration. Placement maps, all assumptions and mathematical rules are supplied in the technical documents.
+
+
+We recommend treating the tested layouts as comparative candidates for a venue-reviewed study, preserving six staff and accessible egress. Measure actual sign legibility, voice reach, aisle flow and group behavior before choosing an installation. Clear guidance choreography matters; the evidence does not support a sanguine promise of under-180 evacuation. No unmeasured capacity increase or reduced audience was used to obtain a favorable result.
+\clearpage
 \pagenumbering{roman}
 \tableofcontents
 \clearpage
 \pagenumbering{arabic}
-\textbf{Original guidance study: A 231.2 s; B 166.4 s. Later A-Lite study: 191.4 s [188.3, 194.6] on forty new audiences. A and Lite remain above the mean 180-second target.}
+\section{Current scope: six managers and the original problem constraints}
+
+This update addresses \textbf{Question 2} (full-house concert emergency, including an initially unknown blocked exit) and \textbf{Question 4} (removable corridor barriers and directional LED strips). The original seven-page \emph{Bail(ey)ing Out} PDF was reread, including the evacuation plans and seating maps. The brief requires at least six managers; this comparison uses \textbf{exactly six}, as requested. Earlier 10/18-manager results remain historical resource sensitivities.
 
 
-The tables in sections 1–8 preserve the original intervention study, including historical panel configurations. The later no-barrier simplification study is summarized below and fully documented in \textbf{SIMPLIFICATION\_AUDIT.pdf}. Its structural changes to group motion are separate from the earlier unchanged-group intervention scope.
+\begingroup\small
+\begin{longtable}{@{}>{\raggedright\arraybackslash}p{\dimexpr 0.2600\linewidth-4.160pt\relax}>{\raggedright\arraybackslash}p{\dimexpr 0.3400\linewidth-5.440pt\relax}>{\raggedright\arraybackslash}p{\dimexpr 0.4000\linewidth-6.400pt\relax}@{}}
+\caption{Current scope: six managers and the original problem constraints.}\label{tab:1}\\
+\toprule
+\textbf{Constraint} & \textbf{Source page} & \textbf{Treatment} \\
+\midrule\endfirsthead
+\multicolumn{3}{l}{\small\itshape Table \thetable{} continued}\\\toprule
+\textbf{Constraint} & \textbf{Source page} & \textbf{Treatment} \\
+\midrule\endhead
+\midrule\multicolumn{3}{r}{\small Continued on next page}\\\endfoot
+\bottomrule\endlastfoot
+1,329 occupants, including up to three wheelchair users & 2–3 & All 1,329 retained, including three wheelchair users; not 1,329 plus three. \\
+Declaration to last person outside & 1–2 & Response time included; no 180 s censoring; building boundary and street safety reported separately. \\
+At least six staff at concerts & 2 & Exactly six actual posts; no staff removed by the device interventions. \\
+Temporary corridor barriers; directional floor/wall LEDs & 2 & Original corridor slots and finite floor-strip segments; no physical rate or width bonus. \\
+Exit obstruction and execution error & 2 & Matched discovery-mode blocked-door tests; visibility and notice sensitivities. \\
+No elevator; preserve building layout & 3–7 & Original graph and prohibited links unchanged; all candidate rows and wheelchair seats retain an egress path. \\
+One-page executive summary, explicit questions addressed & 2–3 & Summary addressed to Timothy Ryan precedes this report; Questions 2 and 4 selected. \\
+\end{longtable}\endgroup
+
+The user's target is an average below 180 s. The brief's wording is stricter: an evacuation must finish under 180 s. The report therefore shows both the mean last-person time and the count at or below 180. Graph connectivity does not establish installation feasibility, body-level pressure, smoke tenability or empirical accuracy. The full audit is \code{CONSTRAINTS.md}.
+
+
+\section{Why your Model A run can differ from 230 seconds}
+
+The historical refined A result is \textbf{231.2475 s}, averaged over 40 specified audiences. It uses six existing managers, W1/E1 hard corridor panels, pre-announcement, abstract LEDs, adaptive managers and conservative service integration. The default concert baseline is \textbf{268.645 s} on the same audiences. The configuration's stored seed 1 is not the batch's first generated seed.
+
+
+The archived refined A audience with seed \textbf{2132682877} leaves the building at \textbf{235.1 s}, the last ambulatory person reaches street level at \textbf{266.0 s}, and all-person street safety including scheduled wheelchair assistance is \textbf{282.7 s}. Individual clearance times in that 40-run batch span \textbf{212.9–260.1 s}. The interface's former prominent clock included outside travel and assistance; it was not the study's clearance metric. The live view now displays building clearance separately. The study tab loads exact configurations, replays a known audience, and reproduces the complete archived seed list.
+
+
+A fresh current-code audit reproduced \textbf{all 1,000 runs} in the original A/B and later A-Lite main confirmation archives, including the known incomplete corrected-A case. Numerical run fields match; measured CPU runtime is excluded. Real browser checks independently matched the live A/B results and all 40 refined A worker results. Multiple local checkouts were serving different code on ports 5173/5174; this worktree serves port 5180. A shared Vite dependency cache also caused duplicate-React errors; the cache is now local to this checkout.
+
+
+The generic Monte Carlo summary previously could show a completion-conditioned mean when another audience failed. It now reports no finite full-house mean for an incomplete batch, preserving failures in the success fraction. This display correction does not change trajectories. Reproduction verifies implementation consistency; it cannot establish agreement with a real Bailey evacuation without calibration data.
+
+
+\section{Placement experiment and resource budget}
+
+Three six-manager layouts (existing, seat coverage, decision points), four LED choices (none, early approach, decision areas, corridor/exit approach) and seven barrier choices give \textbf{84 configurations}, each tested on four common training audiences. Barrier choices are none; hard W0/E0, W1/E1, W2/E2; W1/E1 ropes; and asymmetric hard W0/E2 or W2/E0. Thus symmetry is tested, not presumed.
+
+
+The same expanded seat-block instructions and pre-announcement are used throughout the screen. Staff have acoustic reach and individual message hearing; congestion redirection is initially held static, while closure handling remains enabled. Four additional zone-control variants enter the longer shortlist. Physical probabilities remain 0.9 notice and 0.7 acceptance for LEDs, 0.8 base staff acceptance, with inherited imperfect hearing. Ropes add 15 perceived seconds, a sensitivity assumption rather than an observed Bailey deterrent.
+
+
+Each LED layout uses \textbf{twelve 2 m floor strips, 24 m total}, clipped to existing links. The message is public and fixed; no strip reads a person's original seat. Range is 12 m, same-floor only, with walls, columns and hard panels occluding. One notice/acceptance opportunity uses the original random draws. Body occlusion, height, luminance and optical smoke effects are not calibrated. The strips are localized cues, not an uninterrupted illuminated route. Floor strips are visible from either side; arrow direction is distinct from the facing cone of a wall sign. Model Guide equation 25 specifies the finite-strip visibility calculation.
+
+
+Bernardini et al. \cite{R20} support investigating low-level directional cues and message comprehension, using isolated-person VR evidence. Galea et al. \cite{R8} support message consistency. Neither establishes Bailey's notice/acceptance values. Barrier experiments \cite{R11,R12,R17} show configuration-dependent benefits and harm; no published percentage is pasted onto capacity.
+
+
+\begin{figure}[htbp]\centering
+\includegraphics[width=\linewidth,height=.82\textheight,keepaspectratio]{figures/placement-layouts.pdf}
+\caption{All three equal-length LED layouts and all six candidate corridor barrier slots; arrows show public exit directions.}\label{fig:placement-layouts}
+\end{figure}
+
+\section{Training selection, fixed before independent confirmation}
+
+The shortlist contains \textbf{17 candidates}, each evaluated on 12 new training audiences (base seed 61007), after screening with base seed 61006. Selection was frozen before viewing the 40-audience confirmation set (61106). The lowest training mean selected \code{decision-none-rope1} overall; the best candidate containing both devices selected \code{coverage-decision-rope1}. These are two prespecified roles, not a choice of the best holdout result.
+
+
+\begingroup\small
+\begin{longtable}{@{}>{\raggedright\arraybackslash}p{\dimexpr 0.2600\linewidth-4.160pt\relax}>{\raggedright\arraybackslash}p{\dimexpr 0.3400\linewidth-5.440pt\relax}>{\raggedright\arraybackslash}p{\dimexpr 0.4000\linewidth-6.400pt\relax}@{}}
+\caption{Training selection, fixed before independent confirmation.}\label{tab:2}\\
+\toprule
+\textbf{Training configuration} & \textbf{Mean s [95\% CI]} & \textbf{Failures} \\
+\midrule\endfirsthead
+\multicolumn{3}{l}{\small\itshape Table \thetable{} continued}\\\toprule
+\textbf{Training configuration} & \textbf{Mean s [95\% CI]} & \textbf{Failures} \\
+\midrule\endhead
+\midrule\multicolumn{3}{r}{\small Continued on next page}\\\endfoot
+\bottomrule\endlastfoot
+decision-none-rope1 & 191.6 [182.8, 200.5] & 0 \\
+zone-none-hard1 & 193.1 [182.1, 204.0] & 0 \\
+coverage-decision-rope1 & 193.8 [186.7, 200.8] & 0 \\
+decision-none-hard1 & 194.6 [185.9, 203.4] & 0 \\
+decision-corridor-hard1 & 194.8 [184.6, 205.0] & 0 \\
+zone-corridor-hard1 & 195.8 [187.6, 204.0] & 0 \\
+existing-none-rope1 & 199.5 [185.1, 214.0] & 0 \\
+zone-decision-hard1 & 201.7 [186.0, 217.5] & 0 \\
+\end{longtable}\endgroup
+
+\section{Independent six-manager comparison}
+
+Exactly six managers: the preselected combined plan gives 230.1 s in A, 194.2 s in A-Lite and 182.6 s in B (40 independent audiences each). The mean 180-second target is not demonstrated.
+
+
+\begingroup\small
+\begin{longtable}{@{}>{\raggedright\arraybackslash}p{\dimexpr 0.2300\linewidth-5.520pt\relax}>{\raggedright\arraybackslash}p{\dimexpr 0.1600\linewidth-3.840pt\relax}>{\raggedright\arraybackslash}p{\dimexpr 0.2300\linewidth-5.520pt\relax}>{\raggedright\arraybackslash}p{\dimexpr 0.3800\linewidth-9.120pt\relax}@{}}
+\caption{Independent six-manager comparison.}\label{tab:3}\\
+\toprule
+\textbf{Configuration / model} & \textbf{Mean s [95\% CI]} & \textbf{\ensuremath{\le}180} & \textbf{Unresolved} \\
+\midrule\endfirsthead
+\multicolumn{4}{l}{\small\itshape Table \thetable{} continued}\\\toprule
+\textbf{Configuration / model} & \textbf{Mean s [95\% CI]} & \textbf{\ensuremath{\le}180} & \textbf{Unresolved} \\
+\midrule\endhead
+\midrule\multicolumn{4}{r}{\small Continued on next page}\\\endfoot
+\bottomrule\endlastfoot
+Training-selected overall plan / A & 232.7 [229.4, 236.1] & 0/40 & 0/40 \\
+Training-selected overall plan / B & 190.5 [186.2, 194.8] & 9/40 & 0/40 \\
+Training-selected overall plan / Lite & 201.2 [195.0, 207.5] & 3/40 & 0/40 \\
+Training-selected LEDs + barriers / A & 230.1 [226.6, 233.6] & 0/40 & 0/40 \\
+Training-selected LEDs + barriers / B & 182.6 [178.7, 186.5] & 18/40 & 0/40 \\
+Training-selected LEDs + barriers / Lite & 194.2 [189.1, 199.3] & 7/40 & 0/40 \\
+Same combined plan, LEDs off / Lite & 194.7 [190.1, 199.4] & 3/40 & 0/40 \\
+Same combined plan, barriers removed / Lite & 218.2 [213.5, 222.9] & 0/40 & 0/40 \\
+Same posts and messages, both devices off / A & 235.7 [231.9, 239.6] & 0/40 & 0/40 \\
+Same posts and messages, both devices off / B & 189.4 [185.6, 193.1] & 8/40 & 0/40 \\
+Same posts and messages, both devices off / Lite & 216.1 [211.3, 221.0] & 0/40 & 0/40 \\
+Existing posts, no devices / Lite & 219.2 [214.5, 223.9] & 0/40 & 0/40 \\
+\end{longtable}\endgroup
+
+Negative paired differences mean faster; confidence intervals describe the paired audience sample. The intervention comparison keeps posts, instructions and pre-announcement fixed.
+
+
+\begingroup\small
+\begin{longtable}{@{}>{\raggedright\arraybackslash}p{\dimexpr 0.2900\linewidth-2.320pt\relax}>{\raggedright\arraybackslash}p{\dimexpr 0.7100\linewidth-5.680pt\relax}@{}}
+\caption{Independent six-manager comparison.}\label{tab:4}\\
+\toprule
+\textbf{A-Lite paired comparison} & \textbf{Difference s [95\% CI]} \\
+\midrule\endfirsthead
+\multicolumn{2}{l}{\small\itshape Table \thetable{} continued}\\\toprule
+\textbf{A-Lite paired comparison} & \textbf{Difference s [95\% CI]} \\
+\midrule\endhead
+\midrule\multicolumn{2}{r}{\small Continued on next page}\\\endfoot
+\bottomrule\endlastfoot
+Combined minus neither device & -21.91 [-26.89, -16.92] \\
+Add LEDs to same barrier plan & -0.54 [-4.48, 3.40] \\
+Add ropes to same LED plan & -24.00 [-28.25, -19.74] \\
+\end{longtable}\endgroup
+
+The combined policy is retained as the prespecified device comparison even if the overall training winner performs differently on confirmation. A small LED difference with an interval containing zero is not evidence of a reliable improvement. Simpler device layouts can be preferable when the effect is uncertain. Search does not prove a global optimum.
+
+
+\begingroup\small
+\begin{longtable}{@{}>{\raggedright\arraybackslash}p{\dimexpr 0.2600\linewidth-4.160pt\relax}>{\raggedright\arraybackslash}p{\dimexpr 0.3400\linewidth-5.440pt\relax}>{\raggedright\arraybackslash}p{\dimexpr 0.4000\linewidth-6.400pt\relax}@{}}
+\caption{Independent six-manager comparison.}\label{tab:5}\\
+\toprule
+\textbf{Combined plan / model} & \textbf{Max local density, persons/m\ensuremath{{}^2}} & \textbf{Mean exposure, persons·s/m\ensuremath{{}^2}} \\
+\midrule\endfirsthead
+\multicolumn{3}{l}{\small\itshape Table \thetable{} continued}\\\toprule
+\textbf{Combined plan / model} & \textbf{Max local density, persons/m\ensuremath{{}^2}} & \textbf{Mean exposure, persons·s/m\ensuremath{{}^2}} \\
+\midrule\endhead
+\midrule\multicolumn{3}{r}{\small Continued on next page}\\\endfoot
+\bottomrule\endlastfoot
+A & 5.8 & 19.1 \\
+Lite & 4.5 & 14.5 \\
+B & 9.7 & 18.5 \\
+\end{longtable}\endgroup
+
+Exposure integrates density above 2 persons/m\ensuremath{{}^2} per person, then averages over people and runs. This is an analytical comparison, not a safety threshold. Local A windows, Lite whole-link averages and B edge averages differ in resolution; their peak values are not interchangeable.
+
+
+\section{Where the selected devices and six managers are}
+
+The combined plan uses \textbf{coverage} posts, \textbf{decision} LED placement, and \textbf{rope1} barriers. The frozen configuration contains every polyline point, arrow message, staff setting and seat-block instruction.
+
+
+\begin{figure}[htbp]\centering
+\includegraphics[width=\linewidth,height=.48\textheight,keepaspectratio]{figures/placement-selected.pdf}
+\caption{Selected combined plan: six managers, physical directional strips and corridor barriers on both floors.}\label{fig:placement-selected}
+\end{figure}
+
+\begingroup\small
+\begin{longtable}{@{}>{\raggedright\arraybackslash}p{\dimexpr 0.2300\linewidth-5.520pt\relax}>{\raggedright\arraybackslash}p{\dimexpr 0.1600\linewidth-3.840pt\relax}>{\raggedright\arraybackslash}p{\dimexpr 0.2300\linewidth-5.520pt\relax}>{\raggedright\arraybackslash}p{\dimexpr 0.3800\linewidth-9.120pt\relax}@{}}
+\caption{Where the selected devices and six managers are.}\label{tab:6}\\
+\toprule
+\textbf{Strip / existing link} & \textbf{Floor} & \textbf{Centre (x, y), m} & \textbf{Public destination} \\
+\midrule\endfirsthead
+\multicolumn{4}{l}{\small\itshape Table \thetable{} continued}\\\toprule
+\textbf{Strip / existing link} & \textbf{Floor} & \textbf{Centre (x, y), m} & \textbf{Public destination} \\
+\midrule\endhead
+\midrule\multicolumn{4}{r}{\small Continued on next page}\\\endfoot
+\bottomrule\endlastfoot
+L1 / FX\_2 & 1 & (-2.33, -7.60) & STAGE\_W \\
+L2 / FX\_3 & 1 & (2.33, -7.60) & STAGE\_E \\
+L3 / WK\_2 & 1 & (-15.25, -1.10) & PORTICO\_W \\
+L4 / WK\_9 & 1 & (15.25, -1.10) & PORTICO\_E \\
+L5 / WK\_4 & 1 & (-9.88, 12.50) & PORTICO\_W \\
+L6 / WK\_7 & 1 & (9.88, 12.50) & PORTICO\_E \\
+L7 / WK\_5 & 1 & (-3.70, 15.21) & FOYER \\
+L8 / WK\_6 & 1 & (3.70, 15.21) & FOYER \\
+L9 / BWK\_1 & 2 & (-18.40, 0.08) & BAL\_NW \\
+L10 / BWK\_8 & 2 & (18.40, 0.08) & BAL\_NE \\
+L11 / BWK\_2 & 2 & (-14.32, 12.54) & FOYER \\
+L12 / BWK\_7 & 2 & (14.32, 12.54) & FOYER \\
+\end{longtable}\endgroup
+
+Each listed strip is 2 m long along its existing link. Coordinates use east-positive x and south-positive y; they are reconstruction coordinates, not surveyed installation dimensions. Full ordered endpoints are retained in the JSON and drawn as arrows.
+
+
+\begingroup\small
+\begin{longtable}{@{}>{\raggedright\arraybackslash}p{\dimexpr 0.2300\linewidth-5.520pt\relax}>{\raggedright\arraybackslash}p{\dimexpr 0.1600\linewidth-3.840pt\relax}>{\raggedright\arraybackslash}p{\dimexpr 0.2300\linewidth-5.520pt\relax}>{\raggedright\arraybackslash}p{\dimexpr 0.3800\linewidth-9.120pt\relax}@{}}
+\caption{Where the selected devices and six managers are.}\label{tab:7}\\
+\toprule
+\textbf{Manager} & \textbf{Existing: (x,y,floor)} & \textbf{Coverage: (x,y,floor)} & \textbf{Decision: (x,y,floor)} \\
+\midrule\endfirsthead
+\multicolumn{4}{l}{\small\itshape Table \thetable{} continued}\\\toprule
+\textbf{Manager} & \textbf{Existing: (x,y,floor)} & \textbf{Coverage: (x,y,floor)} & \textbf{Decision: (x,y,floor)} \\
+\midrule\endhead
+\midrule\multicolumn{4}{r}{\small Continued on next page}\\\endfoot
+\bottomrule\endlastfoot
+CM1 & (-12.8, -4.8, 1) & (-5.1, -3.2, 1) & (0, -7, 1) \\
+CM2 & (12.8, -4.8, 1) & (5.1, -3.2, 1) & (0, 12, 1) \\
+CM3 & (-4.9, 12.4, 1) & (-4.9, 12.4, 1) & (-16.5, 7.5, 1) \\
+CM4 & (4.9, 12.4, 1) & (4.9, 12.4, 1) & (16.5, 7.5, 1) \\
+CM5 & (-18.4, 2.85, 2) & (-18.4, 2.85, 2) & (-17.6, 3.6, 2) \\
+CM6 & (18.4, 2.85, 2) & (18.4, 2.85, 2) & (17.6, 3.6, 2) \\
+\end{longtable}\endgroup
+
+\begingroup\small
+\begin{longtable}{@{}>{\raggedright\arraybackslash}p{\dimexpr 0.2600\linewidth-4.160pt\relax}>{\raggedright\arraybackslash}p{\dimexpr 0.3400\linewidth-5.440pt\relax}>{\raggedright\arraybackslash}p{\dimexpr 0.4000\linewidth-6.400pt\relax}@{}}
+\caption{Where the selected devices and six managers are.}\label{tab:8}\\
+\toprule
+\textbf{Slot / link} & \textbf{Centre (x,y), m} & \textbf{Corridor width, m} \\
+\midrule\endfirsthead
+\multicolumn{3}{l}{\small\itshape Table \thetable{} continued}\\\toprule
+\textbf{Slot / link} & \textbf{Centre (x,y), m} & \textbf{Corridor width, m} \\
+\midrule\endhead
+\midrule\multicolumn{3}{r}{\small Continued on next page}\\\endfoot
+\bottomrule\endlastfoot
+W0 / CO\_3 & (-17.476, 1.222) & 3.042 \\
+W1 / CO\_7 & (-14.269, 10.753) & 2.4 \\
+W2 / CO\_10 & (-9.404, 15.05) & 2.589 \\
+E2 / CO\_17 & (9.404, 15.05) & 2.589 \\
+E1 / CO\_20 & (14.269, 10.753) & 2.4 \\
+E0 / CO\_24 & (17.476, 1.222) & 3.042 \\
+\end{longtable}\endgroup
+
+The maps number staff CM1–CM6 for comparison; implementation IDs are CM1–CM6 for existing, CV1–CV6 for coverage and DP1–DP6 for decision posts. Panel and rope positions are the same slot midpoints; panels close the slot and obscure sight, ropes remain crossable. All six managers remain available. Staff footprint and their own evacuation remain absent from the inherited audience model.
+
+
+\section{Blocked exit and visibility robustness}
+
+Twelve matched audiences (base 61206) compare open conditions with \textbf{F3 blocked from the start}, initially discovered locally. F3 is one exterior foyer door; no door is removed from the intervention geometry. Neither the static strips nor people receive perfect initial closure information.
+
+
+\begingroup\small
+\begin{longtable}{@{}>{\raggedright\arraybackslash}p{\dimexpr 0.2300\linewidth-5.520pt\relax}>{\raggedright\arraybackslash}p{\dimexpr 0.1600\linewidth-3.840pt\relax}>{\raggedright\arraybackslash}p{\dimexpr 0.2300\linewidth-5.520pt\relax}>{\raggedright\arraybackslash}p{\dimexpr 0.3800\linewidth-9.120pt\relax}@{}}
+\caption{Blocked exit and visibility robustness.}\label{tab:9}\\
+\toprule
+\textbf{Policy / model} & \textbf{Open mean s} & \textbf{F3 blocked mean s} & \textbf{Paired change s [95\% CI]} \\
+\midrule\endfirsthead
+\multicolumn{4}{l}{\small\itshape Table \thetable{} continued}\\\toprule
+\textbf{Policy / model} & \textbf{Open mean s} & \textbf{F3 blocked mean s} & \textbf{Paired change s [95\% CI]} \\
+\midrule\endhead
+\midrule\multicolumn{4}{r}{\small Continued on next page}\\\endfoot
+\bottomrule\endlastfoot
+best-six / A & 234.2 & 243.8 & 9.62 [1.16, 18.08] \\
+best-six / B & 201.8 & 194.0 & -7.79 [-23.28, 7.69] \\
+best-six / Lite & 194.2 & 200.8 & 6.63 [-4.77, 18.04] \\
+combined-six / A & 226.6 & 247.4 & 20.84 [6.19, 35.49] \\
+combined-six / B & 185.5 & 189.8 & 4.23 [-6.78, 15.24] \\
+combined-six / Lite & 197.3 & 183.0 & -14.25 [-25.40, -3.10] \\
+\end{longtable}\endgroup
+
+The combined-policy blockage result is model-dependent: F3 closure slows A but speeds Lite in this sample. Mean foyer use in Lite falls from 650.6 to 605.6 people, redistributing demand toward portico and stage routes. This is a route-choice/queue interaction, not increased physical capacity. It is not a recommendation to close an exit, and the disagreement with A limits transfer to the real building. An additional final-state audit checks zero passages through F3 and full completion on every combined-plan blocked replicate.
+
+
+Twelve further paired audiences (61306) check a 6 m visibility range and a reduced 0.60 notice probability separately. Acceptance remains 0.70; the full audience, six staff and devices remain. These are labeled uncertainty sensitivities, not refits used to select a faster model.
+
+
+\begingroup\small
+\begin{longtable}{@{}>{\raggedright\arraybackslash}p{\dimexpr 0.2600\linewidth-4.160pt\relax}>{\raggedright\arraybackslash}p{\dimexpr 0.3400\linewidth-5.440pt\relax}>{\raggedright\arraybackslash}p{\dimexpr 0.4000\linewidth-6.400pt\relax}@{}}
+\caption{Blocked exit and visibility robustness.}\label{tab:10}\\
+\toprule
+\textbf{Combined-plan visibility case} & \textbf{Lite mean s [95\% CI]} & \textbf{Change from same-seed control} \\
+\midrule\endfirsthead
+\multicolumn{3}{l}{\small\itshape Table \thetable{} continued}\\\toprule
+\textbf{Combined-plan visibility case} & \textbf{Lite mean s [95\% CI]} & \textbf{Change from same-seed control} \\
+\midrule\endhead
+\midrule\multicolumn{3}{r}{\small Continued on next page}\\\endfoot
+\bottomrule\endlastfoot
+range6 & 198.6 [187.6, 209.5] & -0.97 [-6.47, 4.52] \\
+notice60 & 194.2 [184.6, 203.8] & -5.34 [-12.60, 1.92] \\
+visibility-control & 199.6 [189.2, 209.9] & 0.00 [0.00, 0.00] \\
+\end{longtable}\endgroup
+
+\section{Code changes and reproduction}
+
+The update adds finite physical strips to the shared sign-visibility code, preserving all point-sign and abstract-sign behavior when strips are absent. The renderer shows their actual locations and arrows. A-Lite runs the same barrier/LED guidance machinery as A and is now available in live and Monte Carlo views. No movement coefficient, door/stair rate, row speed, group rule, response distribution or original geometry was changed in this update. All new cases retain conservative service integration; Lite also retains its mandatory exhausted-path correction.
+
+
+The original 1,000-run replay, browser verification, exact seeds, raw per-run results, frozen configurations and geometry/source hashes are stored in \code{results/placement-study/}. \code{comparisons.csv} contains every new experiment. Large records are compressed, and source snapshots are deduplicated; intermediate logs and caches remain local.
+
+
+\begin{quote}\small\ttfamily
+\nolinkurl{node --import tsx scripts/placement-cases.ts}\\\nolinkurl{node --import tsx scripts/verify-published-study.ts --workers 4}\\\nolinkurl{node --import tsx scripts/lite-study.ts --cases results/placement-study/confirmation-cases.json --out /tmp/six-manager-confirmation.json --runs 40 --seed 61106 --workers 4}\\\nolinkurl{python3 scripts/placement-report.py}\\\nolinkurl{python3 scripts/build-latex-docs.py --compile}\end{quote}
+
+No frozen six-manager plan demonstrated a mean below 180 seconds in A or A-Lite. A defensible next improvement needs better measured visibility, route-use or movement evidence; lowering congestion solely to cross a target would change the physical hypothesis.
+
+
+\textbf{Historical guidance study: A 231.2 s; B 166.4 s. Later A-Lite study: 191.4 s [188.3, 194.6] on forty new audiences. A and Lite remain above the mean 180-second target.}
+
+
+The historical tables below preserve the original intervention study, including historical panel configurations. The later no-barrier simplification study is summarized below and fully documented in \textbf{SIMPLIFICATION\_AUDIT.pdf}. Its structural changes to group motion are separate from the earlier unchanged-group intervention scope.
 
 
 This is a continuation of Mateus's 8 November 2026, 04:20:42 EST commit \textbf{3e4bcf0}, in the isolated \code{mateus-0420} checkout. Earlier dirty work is preserved in the parent checkout. This report accompanies \textbf{MODEL\_GUIDE.pdf}, which develops all model equations and research references from basic flow to the full agent model.
@@ -81,7 +399,7 @@ Final confirmation uses \textbf{40 new audiences per configuration}, separate fr
 
 \begingroup\small
 \begin{longtable}{@{}>{\raggedright\arraybackslash}p{\dimexpr 0.3500\linewidth-11.200pt\relax}>{\raggedright\arraybackslash}p{\dimexpr 0.1300\linewidth-4.160pt\relax}>{\raggedright\arraybackslash}p{\dimexpr 0.2600\linewidth-8.320pt\relax}>{\raggedright\arraybackslash}p{\dimexpr 0.1300\linewidth-4.160pt\relax}>{\raggedright\arraybackslash}p{\dimexpr 0.1300\linewidth-4.160pt\relax}@{}}
-\caption{Independent confirmation.}\label{tab:1}\\
+\caption{Independent confirmation.}\label{tab:11}\\
 \toprule
 \textbf{Configuration} & \textbf{Model} & \textbf{Mean seconds [95\% CI]} & \textbf{Runs \ensuremath{\le}180} & \textbf{Unresolved} \\
 \midrule\endfirsthead
@@ -137,7 +455,7 @@ The table isolates guidance channels on the selected screening plan. These are \
 
 \begingroup\small
 \begin{longtable}{@{}>{\raggedright\arraybackslash}p{\dimexpr 0.3500\linewidth-11.200pt\relax}>{\raggedright\arraybackslash}p{\dimexpr 0.1300\linewidth-4.160pt\relax}>{\raggedright\arraybackslash}p{\dimexpr 0.2600\linewidth-8.320pt\relax}>{\raggedright\arraybackslash}p{\dimexpr 0.1300\linewidth-4.160pt\relax}>{\raggedright\arraybackslash}p{\dimexpr 0.1300\linewidth-4.160pt\relax}@{}}
-\caption{Crowd managers versus LEDs and preassignment.}\label{tab:2}\\
+\caption{Crowd managers versus LEDs and preassignment.}\label{tab:12}\\
 \toprule
 \textbf{Training case} & \textbf{Model} & \textbf{Mean s} & \textbf{Inside at 180} & \textbf{Unresolved} \\
 \midrule\endfirsthead
@@ -174,7 +492,7 @@ The final staffing extension tests 12 and 18 proposed posts near existing walkab
 
 \begingroup\small
 \begin{longtable}{@{}>{\raggedright\arraybackslash}p{\dimexpr 0.3500\linewidth-11.200pt\relax}>{\raggedright\arraybackslash}p{\dimexpr 0.1300\linewidth-4.160pt\relax}>{\raggedright\arraybackslash}p{\dimexpr 0.2600\linewidth-8.320pt\relax}>{\raggedright\arraybackslash}p{\dimexpr 0.1300\linewidth-4.160pt\relax}>{\raggedright\arraybackslash}p{\dimexpr 0.1300\linewidth-4.160pt\relax}@{}}
-\caption{Additional staff: a resource comparison.}\label{tab:3}\\
+\caption{Additional staff: a resource comparison.}\label{tab:13}\\
 \toprule
 \textbf{Training case} & \textbf{Model} & \textbf{Mean s} & \textbf{Inside at 180} & \textbf{Unresolved} \\
 \midrule\endfirsthead
@@ -204,7 +522,7 @@ The first ten activation draws remain unchanged. Additional staff receive additi
 
 \begingroup\small
 \begin{longtable}{@{}>{\raggedright\arraybackslash}p{\dimexpr 0.3500\linewidth-11.200pt\relax}>{\raggedright\arraybackslash}p{\dimexpr 0.1300\linewidth-4.160pt\relax}>{\raggedright\arraybackslash}p{\dimexpr 0.2600\linewidth-8.320pt\relax}>{\raggedright\arraybackslash}p{\dimexpr 0.1300\linewidth-4.160pt\relax}>{\raggedright\arraybackslash}p{\dimexpr 0.1300\linewidth-4.160pt\relax}@{}}
-\caption{Visibility and barrier comparisons.}\label{tab:4}\\
+\caption{Visibility and barrier comparisons.}\label{tab:14}\\
 \toprule
 \textbf{Visibility case} & \textbf{Model} & \textbf{Mean s} & \textbf{Inside at 180} & \textbf{Unresolved} \\
 \midrule\endfirsthead
@@ -236,7 +554,7 @@ These six-audience screening rows share the plan and guidance mode within each b
 
 \begingroup\small
 \begin{longtable}{@{}>{\raggedright\arraybackslash}p{\dimexpr 0.3500\linewidth-11.200pt\relax}>{\raggedright\arraybackslash}p{\dimexpr 0.1300\linewidth-4.160pt\relax}>{\raggedright\arraybackslash}p{\dimexpr 0.2600\linewidth-8.320pt\relax}>{\raggedright\arraybackslash}p{\dimexpr 0.1300\linewidth-4.160pt\relax}>{\raggedright\arraybackslash}p{\dimexpr 0.1300\linewidth-4.160pt\relax}@{}}
-\caption{Panel, rope and placement comparisons.}\label{tab:5}\\
+\caption{Panel, rope and placement comparisons.}\label{tab:15}\\
 \toprule
 \textbf{Barrier screening case} & \textbf{Model} & \textbf{Mean s} & \textbf{Inside at 180} & \textbf{Unresolved} \\
 \midrule\endfirsthead
@@ -270,7 +588,7 @@ Diversion posts, guardrails, ropes and opaque panels are not interchangeable. Ex
 
 \begingroup\small
 \begin{longtable}{@{}>{\raggedright\arraybackslash}p{\dimexpr 0.2600\linewidth-4.160pt\relax}>{\raggedright\arraybackslash}p{\dimexpr 0.3400\linewidth-5.440pt\relax}>{\raggedright\arraybackslash}p{\dimexpr 0.4000\linewidth-6.400pt\relax}@{}}
-\caption{What is driving time, and what remains uncertain?.}\label{tab:6}\\
+\caption{What is driving time, and what remains uncertain?.}\label{tab:16}\\
 \toprule
 \textbf{Diagnostic on final selected plan} & \textbf{Model A} & \textbf{Model B} \\
 \midrule\endfirsthead
@@ -304,7 +622,7 @@ Exposure integrates density above 2 persons/m\ensuremath{{}^2} over time; its un
 
 \begingroup\small
 \begin{longtable}{@{}>{\raggedright\arraybackslash}p{\dimexpr 0.3000\linewidth-12.000pt\relax}>{\raggedright\arraybackslash}p{\dimexpr 0.2500\linewidth-10.000pt\relax}>{\raggedright\arraybackslash}p{\dimexpr 0.1700\linewidth-6.800pt\relax}>{\raggedright\arraybackslash}p{\dimexpr 0.1000\linewidth-4.000pt\relax}>{\raggedright\arraybackslash}p{\dimexpr 0.0900\linewidth-3.600pt\relax}>{\raggedright\arraybackslash}p{\dimexpr 0.0900\linewidth-3.600pt\relax}@{}}
-\caption{Numerical and ideal-flow checks.}\label{tab:7}\\
+\caption{Numerical and ideal-flow checks.}\label{tab:17}\\
 \toprule
 \textbf{Case} & \textbf{Audiences} & \textbf{Mean A: \ensuremath{\Delta}t=.1} & \textbf{Mean A: \ensuremath{\Delta}t=.05} & \textbf{Mean B: \ensuremath{\Delta}t=.25} & \textbf{Mean B: \ensuremath{\Delta}t=.125} \\
 \midrule\endfirsthead
@@ -324,7 +642,7 @@ Time-step differences include interactions and discrete decision timing, not onl
 
 \begingroup\small
 \begin{longtable}{@{}>{\raggedright\arraybackslash}p{\dimexpr 0.2200\linewidth-12.320pt\relax}>{\raggedright\arraybackslash}p{\dimexpr 0.1000\linewidth-5.600pt\relax}>{\raggedright\arraybackslash}p{\dimexpr 0.0900\linewidth-5.040pt\relax}>{\raggedright\arraybackslash}p{\dimexpr 0.1200\linewidth-6.720pt\relax}>{\raggedright\arraybackslash}p{\dimexpr 0.1200\linewidth-6.720pt\relax}>{\raggedright\arraybackslash}p{\dimexpr 0.1300\linewidth-7.280pt\relax}>{\raggedright\arraybackslash}p{\dimexpr 0.1100\linewidth-6.160pt\relax}>{\raggedright\arraybackslash}p{\dimexpr 0.1100\linewidth-6.160pt\relax}@{}}
-\caption{Numerical and ideal-flow checks.}\label{tab:8}\\
+\caption{Numerical and ideal-flow checks.}\label{tab:18}\\
 \toprule
 \textbf{Case} & \textbf{Runs} & \textbf{Flow N} & \textbf{Mean C immediate} & \textbf{Mean C intrinsic} & \textbf{Mean own-speed bound} & \textbf{Mean C: A starts} & \textbf{Mean C: B starts} \\
 \midrule\endfirsthead
@@ -349,7 +667,7 @@ B is a useful aggregate queue-and-route model. It is \textbf{not independently c
 
 \begingroup\small
 \begin{longtable}{@{}>{\raggedright\arraybackslash}p{\dimexpr 0.2600\linewidth-4.160pt\relax}>{\raggedright\arraybackslash}p{\dimexpr 0.3400\linewidth-5.440pt\relax}>{\raggedright\arraybackslash}p{\dimexpr 0.4000\linewidth-6.400pt\relax}@{}}
-\caption{Is Model B reasonable, and why is it faster?.}\label{tab:9}\\
+\caption{Is Model B reasonable, and why is it faster?.}\label{tab:19}\\
 \toprule
 \textbf{Mechanism} & \textbf{Spatial A} & \textbf{Network B} \\
 \midrule\endfirsthead
@@ -370,7 +688,7 @@ The following \textbf{12-audience training-seed diagnostics} keep the selected p
 
 \begingroup\small
 \begin{longtable}{@{}>{\raggedright\arraybackslash}p{\dimexpr 0.2300\linewidth-5.520pt\relax}>{\raggedright\arraybackslash}p{\dimexpr 0.1600\linewidth-3.840pt\relax}>{\raggedright\arraybackslash}p{\dimexpr 0.2300\linewidth-5.520pt\relax}>{\raggedright\arraybackslash}p{\dimexpr 0.3800\linewidth-9.120pt\relax}@{}}
-\caption{Is Model B reasonable, and why is it faster?.}\label{tab:10}\\
+\caption{Is Model B reasonable, and why is it faster?.}\label{tab:20}\\
 \toprule
 \textbf{Plan} & \textbf{B option} & \textbf{Mean s [95\% CI]} & \textbf{Unresolved} \\
 \midrule\endfirsthead
@@ -399,7 +717,7 @@ The user-requested calibration audit changes two existing parameters while prese
 
 \begingroup\small
 \begin{longtable}{@{}>{\raggedright\arraybackslash}p{\dimexpr 0.3500\linewidth-11.200pt\relax}>{\raggedright\arraybackslash}p{\dimexpr 0.1300\linewidth-4.160pt\relax}>{\raggedright\arraybackslash}p{\dimexpr 0.2600\linewidth-8.320pt\relax}>{\raggedright\arraybackslash}p{\dimexpr 0.1300\linewidth-4.160pt\relax}>{\raggedright\arraybackslash}p{\dimexpr 0.1300\linewidth-4.160pt\relax}@{}}
-\caption{Can existing A parameters reasonably reduce time?.}\label{tab:11}\\
+\caption{Can existing A parameters reasonably reduce time?.}\label{tab:21}\\
 \toprule
 \textbf{Parameter case} & \textbf{Row m/s} & \textbf{Headway s} & \textbf{A mean [95\% CI]} & \textbf{B mean [95\% CI]} \\
 \midrule\endfirsthead
@@ -433,7 +751,7 @@ This final user-requested check deliberately goes beyond the research-motivated 
 
 \begingroup\small
 \begin{longtable}{@{}>{\raggedright\arraybackslash}p{\dimexpr 0.3000\linewidth-12.000pt\relax}>{\raggedright\arraybackslash}p{\dimexpr 0.2500\linewidth-10.000pt\relax}>{\raggedright\arraybackslash}p{\dimexpr 0.1700\linewidth-6.800pt\relax}>{\raggedright\arraybackslash}p{\dimexpr 0.1000\linewidth-4.000pt\relax}>{\raggedright\arraybackslash}p{\dimexpr 0.0900\linewidth-3.600pt\relax}>{\raggedright\arraybackslash}p{\dimexpr 0.0900\linewidth-3.600pt\relax}@{}}
-\caption{Can we simply weaken congestion until A passes?.}\label{tab:12}\\
+\caption{Can we simply weaken congestion until A passes?.}\label{tab:22}\\
 \toprule
 \textbf{A parameter case} & \textbf{H (s)} & \textbf{Counterflow coefficient} & \textbf{Density cap} & \textbf{Mean s} & \textbf{Runs \ensuremath{\le}180} \\
 \midrule\endfirsthead
@@ -467,7 +785,7 @@ No stress-test setting replaces the defaults or primary confirmed plans. Files: 
 
 \begingroup\small
 \begin{longtable}{@{}>{\raggedright\arraybackslash}p{\dimexpr 0.2900\linewidth-2.320pt\relax}>{\raggedright\arraybackslash}p{\dimexpr 0.7100\linewidth-5.680pt\relax}@{}}
-\caption{Exact changes from Mateus and verification.}\label{tab:13}\\
+\caption{Exact changes from Mateus and verification.}\label{tab:23}\\
 \toprule
 \textbf{Files / area} & \textbf{Change and reason} \\
 \midrule\endfirsthead
@@ -522,7 +840,7 @@ The separate spatial FIFO model retains all 268 nodes, 384 links and 1,329 peopl
 
 \begingroup\small
 \begin{longtable}{@{}>{\raggedright\arraybackslash}p{\dimexpr 0.3500\linewidth-11.200pt\relax}>{\raggedright\arraybackslash}p{\dimexpr 0.1300\linewidth-4.160pt\relax}>{\raggedright\arraybackslash}p{\dimexpr 0.2600\linewidth-8.320pt\relax}>{\raggedright\arraybackslash}p{\dimexpr 0.1300\linewidth-4.160pt\relax}>{\raggedright\arraybackslash}p{\dimexpr 0.1300\linewidth-4.160pt\relax}@{}}
-\caption{A-Lite extension: independent results and new corrections.}\label{tab:14}\\
+\caption{A-Lite extension: independent results and new corrections.}\label{tab:24}\\
 \toprule
 \textbf{New confirmation case} & \textbf{Model} & \textbf{Mean s [95\% CI]} & \textbf{Runs \ensuremath{\le}180} & \textbf{Unresolved} \\
 \midrule\endfirsthead
@@ -547,4 +865,18 @@ New numerical switches preserve admitted boundary velocity, use start-of-step fo
 
 
 At a 0.025 s step, the frozen Lite policy averages 188.7 s [186.2, 191.2] on the same forty audiences. The target still fails. The complete audit includes individual ablations, six-cell headway/row-speed sensitivity, blocked-door paired tests, final-50 traces, queue/exit/density comparisons and runtime. No physical capacity, population, intrinsic response or compliance was tuned to manufacture a pass.
+
+\clearpage
+\begin{thebibliography}{L-R19}
+\addcontentsline{toc}{section}{References}
+\bibitem[R20]{R20} Bernardini, G., Lovreglio, R., Quagliarini, E. \& D'Orazio, M. (2023). \emph{Can active and passive wayfinding systems support fire evacuation in buildings? Insights from a virtual reality-based experiment.} Journal of Building Engineering 74:106778. \href{https://doi.org/10.1016/j.jobe.2023.106778}{Primary article}. Isolated-user VR comparison; does not identify Bailey dense-crowd detection, acceptance or clearance time.
+
+\bibitem[R8]{R8} Galea, E.R., Xie, H., Deere, S., Cooney, D. \& Filippidis, L. (2017). \emph{Evaluating the effectiveness of an improved active dynamic signage system using full scale evacuation trials.} Fire Safety Journal 91, 908–917. \href{https://gala.gre.ac.uk/id/eprint/16552/}{Author repository}. Combined-signage/voice outcome; not independent Bailey detection and compliance parameters.
+
+\bibitem[R11]{R11} Wang, L., Ding, S., Yu, H., Li, X., Zhang, J. \& Song, W. (2023). \emph{Influence of pre-bottleneck diversion devices on pedestrian flow.} Journal of Statistical Mechanics. \href{https://arxiv.org/abs/2212.01296}{Author manuscript}. Barrier and post layouts can have opposite effects.
+
+\bibitem[R12]{R12} Feliciani, C., Zuriguel, I., Garcimartín, A., Maza, D. \& Nishinari, K. (2020). \emph{Systematic experimental investigation of the obstacle effect during non-competitive and extremely competitive evacuations.} Scientific Reports 10:15947. \href{https://pmc.ncbi.nlm.nih.gov/articles/PMC7525554/}{Open article}. Context-dependent obstacle effects; no general capacity bonus adopted.
+
+\bibitem[R17]{R17} Chen, H. and colleagues (2023). \emph{Effect of S-shaped guardrails on pedestrian crowd flows in bottleneck areas.} Safety Science 159:106020. \href{https://doi.org/10.1016/j.ssci.2022.106020}{Primary article}. Queue channeling can trade evacuation time against congestion.
+\end{thebibliography}
 \end{document}

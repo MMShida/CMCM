@@ -246,6 +246,15 @@ export function drawScene(ctx: CanvasRenderingContext2D, w: number, h: number, v
   // Fixed sign location and facing direction; does not imply universal visibility.
   if (dyn.ledOn && dyn.signs) for (const sign of dyn.signs) {
     if(sign.floor!==o.floor)continue;
+    if(sign.strip) {
+      const pts=sign.strip.points, a=pts[pts.length-2],b=pts[pts.length-1];
+      ctx.strokeStyle='#139d70';ctx.lineWidth=3;ctx.beginPath();
+      pts.forEach(([x,y],i)=>i?ctx.lineTo(tx(x),ty(y)):ctx.moveTo(tx(x),ty(y)));ctx.stroke();
+      const th=Math.atan2(b[1]-a[1],b[0]-a[0]);
+      ctx.beginPath();ctx.moveTo(tx(b[0])-8*Math.cos(th-.5),ty(b[1])-8*Math.sin(th-.5));ctx.lineTo(tx(b[0]),ty(b[1]));ctx.lineTo(tx(b[0])-8*Math.cos(th+.5),ty(b[1])-8*Math.sin(th+.5));ctx.stroke();
+      if(o.showLabels){ctx.font='10px sans-serif';ctx.fillStyle='#139d70';ctx.fillText(sign.id,tx(sign.x)+5,ty(sign.y)-5);}
+      continue;
+    }
     const x=tx(sign.x),y=ty(sign.y),a=sign.facingDegrees*Math.PI/180;
     ctx.fillStyle='#139d70';ctx.fillRect(x-4,y-4,8,8);ctx.strokeStyle='#139d70';ctx.lineWidth=2;
     ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(x+12*Math.cos(a),y+12*Math.sin(a));ctx.stroke();

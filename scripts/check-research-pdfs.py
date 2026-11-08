@@ -13,7 +13,7 @@ for stem in ['MODEL_GUIDE','RESULTS_AND_CHANGES','SIMPLIFICATION_AUDIT']:
     for i,p in enumerate(pdf):
         for b in p.get_text('blocks'):
             if b[4].strip():assert b[0]>=28 and b[2]<=p.rect.width-25 and b[1]>=15 and b[3]<=p.rect.height-20,(stem,i+1,b[:4],b[4][:80])
-    tags=[str(n) for n in range(1,25)]+['16a','16b','16c'] if stem=='MODEL_GUIDE' else ['L'+str(n) for n in range(1,7)] if stem=='SIMPLIFICATION_AUDIT' else []
+    tags=[str(n) for n in range(1,26)]+['16a','16b','16c'] if stem=='MODEL_GUIDE' else ['L'+str(n) for n in range(1,7)] if stem=='SIMPLIFICATION_AUDIT' else []
     for tag in tags:assert '('+tag+')' in text,(stem,tag)
     if stem=='SIMPLIFICATION_AUDIT':
         for token in ['191.4','188.7','259.0','166.4','Unresolved','180']:assert token in text,(stem,token)

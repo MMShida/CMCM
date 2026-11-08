@@ -316,6 +316,41 @@
       "bytes": 1258704,
       "sha256": "5e3ea2eea7a9383daff91ab02e3e86154a930b1f19df79a522effb3362ead615",
       "compressedBytes": 166627
+    },
+    {
+      "path": "results/placement-study/screen.json",
+      "archive": "results/placement-study/screen.json.gz",
+      "bytes": 24276519,
+      "sha256": "1cd3f1fd71ee97a8257e379d95a14b3998efe8f5d1e2cab5a842a19eca182e26",
+      "compressedBytes": 3188959
+    },
+    {
+      "path": "results/placement-study/shortlist.json",
+      "archive": "results/placement-study/shortlist.json.gz",
+      "bytes": 14094494,
+      "sha256": "f27051ef76622a925bf1facaa7057756ad8995270b13fa7c2f118c727e07183b",
+      "compressedBytes": 1811103
+    },
+    {
+      "path": "results/placement-study/confirmation.json",
+      "archive": "results/placement-study/confirmation.json.gz",
+      "bytes": 20959681,
+      "sha256": "70ca5bc7e99635f65dcfed85996bc44b46a78067f1f744af5a0bac6ef62cc484",
+      "compressedBytes": 2589655
+    },
+    {
+      "path": "results/placement-study/blocked.json",
+      "archive": "results/placement-study/blocked.json.gz",
+      "bytes": 5250103,
+      "sha256": "e73a661ff320da8febe195470d1cbd9e54dafb77bc03fc030adfa5688f6267e3",
+      "compressedBytes": 659958
+    },
+    {
+      "path": "results/placement-study/visibility.json",
+      "archive": "results/placement-study/visibility.json.gz",
+      "bytes": 2487984,
+      "sha256": "60c362b07e74d2f757725bec3da1c8aff2fb893599f9445482f697f9ccd9d57c",
+      "compressedBytes": 318434
     }
   ],
   "sourceSnapshots": [
@@ -450,6 +485,26 @@
     {
       "oldPath": "results/research-180/staff-extension-source.json",
       "sourceHash": "3fb29d4a7970b7546c404d920c4f392713a3691df394e6f7b6c5725d0cfc9d42"
+    },
+    {
+      "oldPath": "results/placement-study/visibility-source.json",
+      "sourceHash": "0ba78a2660e110bb5d5f562da0eb26f9c9c47c1d02d3f6714bd5af2623c9bf91"
+    },
+    {
+      "oldPath": "results/placement-study/blocked-source.json",
+      "sourceHash": "0ba78a2660e110bb5d5f562da0eb26f9c9c47c1d02d3f6714bd5af2623c9bf91"
+    },
+    {
+      "oldPath": "results/placement-study/confirmation-source.json",
+      "sourceHash": "7234b367663f3d0c66216585322b9ab2ee1ea1fec56e6f0670120461b3d01276"
+    },
+    {
+      "oldPath": "results/placement-study/shortlist-source.json",
+      "sourceHash": "7234b367663f3d0c66216585322b9ab2ee1ea1fec56e6f0670120461b3d01276"
+    },
+    {
+      "oldPath": "results/placement-study/screen-source.json",
+      "sourceHash": "ae6e12c3951a6a8532be5a3bb3e34184cbaecc6bf2e8ac1fb7c7295b04d8a56c"
     }
   ]
 }

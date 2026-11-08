@@ -17,9 +17,9 @@ import { GROUP_COLOR_INDEX, GROUP_SHORT, download, fmt, seriesColor, toCsv } fro
 const SPEEDS = [1, 2, 5, 10, 50];
 const LEGEND_STATES = [0, 1, 2, 3, 4, 5, 6, 9, 7, 8, 10, 12, 13];
 
-export function LiveView({ geo, cfg, dark }: { geo: GeometryData; cfg: SimConfig; dark: boolean }) {
+export function LiveView({ geo, cfg, dark, model = 'A' }: { geo: GeometryData; cfg: SimConfig; dark: boolean; model?: 'A' | 'Lite' }) {
   const ctlRef = useRef<LiveController | null>(null);
-  if (!ctlRef.current) ctlRef.current = new LiveController(geo, cfg);
+  if (!ctlRef.current) ctlRef.current = new LiveController(geo, cfg, model);
   const ctl = ctlRef.current;
   const graph = useMemo(() => graphFor(geo, cfg.movement.laneWidth), [geo, cfg.movement.laneWidth]);
   const [, setTick] = useState(0);
@@ -96,6 +96,7 @@ export function LiveView({ geo, cfg, dark }: { geo: GeometryData; cfg: SimConfig
 
   return (
     <div className="live">
+      <p className="muted small">Model {model === 'Lite' ? 'A-Lite' : 'A'} · seed {ctl.sim.seed} · {ctl.sim.guidance.cms.length} managers. This is one audience, not the study mean. The building-clearance time is reported separately from continued travel to street level.</p>
       <div className="toolbar">
         {!ctl.running ? (
           <button className="btn primary" onClick={() => ((ctl.replay = null), (ctl.running = true), setTick((t) => t + 1))} disabled={ctl.sim.finished}>
@@ -241,7 +242,8 @@ function RunResults({ result: r, ctl }: { result: RunResult; ctl: LiveController
       <div className="tiles">
         <Tile label="Evacuation time (last person out)" value={Number.isFinite(r.tEvac) ? `${fmt(r.tEvac)} s` : 'not completed'} warn={!(r.tEvac <= 180)} />
         <Tile label="Last ambulatory person out" value={`${fmt(r.tEvacAmbulatory)} s`} />
-        <Tile label="Last person at street level" value={`${fmt(r.tSafe)} s`} />
+        <Tile label="Last ambulatory person at street level" value={`${fmt(r.tSafe)} s`} />
+        <Tile label="All people at street level, including scheduled assistance" value={`${fmt(r.tSafeAll ?? NaN)} s`} />
         <Tile label="Mean / median / p95 exit time" value={`${fmt(r.meanExit, 0)} / ${fmt(r.medianExit, 0)} / ${fmt(r.p95Exit, 0)} s`} />
         <Tile label="Median / p95 start time" value={`${fmt(r.medianStart, 0)} / ${fmt(r.p95Start, 0)} s`} />
         <Tile label="Peak local density" value={`${fmt(r.peakDensity, 2)} p/m² (${r.peakDensityWhere})`} />

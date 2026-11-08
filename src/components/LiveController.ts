@@ -8,6 +8,7 @@ import type { GeometryData } from '../geometry/types';
 import { ST } from '../simulation/Agent';
 import type { SimConfig } from '../simulation/Params';
 import { planExitIndex, seatPlanKeys } from '../simulation/Plan';
+import { LiteSimulation } from '../lite/LiteSimulation';
 import { SimulationEngine } from '../simulation/SimulationEngine';
 import { computeField } from '../geometry/NavigationGraph';
 import { EXIT_GROUPS } from '../geometry/types';
@@ -44,6 +45,7 @@ export class LiveController {
   constructor(
     public geo: GeometryData,
     public cfg: SimConfig,
+    public model: 'A' | 'Lite' = 'A',
   ) {
     this.reset(cfg, geo);
   }
@@ -51,7 +53,7 @@ export class LiveController {
   reset(cfg: SimConfig, geo: GeometryData = this.geo) {
     this.cfg = cfg;
     this.geo = geo;
-    this.sim = new SimulationEngine(geo, cfg, cfg.seed);
+    this.sim = this.model === 'Lite' ? new LiteSimulation(geo, cfg, cfg.seed) : new SimulationEngine(geo, cfg, cfg.seed);
     const n = this.sim.agents.length;
     this.prevX = new Float32Array(n);
     this.prevY = new Float32Array(n);

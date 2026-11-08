@@ -45,7 +45,12 @@ def inline(s,citations=True):
             a=m[1].replace('–','-')
             if re.fullmatch(r'R\d+-R\d+',a):
                 lo,hi=map(int,re.findall(r'\d+',a));a=','.join('R'+str(i) for i in range(lo,hi+1))
-            keys=[x.strip() for x in a.split(',')]
+            keys=[]
+            for part in a.split(','):
+                part=part.strip()
+                if re.fullmatch(r'R\d+-R\d+',part):
+                    lo,hi=map(int,re.findall(r'\d+',part));keys.extend('R'+str(i) for i in range(lo,hi+1))
+                else:keys.append(part)
             return keep(r'\cite{'+','.join(keys)+'}') if all(k in refs for k in keys) else m[0]
         s=re.sub(r'\[([RL][^\]\n]*)\]',cite,s)
     s=re.sub(r'(equations?) \((\d+[a-z]?)\)',lambda m:keep(m[1]+r'~\eqref{eq:'+m[2]+'}'),s,flags=re.I)
@@ -95,7 +100,7 @@ PREAMBLE=r'''\documentclass[11pt,a4paper]{article}
 '''
 META={
 'MODEL_GUIDE':('Bailey Hall evacuation modelling','Mathematical specification, assumptions and verification','This document develops the model from flow conservation and travel times to heterogeneous agents, spatial interactions, imperfect guidance and the separate A-Lite queue model. Equations describe the implemented rules; citations justify modelling mechanisms without treating unmeasured coefficients as Bailey-specific evidence. The audience remains 1,329 people, including three wheelchair users. The quantity of interest is the mean, over independent audiences, of the last person\'s exterior-boundary crossing time. The companion experimental reports distinguish numerical corrections, structural simplifications and parameter calibration.'),
-'RESULTS_AND_CHANGES':('Interventions and changes from Mateus\'s 04:20 model','Experimental results and reproducibility record','This report records the original guidance-and-barrier investigation and its independent confirmation. It distinguishes the predictions of spatial Model A and network Model B, and reports numerical checks, calibration sensitivities and evidence limits. The later A-Lite extension has a separate audit and comparison report; historical panel configurations are not installation recommendations.'),
+'RESULTS_AND_CHANGES':('Interventions and changes from Mateus\'s 04:20 model','Experimental results and reproducibility record','This report leads with the fixed six-manager comparison of physical LED strips and removable corridor barriers, with placement maps, independent confirmation and a replay audit. It also preserves the original guidance-and-barrier investigation. It distinguishes the predictions of spatial Model A and network Model B, and reports numerical checks, calibration sensitivities and evidence limits. The later A-Lite extension has a separate audit and comparison report; historical panel configurations are not installation recommendations.'),
 'SIMPLIFICATION_AUDIT':('A-Lite: a spatial queue model for Bailey Hall','Mechanism audit, mathematical specification and comparative experiments','This report tests whether a spatial queue representation can remove unsupported microscopic detail while retaining the full audience, original graph, finite passage storage, physical gate capacities, heterogeneous response and imperfect guidance. Numerical corrections, individual ablations, operational optimization and calibration changes are evaluated separately. Original Model A remains the benchmark. Independent confirmation, failures, time-step sensitivity and the effects lost by simplification determine the recommendation.')}
 
 def render(text,stem):
@@ -105,7 +110,7 @@ def render(text,stem):
     lines=text.splitlines();out=[];i=0;table=0;section='Model specification'
     while i<len(lines):
         s=lines[i].strip();i+=1
-        if not s:continue
+        if not s or s.startswith('<!--'):continue
         if s.startswith('# '):continue
         if s.startswith('## '):
             h=s[3:];m=re.match(r'(\d+[a-z]?)\.\s*(.*)',h)
@@ -129,7 +134,8 @@ def render(text,stem):
                 doc=fitz.open('svg',f.read_bytes());pdf=fitz.open('pdf',doc.convert_to_pdf());pdf.save(dest);pdf.close();doc.close()
             elif f.suffix=='.pdf':shutil.copyfile(f,dest)
             else:dest=TEX/'figures'/f.name;shutil.copyfile(f,dest)
-            out.append(r'\begin{figure}[htbp]\centering'+'\n'+r'\includegraphics[width=\linewidth,height=.30\textheight,keepaspectratio]{figures/'+dest.name+'}\n'+r'\caption{'+inline(m[1])+'}'+r'\label{fig:'+f.stem+'}\n'+r'\end{figure}');continue
+            height='.82' if f.stem=='placement-layouts' else '.48' if f.stem=='placement-selected' else '.30'
+            out.append(r'\begin{figure}[htbp]\centering'+'\n'+r'\includegraphics[width=\linewidth,height='+height+r'\textheight,keepaspectratio]{figures/'+dest.name+'}\n'+r'\caption{'+inline(m[1])+'}'+r'\label{fig:'+f.stem+'}\n'+r'\end{figure}');continue
         if s.startswith('|'):
             rows=[s]
             while i<len(lines) and lines[i].strip().startswith('|'):rows.append(lines[i].strip());i+=1
@@ -185,6 +191,9 @@ Scope & Research model; assumptions and calibration limits stated explicitly
 \clearpage
 \pagenumbering{arabic}
 '''.replace('SUBTITLE',escape(sub)).replace('TITLE',escape(title)).replace('ABSTRACT',inline(abstract))
+    if stem=='RESULTS_AND_CHANGES' and (D/'EXECUTIVE_SUMMARY.md').exists():
+        summary=r'\thispagestyle{empty}\section*{Executive summary}'+'\n'+render((D/'EXECUTIVE_SUMMARY.md').read_text(),stem)+r'\clearpage'+'\n'
+        cover=cover.replace(r'\pagenumbering{roman}',summary+r'\pagenumbering{roman}')
     main=render(path.read_text(),stem)
     # Include every cited entry, including evidence inherited by the standalone A-Lite specification.
     keys=[]

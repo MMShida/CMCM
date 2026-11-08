@@ -9,6 +9,7 @@ import type { GeometryData } from '../geometry/types';
 import { toRunSummary } from '../simulation/MonteCarlo';
 import type { SimConfig } from '../simulation/Params';
 import { runSimulation } from '../simulation/SimulationEngine';
+import { LiteSimulation } from '../lite/LiteSimulation';
 import { runNetworkSimulation } from '../network/NetworkSimulation';
 
 interface Job {
@@ -18,7 +19,7 @@ interface Job {
   indices: number[];
   geo?: GeometryData;
   /** 'A' (default) or 'B' */
-  model?: 'A' | 'B';
+  model?: 'A' | 'B' | 'Lite';
 }
 
 let cancelled = new Set<number>();
@@ -34,7 +35,7 @@ self.onmessage = (ev: MessageEvent) => {
   for (let k = 0; k < job.seeds.length; k++) {
     if (cancelled.has(job.jobId)) break;
     try {
-      const r = job.model === 'B' ? runNetworkSimulation(geo, job.cfg, job.seeds[k]).result : runSimulation(geo, job.cfg, job.seeds[k]);
+      const r = job.model === 'Lite' ? new LiteSimulation(geo,job.cfg,job.seeds[k]).run() : job.model === 'B' ? runNetworkSimulation(geo, job.cfg, job.seeds[k]).result : runSimulation(geo, job.cfg, job.seeds[k]);
       (self as unknown as Worker).postMessage({ type: 'run', jobId: job.jobId, index: job.indices[k], summary: toRunSummary(r) });
     } catch (e) {
       (self as unknown as Worker).postMessage({ type: 'error', jobId: job.jobId, index: job.indices[k], error: String(e) });

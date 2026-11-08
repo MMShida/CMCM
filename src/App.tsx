@@ -5,7 +5,7 @@ import { GeometryEditor } from './components/GeometryEditor';
 import { LiveView } from './components/LiveView';
 import { ModelDocs } from './components/ModelDocs';
 import { ResearchStudyView } from './components/ResearchStudyView';
-import { MonteCarloPanel } from './components/MonteCarloPanel';
+import { MonteCarloPanel, type StudyReplay } from './components/MonteCarloPanel';
 import { SensitivityPanel } from './components/SensitivityPanel';
 import { CompareView } from './components/compare/CompareView';
 import { ModelExperiments } from './components/compare/ModelExperiments';
@@ -19,9 +19,10 @@ import type { SimConfig } from './simulation/Params';
 import { cloneConfig, defaultConfig, mergeConfig } from './simulation/Params';
 import { scenarioById } from './simulation/Scenarios';
 
-type Tab = 'live' | 'mc' | 'density' | 'cms' | 'exp' | 'sens' | 'net' | 'cmp' | 'cmpx' | 'dash' | 'geo' | 'model' | 'research';
+type Tab = 'lite' | 'live' | 'mc' | 'density' | 'cms' | 'exp' | 'sens' | 'net' | 'cmp' | 'cmpx' | 'dash' | 'geo' | 'model' | 'research';
 const TABS: [Tab, string][] = [
   ['live', 'Live simulation (A)'],
+  ['lite', 'A-Lite simulation'],
   ['research', '180-second study'],
   ['mc', 'Monte Carlo'],
   ['density', 'Density over time'],
@@ -68,6 +69,8 @@ export default function App() {
     // merge onto current defaults so configs saved by older versions stay valid
     return stored ? mergeConfig(defaultConfig(), stored as any) : scenarioById('concert-emergency');
   });
+  const [replay, setReplay] = useState<StudyReplay|null>(null);
+  const [replayKey, setReplayKey] = useState(0);
   const [geo, setGeo] = useState<GeometryData>(BAILEY_HALL);
   const [dark, setDark] = useState<boolean>(() => (URLP.get('theme') ? URLP.get('theme') === 'dark' : lsGet('bailey.dark', typeof matchMedia !== 'undefined' && matchMedia('(prefers-color-scheme: dark)').matches)));
 
@@ -86,6 +89,7 @@ export default function App() {
       return n;
     });
   const onScenario = (id: string) => {
+    setReplay(null);setReplayKey(k=>k+1);
     const c = scenarioById(id, geo);
     c.seed = cfg.seed;
     setScenarioId(id);
@@ -98,7 +102,7 @@ export default function App() {
     <div className="app">
       <header className="top">
         <div className="brand">
-          <b>Bail(ey)ing Out</b> <span className="muted">evacuation models A (agent-based) · B (network) · C (optimal flow) · Bailey Hall · CMCM 2026</span>
+          <b>Bail(ey)ing Out</b> <span className="muted">evacuation models A (agent-based) · B (network) · C (optimal flow) · Bailey Hall · CMCM 2026 · 04:20 research checkout</span>
         </div>
         <nav className="tabs">
           {TABS.map(([id, label]) => (
@@ -116,7 +120,8 @@ export default function App() {
         {showControls && <ControlPanel cfg={cfg} geo={geo} scenarioId={scenarioId} onScenario={onScenario} update={update} replace={(c) => setCfg(c)} />}
         <main>
           {tab === 'live' && <LiveView geo={geo} cfg={cfg} dark={dark} />}
-          {tab === 'mc' && <MonteCarloPanel geo={geo} cfg={cfg} bundled={bundled} />}
+          {tab === 'lite' && <LiveView key="lite" geo={geo} cfg={cfg} dark={dark} model="Lite" />}
+          {tab === 'mc' && <MonteCarloPanel key={replayKey} geo={geo} cfg={cfg} bundled={bundled} replay={replay} clearReplay={()=>{setReplay(null);setReplayKey(k=>k+1);}} />}
           {tab === 'density' && <DensityView geo={geo} cfg={cfg} dark={dark} bundled={bundled} />}
           {tab === 'cms' && <ManagersView geo={geo} cfg={cfg} dark={dark} bundled={bundled} />}
           {tab === 'exp' && <ExperimentComparison geo={geo} cfg={cfg} bundled={bundled} />}
@@ -127,7 +132,7 @@ export default function App() {
           {tab === 'dash' && <ResultsDashboard />}
           {tab === 'geo' && <GeometryEditor geo={geo} setGeo={setGeo} dark={dark} />}
           {tab === 'model' && <ModelDocs />}
-          {tab === 'research' && <ResearchStudyView apply={(c,model)=>{setGeo(BAILEY_HALL);setCfg(cloneConfig(c));setScenarioId(c.scenarioId);setTab(model==='A'?'live':'net');}} />}
+          {tab === 'research' && <ResearchStudyView apply={(c,model)=>{setReplay(null);setReplayKey(k=>k+1);setGeo(BAILEY_HALL);setCfg(cloneConfig(c));setScenarioId(c.scenarioId);setTab(model==='A'?'live':model==='Lite'?'lite':'net');}} replay={r=>{setGeo(BAILEY_HALL);setCfg(cloneConfig(r.cfg));setReplay(r);setReplayKey(k=>k+1);setTab('mc');}} />}
         </main>
       </div>
     </div>

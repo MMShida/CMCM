@@ -406,7 +406,209 @@
           "BAL_W_S": 2
         }
       },
-      "label": "Mateus original fixed"
+      "label": "Mateus original fixed",
+      "times": [
+        {
+          "seed": 2132682877,
+          "tEvac": 269.1,
+          "tSafe": 298.6
+        },
+        {
+          "seed": 653975856,
+          "tEvac": 257.3,
+          "tSafe": 295.4
+        },
+        {
+          "seed": 618185560,
+          "tEvac": 327.5,
+          "tSafe": 373.8
+        },
+        {
+          "seed": 1854591219,
+          "tEvac": 297.2,
+          "tSafe": 302.9
+        },
+        {
+          "seed": 863383835,
+          "tEvac": 265.9,
+          "tSafe": 301.3
+        },
+        {
+          "seed": 1183475955,
+          "tEvac": 251.8,
+          "tSafe": 283.6
+        },
+        {
+          "seed": 513925044,
+          "tEvac": 281.6,
+          "tSafe": 316
+        },
+        {
+          "seed": 229211339,
+          "tEvac": 263.1,
+          "tSafe": 307.1
+        },
+        {
+          "seed": 232536135,
+          "tEvac": 257.6,
+          "tSafe": 303.9
+        },
+        {
+          "seed": 731229269,
+          "tEvac": 240.8,
+          "tSafe": 278
+        },
+        {
+          "seed": 591607904,
+          "tEvac": 279.9,
+          "tSafe": 315.3
+        },
+        {
+          "seed": 1030597639,
+          "tEvac": 257.3,
+          "tSafe": 291.1
+        },
+        {
+          "seed": 1323203988,
+          "tEvac": 255.5,
+          "tSafe": 292.8
+        },
+        {
+          "seed": 841636617,
+          "tEvac": 286.9,
+          "tSafe": 333.2
+        },
+        {
+          "seed": 1921222558,
+          "tEvac": 242.4,
+          "tSafe": 270.8
+        },
+        {
+          "seed": 111850202,
+          "tEvac": 245.9,
+          "tSafe": 285.2
+        },
+        {
+          "seed": 1818640267,
+          "tEvac": 270.8,
+          "tSafe": 305.3
+        },
+        {
+          "seed": 228947731,
+          "tEvac": 270.1,
+          "tSafe": 299.7
+        },
+        {
+          "seed": 1174295531,
+          "tEvac": 250.5,
+          "tSafe": 276
+        },
+        {
+          "seed": 879836714,
+          "tEvac": 253.8,
+          "tSafe": 290.9
+        },
+        {
+          "seed": 529506579,
+          "tEvac": 255.7,
+          "tSafe": 295.4
+        },
+        {
+          "seed": 1517495200,
+          "tEvac": 257.6,
+          "tSafe": 293.2
+        },
+        {
+          "seed": 30456098,
+          "tEvac": 250.6,
+          "tSafe": 286.1
+        },
+        {
+          "seed": 659498778,
+          "tEvac": 296.5,
+          "tSafe": 332.5
+        },
+        {
+          "seed": 1984646950,
+          "tEvac": 250.6,
+          "tSafe": 289.5
+        },
+        {
+          "seed": 443517544,
+          "tEvac": 263.2,
+          "tSafe": 291.7
+        },
+        {
+          "seed": 1750521709,
+          "tEvac": 274,
+          "tSafe": 308
+        },
+        {
+          "seed": 816676554,
+          "tEvac": 275.2,
+          "tSafe": 313.3
+        },
+        {
+          "seed": 730376091,
+          "tEvac": 264,
+          "tSafe": 297.9
+        },
+        {
+          "seed": 514730907,
+          "tEvac": 271.4,
+          "tSafe": 306.5
+        },
+        {
+          "seed": 2006777899,
+          "tEvac": 313.9,
+          "tSafe": 355.8
+        },
+        {
+          "seed": 1478387406,
+          "tEvac": 266.7,
+          "tSafe": 309.7
+        },
+        {
+          "seed": 1142119044,
+          "tEvac": 273.9,
+          "tSafe": 305.9
+        },
+        {
+          "seed": 996092048,
+          "tEvac": 266,
+          "tSafe": 298.1
+        },
+        {
+          "seed": 12969245,
+          "tEvac": 277.8,
+          "tSafe": 312.6
+        },
+        {
+          "seed": 1479227856,
+          "tEvac": 252.5,
+          "tSafe": 293
+        },
+        {
+          "seed": 759688920,
+          "tEvac": 264,
+          "tSafe": 300.6
+        },
+        {
+          "seed": 1706535878,
+          "tEvac": 316.2,
+          "tSafe": 340.3
+        },
+        {
+          "seed": 1449660327,
+          "tEvac": 246.2,
+          "tSafe": 285.3
+        },
+        {
+          "seed": 375984858,
+          "tEvac": 284.8,
+          "tSafe": 313.6
+        }
+      ]
     },
     {
       "id": "mateus-fixed",
@@ -804,7 +1006,209 @@
           "BAL_W_S": 2
         }
       },
-      "label": "Mateus original fixed"
+      "label": "Mateus original fixed",
+      "times": [
+        {
+          "seed": 2132682877,
+          "tEvac": 214.75,
+          "tSafe": null
+        },
+        {
+          "seed": 653975856,
+          "tEvac": 207.25,
+          "tSafe": null
+        },
+        {
+          "seed": 618185560,
+          "tEvac": 229,
+          "tSafe": null
+        },
+        {
+          "seed": 1854591219,
+          "tEvac": 217.25,
+          "tSafe": null
+        },
+        {
+          "seed": 863383835,
+          "tEvac": 218.75,
+          "tSafe": null
+        },
+        {
+          "seed": 1183475955,
+          "tEvac": 231.5,
+          "tSafe": null
+        },
+        {
+          "seed": 513925044,
+          "tEvac": 209.75,
+          "tSafe": null
+        },
+        {
+          "seed": 229211339,
+          "tEvac": 224,
+          "tSafe": null
+        },
+        {
+          "seed": 232536135,
+          "tEvac": 224.75,
+          "tSafe": null
+        },
+        {
+          "seed": 731229269,
+          "tEvac": 208.5,
+          "tSafe": null
+        },
+        {
+          "seed": 591607904,
+          "tEvac": 223.5,
+          "tSafe": null
+        },
+        {
+          "seed": 1030597639,
+          "tEvac": 239.25,
+          "tSafe": null
+        },
+        {
+          "seed": 1323203988,
+          "tEvac": 222.75,
+          "tSafe": null
+        },
+        {
+          "seed": 841636617,
+          "tEvac": 244.75,
+          "tSafe": null
+        },
+        {
+          "seed": 1921222558,
+          "tEvac": 252,
+          "tSafe": null
+        },
+        {
+          "seed": 111850202,
+          "tEvac": 217.75,
+          "tSafe": null
+        },
+        {
+          "seed": 1818640267,
+          "tEvac": 212.75,
+          "tSafe": null
+        },
+        {
+          "seed": 228947731,
+          "tEvac": 209.25,
+          "tSafe": null
+        },
+        {
+          "seed": 1174295531,
+          "tEvac": 226.25,
+          "tSafe": null
+        },
+        {
+          "seed": 879836714,
+          "tEvac": 207.25,
+          "tSafe": null
+        },
+        {
+          "seed": 529506579,
+          "tEvac": 206,
+          "tSafe": null
+        },
+        {
+          "seed": 1517495200,
+          "tEvac": 209,
+          "tSafe": null
+        },
+        {
+          "seed": 30456098,
+          "tEvac": 252,
+          "tSafe": null
+        },
+        {
+          "seed": 659498778,
+          "tEvac": 213,
+          "tSafe": null
+        },
+        {
+          "seed": 1984646950,
+          "tEvac": 219.5,
+          "tSafe": null
+        },
+        {
+          "seed": 443517544,
+          "tEvac": 213.5,
+          "tSafe": null
+        },
+        {
+          "seed": 1750521709,
+          "tEvac": 212,
+          "tSafe": null
+        },
+        {
+          "seed": 816676554,
+          "tEvac": 212.5,
+          "tSafe": null
+        },
+        {
+          "seed": 730376091,
+          "tEvac": 236.75,
+          "tSafe": null
+        },
+        {
+          "seed": 514730907,
+          "tEvac": 213.25,
+          "tSafe": null
+        },
+        {
+          "seed": 2006777899,
+          "tEvac": 210.75,
+          "tSafe": null
+        },
+        {
+          "seed": 1478387406,
+          "tEvac": 224.75,
+          "tSafe": null
+        },
+        {
+          "seed": 1142119044,
+          "tEvac": 227.75,
+          "tSafe": null
+        },
+        {
+          "seed": 996092048,
+          "tEvac": 222.75,
+          "tSafe": null
+        },
+        {
+          "seed": 12969245,
+          "tEvac": 246.5,
+          "tSafe": null
+        },
+        {
+          "seed": 1479227856,
+          "tEvac": 225,
+          "tSafe": null
+        },
+        {
+          "seed": 759688920,
+          "tEvac": 216.5,
+          "tSafe": null
+        },
+        {
+          "seed": 1706535878,
+          "tEvac": 211.75,
+          "tSafe": null
+        },
+        {
+          "seed": 1449660327,
+          "tEvac": 242,
+          "tSafe": null
+        },
+        {
+          "seed": 375984858,
+          "tEvac": 221.5,
+          "tSafe": null
+        }
+      ]
     },
     {
       "id": "service-fixed",
@@ -1207,7 +1611,209 @@
           "BAL_E_S": 11
         }
       },
-      "label": "Service integration only"
+      "label": "Service integration only",
+      "times": [
+        {
+          "seed": 2132682877,
+          "tEvac": 263.9,
+          "tSafe": 295.6
+        },
+        {
+          "seed": 653975856,
+          "tEvac": 247.8,
+          "tSafe": 283.3
+        },
+        {
+          "seed": 618185560,
+          "tEvac": 271,
+          "tSafe": 299.7
+        },
+        {
+          "seed": 1854591219,
+          "tEvac": 259.5,
+          "tSafe": 294.2
+        },
+        {
+          "seed": 863383835,
+          "tEvac": 253.9,
+          "tSafe": 289.3
+        },
+        {
+          "seed": 1183475955,
+          "tEvac": 249.4,
+          "tSafe": 285.8
+        },
+        {
+          "seed": 513925044,
+          "tEvac": 267.5,
+          "tSafe": 299
+        },
+        {
+          "seed": 229211339,
+          "tEvac": 264.5,
+          "tSafe": 303.1
+        },
+        {
+          "seed": 232536135,
+          "tEvac": 252.1,
+          "tSafe": 286.5
+        },
+        {
+          "seed": 731229269,
+          "tEvac": 252.6,
+          "tSafe": 293
+        },
+        {
+          "seed": 591607904,
+          "tEvac": 249.9,
+          "tSafe": 282.6
+        },
+        {
+          "seed": 1030597639,
+          "tEvac": 260.2,
+          "tSafe": 294.3
+        },
+        {
+          "seed": 1323203988,
+          "tEvac": 257.6,
+          "tSafe": 293.6
+        },
+        {
+          "seed": 841636617,
+          "tEvac": 275,
+          "tSafe": 321.3
+        },
+        {
+          "seed": 1921222558,
+          "tEvac": 240.7,
+          "tSafe": 273.3
+        },
+        {
+          "seed": 111850202,
+          "tEvac": 268.4,
+          "tSafe": 314.7
+        },
+        {
+          "seed": 1818640267,
+          "tEvac": 269.9,
+          "tSafe": 294.5
+        },
+        {
+          "seed": 228947731,
+          "tEvac": 278.4,
+          "tSafe": 304.6
+        },
+        {
+          "seed": 1174295531,
+          "tEvac": 253.1,
+          "tSafe": 294.6
+        },
+        {
+          "seed": 879836714,
+          "tEvac": 250.8,
+          "tSafe": 283.1
+        },
+        {
+          "seed": 529506579,
+          "tEvac": 261.4,
+          "tSafe": 299.9
+        },
+        {
+          "seed": 1517495200,
+          "tEvac": 246.6,
+          "tSafe": 274.9
+        },
+        {
+          "seed": 30456098,
+          "tEvac": 252.3,
+          "tSafe": 288
+        },
+        {
+          "seed": 659498778,
+          "tEvac": 243.7,
+          "tSafe": 275.6
+        },
+        {
+          "seed": 1984646950,
+          "tEvac": 266.3,
+          "tSafe": 299
+        },
+        {
+          "seed": 443517544,
+          "tEvac": 263.1,
+          "tSafe": 287.8
+        },
+        {
+          "seed": 1750521709,
+          "tEvac": 257.5,
+          "tSafe": 296.1
+        },
+        {
+          "seed": 816676554,
+          "tEvac": 269.9,
+          "tSafe": 299.2
+        },
+        {
+          "seed": 730376091,
+          "tEvac": 276.9,
+          "tSafe": 311.7
+        },
+        {
+          "seed": 514730907,
+          "tEvac": 252.8,
+          "tSafe": 288.5
+        },
+        {
+          "seed": 2006777899,
+          "tEvac": 303.9,
+          "tSafe": 350.2
+        },
+        {
+          "seed": 1478387406,
+          "tEvac": 256.9,
+          "tSafe": 300.9
+        },
+        {
+          "seed": 1142119044,
+          "tEvac": 271.6,
+          "tSafe": 317.9
+        },
+        {
+          "seed": 996092048,
+          "tEvac": 250.1,
+          "tSafe": 288.5
+        },
+        {
+          "seed": 12969245,
+          "tEvac": 282.9,
+          "tSafe": 311.4
+        },
+        {
+          "seed": 1479227856,
+          "tEvac": 237.5,
+          "tSafe": 283.8
+        },
+        {
+          "seed": 759688920,
+          "tEvac": 250.3,
+          "tSafe": 279.8
+        },
+        {
+          "seed": 1706535878,
+          "tEvac": 294.5,
+          "tSafe": 328.4
+        },
+        {
+          "seed": 1449660327,
+          "tEvac": 235.5,
+          "tSafe": 278.9
+        },
+        {
+          "seed": 375984858,
+          "tEvac": 277.5,
+          "tSafe": 307.2
+        }
+      ]
     },
     {
       "id": "service-fixed",
@@ -1609,7 +2215,209 @@
           "BAL_W_S": 2
         }
       },
-      "label": "Service integration only"
+      "label": "Service integration only",
+      "times": [
+        {
+          "seed": 2132682877,
+          "tEvac": 210.75,
+          "tSafe": null
+        },
+        {
+          "seed": 653975856,
+          "tEvac": 197.5,
+          "tSafe": null
+        },
+        {
+          "seed": 618185560,
+          "tEvac": 220.75,
+          "tSafe": null
+        },
+        {
+          "seed": 1854591219,
+          "tEvac": 205.75,
+          "tSafe": null
+        },
+        {
+          "seed": 863383835,
+          "tEvac": 201.75,
+          "tSafe": null
+        },
+        {
+          "seed": 1183475955,
+          "tEvac": 218.25,
+          "tSafe": null
+        },
+        {
+          "seed": 513925044,
+          "tEvac": 216.75,
+          "tSafe": null
+        },
+        {
+          "seed": 229211339,
+          "tEvac": 214.5,
+          "tSafe": null
+        },
+        {
+          "seed": 232536135,
+          "tEvac": 218,
+          "tSafe": null
+        },
+        {
+          "seed": 731229269,
+          "tEvac": 193,
+          "tSafe": null
+        },
+        {
+          "seed": 591607904,
+          "tEvac": 212.25,
+          "tSafe": null
+        },
+        {
+          "seed": 1030597639,
+          "tEvac": 236,
+          "tSafe": null
+        },
+        {
+          "seed": 1323203988,
+          "tEvac": 196.5,
+          "tSafe": null
+        },
+        {
+          "seed": 841636617,
+          "tEvac": 224.75,
+          "tSafe": null
+        },
+        {
+          "seed": 1921222558,
+          "tEvac": 193,
+          "tSafe": null
+        },
+        {
+          "seed": 111850202,
+          "tEvac": 206.75,
+          "tSafe": null
+        },
+        {
+          "seed": 1818640267,
+          "tEvac": 204.75,
+          "tSafe": null
+        },
+        {
+          "seed": 228947731,
+          "tEvac": 218.5,
+          "tSafe": null
+        },
+        {
+          "seed": 1174295531,
+          "tEvac": 219.75,
+          "tSafe": null
+        },
+        {
+          "seed": 879836714,
+          "tEvac": 197,
+          "tSafe": null
+        },
+        {
+          "seed": 529506579,
+          "tEvac": 216.25,
+          "tSafe": null
+        },
+        {
+          "seed": 1517495200,
+          "tEvac": 192.25,
+          "tSafe": null
+        },
+        {
+          "seed": 30456098,
+          "tEvac": 207.25,
+          "tSafe": null
+        },
+        {
+          "seed": 659498778,
+          "tEvac": 202.75,
+          "tSafe": null
+        },
+        {
+          "seed": 1984646950,
+          "tEvac": 190.25,
+          "tSafe": null
+        },
+        {
+          "seed": 443517544,
+          "tEvac": 202.25,
+          "tSafe": null
+        },
+        {
+          "seed": 1750521709,
+          "tEvac": 201.5,
+          "tSafe": null
+        },
+        {
+          "seed": 816676554,
+          "tEvac": 196.25,
+          "tSafe": null
+        },
+        {
+          "seed": 730376091,
+          "tEvac": 214.5,
+          "tSafe": null
+        },
+        {
+          "seed": 514730907,
+          "tEvac": 214,
+          "tSafe": null
+        },
+        {
+          "seed": 2006777899,
+          "tEvac": 211.25,
+          "tSafe": null
+        },
+        {
+          "seed": 1478387406,
+          "tEvac": 215.5,
+          "tSafe": null
+        },
+        {
+          "seed": 1142119044,
+          "tEvac": 204.25,
+          "tSafe": null
+        },
+        {
+          "seed": 996092048,
+          "tEvac": 212.75,
+          "tSafe": null
+        },
+        {
+          "seed": 12969245,
+          "tEvac": 193.75,
+          "tSafe": null
+        },
+        {
+          "seed": 1479227856,
+          "tEvac": 211.75,
+          "tSafe": null
+        },
+        {
+          "seed": 759688920,
+          "tEvac": 211.75,
+          "tSafe": null
+        },
+        {
+          "seed": 1706535878,
+          "tEvac": 215,
+          "tSafe": null
+        },
+        {
+          "seed": 1449660327,
+          "tEvac": 236.5,
+          "tSafe": null
+        },
+        {
+          "seed": 375984858,
+          "tEvac": 212.5,
+          "tSafe": null
+        }
+      ]
     },
     {
       "id": "selected-A",
@@ -2093,7 +2901,209 @@
           "LOGE_E_S": 1
         }
       },
-      "label": "Initial A finalist"
+      "label": "Initial A finalist",
+      "times": [
+        {
+          "seed": 2132682877,
+          "tEvac": 229.1,
+          "tSafe": 256.6
+        },
+        {
+          "seed": 653975856,
+          "tEvac": 239.1,
+          "tSafe": 264
+        },
+        {
+          "seed": 618185560,
+          "tEvac": 233.2,
+          "tSafe": 279.5
+        },
+        {
+          "seed": 1854591219,
+          "tEvac": 223,
+          "tSafe": 257.7
+        },
+        {
+          "seed": 863383835,
+          "tEvac": 234.8,
+          "tSafe": 266.6
+        },
+        {
+          "seed": 1183475955,
+          "tEvac": 241.5,
+          "tSafe": 267.9
+        },
+        {
+          "seed": 513925044,
+          "tEvac": 243.6,
+          "tSafe": 280
+        },
+        {
+          "seed": 229211339,
+          "tEvac": 229.2,
+          "tSafe": 262.7
+        },
+        {
+          "seed": 232536135,
+          "tEvac": 229.2,
+          "tSafe": 275.5
+        },
+        {
+          "seed": 731229269,
+          "tEvac": 245,
+          "tSafe": 255
+        },
+        {
+          "seed": 591607904,
+          "tEvac": 228.7,
+          "tSafe": 266.3
+        },
+        {
+          "seed": 1030597639,
+          "tEvac": 224.3,
+          "tSafe": 269.2
+        },
+        {
+          "seed": 1323203988,
+          "tEvac": 212.5,
+          "tSafe": 250.2
+        },
+        {
+          "seed": 841636617,
+          "tEvac": 256.3,
+          "tSafe": 261
+        },
+        {
+          "seed": 1921222558,
+          "tEvac": 238.1,
+          "tSafe": 274.8
+        },
+        {
+          "seed": 111850202,
+          "tEvac": 227.9,
+          "tSafe": 263.4
+        },
+        {
+          "seed": 1818640267,
+          "tEvac": 218.6,
+          "tSafe": 252.2
+        },
+        {
+          "seed": 228947731,
+          "tEvac": 222.9,
+          "tSafe": 260.2
+        },
+        {
+          "seed": 1174295531,
+          "tEvac": 226.4,
+          "tSafe": 269.8
+        },
+        {
+          "seed": 879836714,
+          "tEvac": 241,
+          "tSafe": 260.5
+        },
+        {
+          "seed": 529506579,
+          "tEvac": 224,
+          "tSafe": 264.6
+        },
+        {
+          "seed": 1517495200,
+          "tEvac": 209.6,
+          "tSafe": 256.3
+        },
+        {
+          "seed": 30456098,
+          "tEvac": 227.1,
+          "tSafe": 253.1
+        },
+        {
+          "seed": 659498778,
+          "tEvac": 230.9,
+          "tSafe": 260.8
+        },
+        {
+          "seed": 1984646950,
+          "tEvac": 230.1,
+          "tSafe": 256.6
+        },
+        {
+          "seed": 443517544,
+          "tEvac": 230.8,
+          "tSafe": 270.5
+        },
+        {
+          "seed": 1750521709,
+          "tEvac": 213.5,
+          "tSafe": 246.6
+        },
+        {
+          "seed": 816676554,
+          "tEvac": 240.3,
+          "tSafe": 261.4
+        },
+        {
+          "seed": 730376091,
+          "tEvac": 229.1,
+          "tSafe": 253.2
+        },
+        {
+          "seed": 514730907,
+          "tEvac": 236.1,
+          "tSafe": 265.8
+        },
+        {
+          "seed": 2006777899,
+          "tEvac": 246.8,
+          "tSafe": 271.8
+        },
+        {
+          "seed": 1478387406,
+          "tEvac": 226.2,
+          "tSafe": 258.7
+        },
+        {
+          "seed": 1142119044,
+          "tEvac": 214.6,
+          "tSafe": 252.2
+        },
+        {
+          "seed": 996092048,
+          "tEvac": 243,
+          "tSafe": 281.4
+        },
+        {
+          "seed": 12969245,
+          "tEvac": 234.2,
+          "tSafe": 274.6
+        },
+        {
+          "seed": 1479227856,
+          "tEvac": 213.4,
+          "tSafe": 251.7
+        },
+        {
+          "seed": 759688920,
+          "tEvac": 235.7,
+          "tSafe": 272.3
+        },
+        {
+          "seed": 1706535878,
+          "tEvac": 232.7,
+          "tSafe": 267.3
+        },
+        {
+          "seed": 1449660327,
+          "tEvac": 243.4,
+          "tSafe": 269.7
+        },
+        {
+          "seed": 375984858,
+          "tEvac": 223.5,
+          "tSafe": 256
+        }
+      ]
     },
     {
       "id": "selected-A",
@@ -2573,7 +3583,209 @@
           "BAL_C_W": 6
         }
       },
-      "label": "Initial A finalist"
+      "label": "Initial A finalist",
+      "times": [
+        {
+          "seed": 2132682877,
+          "tEvac": 189,
+          "tSafe": null
+        },
+        {
+          "seed": 653975856,
+          "tEvac": 164.5,
+          "tSafe": null
+        },
+        {
+          "seed": 618185560,
+          "tEvac": 186.25,
+          "tSafe": null
+        },
+        {
+          "seed": 1854591219,
+          "tEvac": 180,
+          "tSafe": null
+        },
+        {
+          "seed": 863383835,
+          "tEvac": 181.25,
+          "tSafe": null
+        },
+        {
+          "seed": 1183475955,
+          "tEvac": 213.75,
+          "tSafe": null
+        },
+        {
+          "seed": 513925044,
+          "tEvac": 179.5,
+          "tSafe": null
+        },
+        {
+          "seed": 229211339,
+          "tEvac": 203.5,
+          "tSafe": null
+        },
+        {
+          "seed": 232536135,
+          "tEvac": 201.25,
+          "tSafe": null
+        },
+        {
+          "seed": 731229269,
+          "tEvac": 188.25,
+          "tSafe": null
+        },
+        {
+          "seed": 591607904,
+          "tEvac": 174.25,
+          "tSafe": null
+        },
+        {
+          "seed": 1030597639,
+          "tEvac": 194,
+          "tSafe": null
+        },
+        {
+          "seed": 1323203988,
+          "tEvac": 188.75,
+          "tSafe": null
+        },
+        {
+          "seed": 841636617,
+          "tEvac": 187.5,
+          "tSafe": null
+        },
+        {
+          "seed": 1921222558,
+          "tEvac": 180,
+          "tSafe": null
+        },
+        {
+          "seed": 111850202,
+          "tEvac": 178,
+          "tSafe": null
+        },
+        {
+          "seed": 1818640267,
+          "tEvac": 180.25,
+          "tSafe": null
+        },
+        {
+          "seed": 228947731,
+          "tEvac": 184.25,
+          "tSafe": null
+        },
+        {
+          "seed": 1174295531,
+          "tEvac": 181.75,
+          "tSafe": null
+        },
+        {
+          "seed": 879836714,
+          "tEvac": 185.25,
+          "tSafe": null
+        },
+        {
+          "seed": 529506579,
+          "tEvac": 174.75,
+          "tSafe": null
+        },
+        {
+          "seed": 1517495200,
+          "tEvac": 170.25,
+          "tSafe": null
+        },
+        {
+          "seed": 30456098,
+          "tEvac": 202,
+          "tSafe": null
+        },
+        {
+          "seed": 659498778,
+          "tEvac": 193,
+          "tSafe": null
+        },
+        {
+          "seed": 1984646950,
+          "tEvac": 190.75,
+          "tSafe": null
+        },
+        {
+          "seed": 443517544,
+          "tEvac": 165.75,
+          "tSafe": null
+        },
+        {
+          "seed": 1750521709,
+          "tEvac": 175,
+          "tSafe": null
+        },
+        {
+          "seed": 816676554,
+          "tEvac": 171.25,
+          "tSafe": null
+        },
+        {
+          "seed": 730376091,
+          "tEvac": 192.5,
+          "tSafe": null
+        },
+        {
+          "seed": 514730907,
+          "tEvac": 172.25,
+          "tSafe": null
+        },
+        {
+          "seed": 2006777899,
+          "tEvac": 174,
+          "tSafe": null
+        },
+        {
+          "seed": 1478387406,
+          "tEvac": 182.25,
+          "tSafe": null
+        },
+        {
+          "seed": 1142119044,
+          "tEvac": 186.75,
+          "tSafe": null
+        },
+        {
+          "seed": 996092048,
+          "tEvac": 197.5,
+          "tSafe": null
+        },
+        {
+          "seed": 12969245,
+          "tEvac": 171.75,
+          "tSafe": null
+        },
+        {
+          "seed": 1479227856,
+          "tEvac": 178.75,
+          "tSafe": null
+        },
+        {
+          "seed": 759688920,
+          "tEvac": 180.25,
+          "tSafe": null
+        },
+        {
+          "seed": 1706535878,
+          "tEvac": 194,
+          "tSafe": null
+        },
+        {
+          "seed": 1449660327,
+          "tEvac": 193.25,
+          "tSafe": null
+        },
+        {
+          "seed": 375984858,
+          "tEvac": 189,
+          "tSafe": null
+        }
+      ]
     },
     {
       "id": "visible-A",
@@ -3160,7 +4372,209 @@
           "LOGE_W_N": 1
         }
       },
-      "label": "Signs with wall occlusion, A plan"
+      "label": "Signs with wall occlusion, A plan",
+      "times": [
+        {
+          "seed": 2132682877,
+          "tEvac": 236.7,
+          "tSafe": 269.5
+        },
+        {
+          "seed": 653975856,
+          "tEvac": 241.2,
+          "tSafe": 278.4
+        },
+        {
+          "seed": 618185560,
+          "tEvac": 235.4,
+          "tSafe": 274.8
+        },
+        {
+          "seed": 1854591219,
+          "tEvac": 226.6,
+          "tSafe": 261.3
+        },
+        {
+          "seed": 863383835,
+          "tEvac": 226.2,
+          "tSafe": 270.6
+        },
+        {
+          "seed": 1183475955,
+          "tEvac": 237.7,
+          "tSafe": 284
+        },
+        {
+          "seed": 513925044,
+          "tEvac": 240.2,
+          "tSafe": 272.7
+        },
+        {
+          "seed": 229211339,
+          "tEvac": 244.9,
+          "tSafe": 289.2
+        },
+        {
+          "seed": 232536135,
+          "tEvac": 242.4,
+          "tSafe": 286
+        },
+        {
+          "seed": 731229269,
+          "tEvac": 239.2,
+          "tSafe": 255.9
+        },
+        {
+          "seed": 591607904,
+          "tEvac": 229,
+          "tSafe": 265.4
+        },
+        {
+          "seed": 1030597639,
+          "tEvac": 230.6,
+          "tSafe": 269.3
+        },
+        {
+          "seed": 1323203988,
+          "tEvac": 230.5,
+          "tSafe": 266.4
+        },
+        {
+          "seed": 841636617,
+          "tEvac": 220.5,
+          "tSafe": 258
+        },
+        {
+          "seed": 1921222558,
+          "tEvac": 227.7,
+          "tSafe": 260.4
+        },
+        {
+          "seed": 111850202,
+          "tEvac": 225.9,
+          "tSafe": 263.1
+        },
+        {
+          "seed": 1818640267,
+          "tEvac": 218.6,
+          "tSafe": 253.9
+        },
+        {
+          "seed": 228947731,
+          "tEvac": 227.1,
+          "tSafe": 272.3
+        },
+        {
+          "seed": 1174295531,
+          "tEvac": 229.9,
+          "tSafe": 262.9
+        },
+        {
+          "seed": 879836714,
+          "tEvac": 231.4,
+          "tSafe": 262.5
+        },
+        {
+          "seed": 529506579,
+          "tEvac": 235.9,
+          "tSafe": 273.3
+        },
+        {
+          "seed": 1517495200,
+          "tEvac": 218.1,
+          "tSafe": 244.4
+        },
+        {
+          "seed": 30456098,
+          "tEvac": 227.5,
+          "tSafe": 262.4
+        },
+        {
+          "seed": 659498778,
+          "tEvac": 219.9,
+          "tSafe": 249.6
+        },
+        {
+          "seed": 1984646950,
+          "tEvac": 231.4,
+          "tSafe": 269.2
+        },
+        {
+          "seed": 443517544,
+          "tEvac": 218,
+          "tSafe": 253.4
+        },
+        {
+          "seed": 1750521709,
+          "tEvac": 227.5,
+          "tSafe": 260.9
+        },
+        {
+          "seed": 816676554,
+          "tEvac": 241.5,
+          "tSafe": 272.2
+        },
+        {
+          "seed": 730376091,
+          "tEvac": 233,
+          "tSafe": 268.2
+        },
+        {
+          "seed": 514730907,
+          "tEvac": 227.8,
+          "tSafe": 260.1
+        },
+        {
+          "seed": 2006777899,
+          "tEvac": 236.1,
+          "tSafe": 282.4
+        },
+        {
+          "seed": 1478387406,
+          "tEvac": 226.5,
+          "tSafe": 269.8
+        },
+        {
+          "seed": 1142119044,
+          "tEvac": 232.3,
+          "tSafe": 277.9
+        },
+        {
+          "seed": 996092048,
+          "tEvac": 234.5,
+          "tSafe": 261.7
+        },
+        {
+          "seed": 12969245,
+          "tEvac": 242.6,
+          "tSafe": 288.9
+        },
+        {
+          "seed": 1479227856,
+          "tEvac": 224.3,
+          "tSafe": 264.8
+        },
+        {
+          "seed": 759688920,
+          "tEvac": 222.1,
+          "tSafe": 249.7
+        },
+        {
+          "seed": 1706535878,
+          "tEvac": 236,
+          "tSafe": 276.3
+        },
+        {
+          "seed": 1449660327,
+          "tEvac": 223.8,
+          "tSafe": 261.3
+        },
+        {
+          "seed": 375984858,
+          "tEvac": 232.7,
+          "tSafe": 264.6
+        }
+      ]
     },
     {
       "id": "visible-A",
@@ -3743,7 +5157,209 @@
           "BAL_C_W": 7
         }
       },
-      "label": "Signs with wall occlusion, A plan"
+      "label": "Signs with wall occlusion, A plan",
+      "times": [
+        {
+          "seed": 2132682877,
+          "tEvac": 190,
+          "tSafe": null
+        },
+        {
+          "seed": 653975856,
+          "tEvac": 173.25,
+          "tSafe": null
+        },
+        {
+          "seed": 618185560,
+          "tEvac": 202.75,
+          "tSafe": null
+        },
+        {
+          "seed": 1854591219,
+          "tEvac": 180.25,
+          "tSafe": null
+        },
+        {
+          "seed": 863383835,
+          "tEvac": 175.75,
+          "tSafe": null
+        },
+        {
+          "seed": 1183475955,
+          "tEvac": 190.5,
+          "tSafe": null
+        },
+        {
+          "seed": 513925044,
+          "tEvac": 205,
+          "tSafe": null
+        },
+        {
+          "seed": 229211339,
+          "tEvac": 222.5,
+          "tSafe": null
+        },
+        {
+          "seed": 232536135,
+          "tEvac": 209.25,
+          "tSafe": null
+        },
+        {
+          "seed": 731229269,
+          "tEvac": 188.5,
+          "tSafe": null
+        },
+        {
+          "seed": 591607904,
+          "tEvac": 179,
+          "tSafe": null
+        },
+        {
+          "seed": 1030597639,
+          "tEvac": 189.5,
+          "tSafe": null
+        },
+        {
+          "seed": 1323203988,
+          "tEvac": 200.5,
+          "tSafe": null
+        },
+        {
+          "seed": 841636617,
+          "tEvac": 188,
+          "tSafe": null
+        },
+        {
+          "seed": 1921222558,
+          "tEvac": 177,
+          "tSafe": null
+        },
+        {
+          "seed": 111850202,
+          "tEvac": 191.75,
+          "tSafe": null
+        },
+        {
+          "seed": 1818640267,
+          "tEvac": 211.5,
+          "tSafe": null
+        },
+        {
+          "seed": 228947731,
+          "tEvac": 195.25,
+          "tSafe": null
+        },
+        {
+          "seed": 1174295531,
+          "tEvac": 198.75,
+          "tSafe": null
+        },
+        {
+          "seed": 879836714,
+          "tEvac": 244,
+          "tSafe": null
+        },
+        {
+          "seed": 529506579,
+          "tEvac": 172.25,
+          "tSafe": null
+        },
+        {
+          "seed": 1517495200,
+          "tEvac": 176.25,
+          "tSafe": null
+        },
+        {
+          "seed": 30456098,
+          "tEvac": 203.5,
+          "tSafe": null
+        },
+        {
+          "seed": 659498778,
+          "tEvac": 212.25,
+          "tSafe": null
+        },
+        {
+          "seed": 1984646950,
+          "tEvac": 196.75,
+          "tSafe": null
+        },
+        {
+          "seed": 443517544,
+          "tEvac": 167.5,
+          "tSafe": null
+        },
+        {
+          "seed": 1750521709,
+          "tEvac": 181,
+          "tSafe": null
+        },
+        {
+          "seed": 816676554,
+          "tEvac": 209,
+          "tSafe": null
+        },
+        {
+          "seed": 730376091,
+          "tEvac": 189,
+          "tSafe": null
+        },
+        {
+          "seed": 514730907,
+          "tEvac": 181.5,
+          "tSafe": null
+        },
+        {
+          "seed": 2006777899,
+          "tEvac": 178.75,
+          "tSafe": null
+        },
+        {
+          "seed": 1478387406,
+          "tEvac": 200.5,
+          "tSafe": null
+        },
+        {
+          "seed": 1142119044,
+          "tEvac": 190.75,
+          "tSafe": null
+        },
+        {
+          "seed": 996092048,
+          "tEvac": 214.75,
+          "tSafe": null
+        },
+        {
+          "seed": 12969245,
+          "tEvac": 175.75,
+          "tSafe": null
+        },
+        {
+          "seed": 1479227856,
+          "tEvac": 189.25,
+          "tSafe": null
+        },
+        {
+          "seed": 759688920,
+          "tEvac": 208.5,
+          "tSafe": null
+        },
+        {
+          "seed": 1706535878,
+          "tEvac": 193.25,
+          "tSafe": null
+        },
+        {
+          "seed": 1449660327,
+          "tEvac": 190.75,
+          "tSafe": null
+        },
+        {
+          "seed": 375984858,
+          "tEvac": 186.75,
+          "tSafe": null
+        }
+      ]
     },
     {
       "id": "selected-B",
@@ -4334,7 +5950,209 @@
           "BAL_E_S": 1
         }
       },
-      "label": "Selected for Model B"
+      "label": "Selected for Model B",
+      "times": [
+        {
+          "seed": 2132682877,
+          "tEvac": 253.3,
+          "tSafe": 288.2
+        },
+        {
+          "seed": 653975856,
+          "tEvac": 255,
+          "tSafe": 296.4
+        },
+        {
+          "seed": 618185560,
+          "tEvac": 268.4,
+          "tSafe": 310.6
+        },
+        {
+          "seed": 1854591219,
+          "tEvac": 250.3,
+          "tSafe": 283.1
+        },
+        {
+          "seed": 863383835,
+          "tEvac": 273.9,
+          "tSafe": 312.8
+        },
+        {
+          "seed": 1183475955,
+          "tEvac": 261.1,
+          "tSafe": 293.6
+        },
+        {
+          "seed": 513925044,
+          "tEvac": 268,
+          "tSafe": 308.2
+        },
+        {
+          "seed": 229211339,
+          "tEvac": 245.9,
+          "tSafe": 280.8
+        },
+        {
+          "seed": 232536135,
+          "tEvac": 247.2,
+          "tSafe": 289.2
+        },
+        {
+          "seed": 731229269,
+          "tEvac": 257.1,
+          "tSafe": 277.4
+        },
+        {
+          "seed": 591607904,
+          "tEvac": 265.5,
+          "tSafe": 315.1
+        },
+        {
+          "seed": 1030597639,
+          "tEvac": 249.9,
+          "tSafe": 273.9
+        },
+        {
+          "seed": 1323203988,
+          "tEvac": 258.4,
+          "tSafe": 285.9
+        },
+        {
+          "seed": 841636617,
+          "tEvac": 257.7,
+          "tSafe": 279.1
+        },
+        {
+          "seed": 1921222558,
+          "tEvac": 248.8,
+          "tSafe": 286.3
+        },
+        {
+          "seed": 111850202,
+          "tEvac": 258.7,
+          "tSafe": 298.1
+        },
+        {
+          "seed": 1818640267,
+          "tEvac": 237.9,
+          "tSafe": 269.7
+        },
+        {
+          "seed": 228947731,
+          "tEvac": 247.5,
+          "tSafe": 296
+        },
+        {
+          "seed": 1174295531,
+          "tEvac": 260.8,
+          "tSafe": 320.1
+        },
+        {
+          "seed": 879836714,
+          "tEvac": 255.9,
+          "tSafe": 296.6
+        },
+        {
+          "seed": 529506579,
+          "tEvac": 267.4,
+          "tSafe": 295.3
+        },
+        {
+          "seed": 1517495200,
+          "tEvac": 307.4,
+          "tSafe": 323.8
+        },
+        {
+          "seed": 30456098,
+          "tEvac": 267.3,
+          "tSafe": 290.6
+        },
+        {
+          "seed": 659498778,
+          "tEvac": 247.8,
+          "tSafe": 277
+        },
+        {
+          "seed": 1984646950,
+          "tEvac": 254.3,
+          "tSafe": 293.1
+        },
+        {
+          "seed": 443517544,
+          "tEvac": 241.3,
+          "tSafe": 292.9
+        },
+        {
+          "seed": 1750521709,
+          "tEvac": 246.6,
+          "tSafe": 283.5
+        },
+        {
+          "seed": 816676554,
+          "tEvac": 255.5,
+          "tSafe": 291.1
+        },
+        {
+          "seed": 730376091,
+          "tEvac": 258.5,
+          "tSafe": 287.1
+        },
+        {
+          "seed": 514730907,
+          "tEvac": 256.1,
+          "tSafe": 303.5
+        },
+        {
+          "seed": 2006777899,
+          "tEvac": 256.6,
+          "tSafe": 297.6
+        },
+        {
+          "seed": 1478387406,
+          "tEvac": 259.2,
+          "tSafe": 299.5
+        },
+        {
+          "seed": 1142119044,
+          "tEvac": 245.2,
+          "tSafe": 286.7
+        },
+        {
+          "seed": 996092048,
+          "tEvac": 251.1,
+          "tSafe": 285.7
+        },
+        {
+          "seed": 12969245,
+          "tEvac": 251.7,
+          "tSafe": 280.7
+        },
+        {
+          "seed": 1479227856,
+          "tEvac": 270.5,
+          "tSafe": 295
+        },
+        {
+          "seed": 759688920,
+          "tEvac": 258.9,
+          "tSafe": 297.7
+        },
+        {
+          "seed": 1706535878,
+          "tEvac": 243.2,
+          "tSafe": 278.2
+        },
+        {
+          "seed": 1449660327,
+          "tEvac": 277.6,
+          "tSafe": 327.9
+        },
+        {
+          "seed": 375984858,
+          "tEvac": 256.6,
+          "tSafe": 298.5
+        }
+      ]
     },
     {
       "id": "selected-B",
@@ -4921,7 +6739,209 @@
           "ORCH_SIDE_E": 26
         }
       },
-      "label": "Selected for Model B"
+      "label": "Selected for Model B",
+      "times": [
+        {
+          "seed": 2132682877,
+          "tEvac": 179.5,
+          "tSafe": null
+        },
+        {
+          "seed": 653975856,
+          "tEvac": 157.75,
+          "tSafe": null
+        },
+        {
+          "seed": 618185560,
+          "tEvac": 154.25,
+          "tSafe": null
+        },
+        {
+          "seed": 1854591219,
+          "tEvac": 157,
+          "tSafe": null
+        },
+        {
+          "seed": 863383835,
+          "tEvac": 169.5,
+          "tSafe": null
+        },
+        {
+          "seed": 1183475955,
+          "tEvac": 160.25,
+          "tSafe": null
+        },
+        {
+          "seed": 513925044,
+          "tEvac": 178.75,
+          "tSafe": null
+        },
+        {
+          "seed": 229211339,
+          "tEvac": 174.5,
+          "tSafe": null
+        },
+        {
+          "seed": 232536135,
+          "tEvac": 168.75,
+          "tSafe": null
+        },
+        {
+          "seed": 731229269,
+          "tEvac": 188,
+          "tSafe": null
+        },
+        {
+          "seed": 591607904,
+          "tEvac": 155.5,
+          "tSafe": null
+        },
+        {
+          "seed": 1030597639,
+          "tEvac": 164,
+          "tSafe": null
+        },
+        {
+          "seed": 1323203988,
+          "tEvac": 152,
+          "tSafe": null
+        },
+        {
+          "seed": 841636617,
+          "tEvac": 158.75,
+          "tSafe": null
+        },
+        {
+          "seed": 1921222558,
+          "tEvac": 148.5,
+          "tSafe": null
+        },
+        {
+          "seed": 111850202,
+          "tEvac": 159,
+          "tSafe": null
+        },
+        {
+          "seed": 1818640267,
+          "tEvac": 153,
+          "tSafe": null
+        },
+        {
+          "seed": 228947731,
+          "tEvac": 167,
+          "tSafe": null
+        },
+        {
+          "seed": 1174295531,
+          "tEvac": 153.25,
+          "tSafe": null
+        },
+        {
+          "seed": 879836714,
+          "tEvac": 169.5,
+          "tSafe": null
+        },
+        {
+          "seed": 529506579,
+          "tEvac": 155,
+          "tSafe": null
+        },
+        {
+          "seed": 1517495200,
+          "tEvac": 170.25,
+          "tSafe": null
+        },
+        {
+          "seed": 30456098,
+          "tEvac": 166.5,
+          "tSafe": null
+        },
+        {
+          "seed": 659498778,
+          "tEvac": 166.5,
+          "tSafe": null
+        },
+        {
+          "seed": 1984646950,
+          "tEvac": 156.75,
+          "tSafe": null
+        },
+        {
+          "seed": 443517544,
+          "tEvac": 185.25,
+          "tSafe": null
+        },
+        {
+          "seed": 1750521709,
+          "tEvac": 158,
+          "tSafe": null
+        },
+        {
+          "seed": 816676554,
+          "tEvac": 158.25,
+          "tSafe": null
+        },
+        {
+          "seed": 730376091,
+          "tEvac": 179,
+          "tSafe": null
+        },
+        {
+          "seed": 514730907,
+          "tEvac": 182.25,
+          "tSafe": null
+        },
+        {
+          "seed": 2006777899,
+          "tEvac": 155.25,
+          "tSafe": null
+        },
+        {
+          "seed": 1478387406,
+          "tEvac": 155.25,
+          "tSafe": null
+        },
+        {
+          "seed": 1142119044,
+          "tEvac": 161,
+          "tSafe": null
+        },
+        {
+          "seed": 996092048,
+          "tEvac": 164.75,
+          "tSafe": null
+        },
+        {
+          "seed": 12969245,
+          "tEvac": 202.25,
+          "tSafe": null
+        },
+        {
+          "seed": 1479227856,
+          "tEvac": 158.25,
+          "tSafe": null
+        },
+        {
+          "seed": 759688920,
+          "tEvac": 165.5,
+          "tSafe": null
+        },
+        {
+          "seed": 1706535878,
+          "tEvac": 167.25,
+          "tSafe": null
+        },
+        {
+          "seed": 1449660327,
+          "tEvac": 181.25,
+          "tSafe": null
+        },
+        {
+          "seed": 375984858,
+          "tEvac": 199.75,
+          "tSafe": null
+        }
+      ]
     },
     {
       "id": "visible-B",
@@ -5511,7 +7531,209 @@
           "BAL_W_S": 2
         }
       },
-      "label": "Signs with wall occlusion, B plan"
+      "label": "Signs with wall occlusion, B plan",
+      "times": [
+        {
+          "seed": 2132682877,
+          "tEvac": 248.7,
+          "tSafe": 292.7
+        },
+        {
+          "seed": 653975856,
+          "tEvac": 241.3,
+          "tSafe": 283.5
+        },
+        {
+          "seed": 618185560,
+          "tEvac": 264.6,
+          "tSafe": 310.8
+        },
+        {
+          "seed": 1854591219,
+          "tEvac": 272.7,
+          "tSafe": 307.4
+        },
+        {
+          "seed": 863383835,
+          "tEvac": 250.8,
+          "tSafe": 280.5
+        },
+        {
+          "seed": 1183475955,
+          "tEvac": 270.7,
+          "tSafe": 303.4
+        },
+        {
+          "seed": 513925044,
+          "tEvac": 253.4,
+          "tSafe": 312.5
+        },
+        {
+          "seed": 229211339,
+          "tEvac": 255.6,
+          "tSafe": 286.4
+        },
+        {
+          "seed": 232536135,
+          "tEvac": 242.3,
+          "tSafe": 264.6
+        },
+        {
+          "seed": 731229269,
+          "tEvac": 256.1,
+          "tSafe": 290.6
+        },
+        {
+          "seed": 591607904,
+          "tEvac": 278.6,
+          "tSafe": 319.9
+        },
+        {
+          "seed": 1030597639,
+          "tEvac": 247.2,
+          "tSafe": 276.4
+        },
+        {
+          "seed": 1323203988,
+          "tEvac": 245.1,
+          "tSafe": 272.1
+        },
+        {
+          "seed": 841636617,
+          "tEvac": 243.6,
+          "tSafe": 277.7
+        },
+        {
+          "seed": 1921222558,
+          "tEvac": 254.1,
+          "tSafe": 270.8
+        },
+        {
+          "seed": 111850202,
+          "tEvac": 261.9,
+          "tSafe": 310.2
+        },
+        {
+          "seed": 1818640267,
+          "tEvac": 238.2,
+          "tSafe": 280.2
+        },
+        {
+          "seed": 228947731,
+          "tEvac": 242.5,
+          "tSafe": 276.7
+        },
+        {
+          "seed": 1174295531,
+          "tEvac": 260.8,
+          "tSafe": 313.4
+        },
+        {
+          "seed": 879836714,
+          "tEvac": 255.2,
+          "tSafe": 293.2
+        },
+        {
+          "seed": 529506579,
+          "tEvac": 262,
+          "tSafe": 302.6
+        },
+        {
+          "seed": 1517495200,
+          "tEvac": 285.7,
+          "tSafe": 302.1
+        },
+        {
+          "seed": 30456098,
+          "tEvac": 249.3,
+          "tSafe": 281.7
+        },
+        {
+          "seed": 659498778,
+          "tEvac": 244.5,
+          "tSafe": 289.4
+        },
+        {
+          "seed": 1984646950,
+          "tEvac": 255,
+          "tSafe": 289.9
+        },
+        {
+          "seed": 443517544,
+          "tEvac": 249.7,
+          "tSafe": 288.7
+        },
+        {
+          "seed": 1750521709,
+          "tEvac": 249.3,
+          "tSafe": 285.2
+        },
+        {
+          "seed": 816676554,
+          "tEvac": 248.3,
+          "tSafe": 284.7
+        },
+        {
+          "seed": 730376091,
+          "tEvac": 242,
+          "tSafe": 286.2
+        },
+        {
+          "seed": 514730907,
+          "tEvac": 249.1,
+          "tSafe": 293.5
+        },
+        {
+          "seed": 2006777899,
+          "tEvac": 261.8,
+          "tSafe": 302
+        },
+        {
+          "seed": 1478387406,
+          "tEvac": 269.4,
+          "tSafe": 308.3
+        },
+        {
+          "seed": 1142119044,
+          "tEvac": 261.8,
+          "tSafe": 287.4
+        },
+        {
+          "seed": 996092048,
+          "tEvac": 238.4,
+          "tSafe": 283.7
+        },
+        {
+          "seed": 12969245,
+          "tEvac": 260.5,
+          "tSafe": 285.6
+        },
+        {
+          "seed": 1479227856,
+          "tEvac": 254.5,
+          "tSafe": 284.5
+        },
+        {
+          "seed": 759688920,
+          "tEvac": 256.1,
+          "tSafe": 295.1
+        },
+        {
+          "seed": 1706535878,
+          "tEvac": 246.8,
+          "tSafe": 288.4
+        },
+        {
+          "seed": 1449660327,
+          "tEvac": 269.8,
+          "tSafe": 317.2
+        },
+        {
+          "seed": 375984858,
+          "tEvac": 239.9,
+          "tSafe": 260.5
+        }
+      ]
     },
     {
       "id": "visible-B",
@@ -6098,7 +8320,209 @@
           "ORCH_SIDE_W": 7
         }
       },
-      "label": "Signs with wall occlusion, B plan"
+      "label": "Signs with wall occlusion, B plan",
+      "times": [
+        {
+          "seed": 2132682877,
+          "tEvac": 166.25,
+          "tSafe": null
+        },
+        {
+          "seed": 653975856,
+          "tEvac": 167.5,
+          "tSafe": null
+        },
+        {
+          "seed": 618185560,
+          "tEvac": 186,
+          "tSafe": null
+        },
+        {
+          "seed": 1854591219,
+          "tEvac": 157.75,
+          "tSafe": null
+        },
+        {
+          "seed": 863383835,
+          "tEvac": 180.25,
+          "tSafe": null
+        },
+        {
+          "seed": 1183475955,
+          "tEvac": 162,
+          "tSafe": null
+        },
+        {
+          "seed": 513925044,
+          "tEvac": 160.25,
+          "tSafe": null
+        },
+        {
+          "seed": 229211339,
+          "tEvac": 183,
+          "tSafe": null
+        },
+        {
+          "seed": 232536135,
+          "tEvac": 165,
+          "tSafe": null
+        },
+        {
+          "seed": 731229269,
+          "tEvac": 179.5,
+          "tSafe": null
+        },
+        {
+          "seed": 591607904,
+          "tEvac": 153.5,
+          "tSafe": null
+        },
+        {
+          "seed": 1030597639,
+          "tEvac": 163,
+          "tSafe": null
+        },
+        {
+          "seed": 1323203988,
+          "tEvac": 164,
+          "tSafe": null
+        },
+        {
+          "seed": 841636617,
+          "tEvac": 167.5,
+          "tSafe": null
+        },
+        {
+          "seed": 1921222558,
+          "tEvac": 151.75,
+          "tSafe": null
+        },
+        {
+          "seed": 111850202,
+          "tEvac": 170,
+          "tSafe": null
+        },
+        {
+          "seed": 1818640267,
+          "tEvac": 169.25,
+          "tSafe": null
+        },
+        {
+          "seed": 228947731,
+          "tEvac": 167.75,
+          "tSafe": null
+        },
+        {
+          "seed": 1174295531,
+          "tEvac": 154.75,
+          "tSafe": null
+        },
+        {
+          "seed": 879836714,
+          "tEvac": 177,
+          "tSafe": null
+        },
+        {
+          "seed": 529506579,
+          "tEvac": 156.5,
+          "tSafe": null
+        },
+        {
+          "seed": 1517495200,
+          "tEvac": 169.25,
+          "tSafe": null
+        },
+        {
+          "seed": 30456098,
+          "tEvac": 171.5,
+          "tSafe": null
+        },
+        {
+          "seed": 659498778,
+          "tEvac": 167.75,
+          "tSafe": null
+        },
+        {
+          "seed": 1984646950,
+          "tEvac": 166.25,
+          "tSafe": null
+        },
+        {
+          "seed": 443517544,
+          "tEvac": 172.5,
+          "tSafe": null
+        },
+        {
+          "seed": 1750521709,
+          "tEvac": 158.25,
+          "tSafe": null
+        },
+        {
+          "seed": 816676554,
+          "tEvac": 157.75,
+          "tSafe": null
+        },
+        {
+          "seed": 730376091,
+          "tEvac": 194.25,
+          "tSafe": null
+        },
+        {
+          "seed": 514730907,
+          "tEvac": 184.5,
+          "tSafe": null
+        },
+        {
+          "seed": 2006777899,
+          "tEvac": 160.25,
+          "tSafe": null
+        },
+        {
+          "seed": 1478387406,
+          "tEvac": 185.75,
+          "tSafe": null
+        },
+        {
+          "seed": 1142119044,
+          "tEvac": 161.25,
+          "tSafe": null
+        },
+        {
+          "seed": 996092048,
+          "tEvac": 173.25,
+          "tSafe": null
+        },
+        {
+          "seed": 12969245,
+          "tEvac": 168.5,
+          "tSafe": null
+        },
+        {
+          "seed": 1479227856,
+          "tEvac": 163.25,
+          "tSafe": null
+        },
+        {
+          "seed": 759688920,
+          "tEvac": 165.25,
+          "tSafe": null
+        },
+        {
+          "seed": 1706535878,
+          "tEvac": 166.5,
+          "tSafe": null
+        },
+        {
+          "seed": 1449660327,
+          "tEvac": 178.25,
+          "tSafe": null
+        },
+        {
+          "seed": 375984858,
+          "tEvac": 203.25,
+          "tSafe": null
+        }
+      ]
     },
     {
       "id": "selected-B-no-barrier",
@@ -6681,7 +9105,209 @@
           "MEZZ_E": 1
         }
       },
-      "label": "Selected B plan, barriers removed"
+      "label": "Selected B plan, barriers removed",
+      "times": [
+        {
+          "seed": 2132682877,
+          "tEvac": 256.9,
+          "tSafe": 279.9
+        },
+        {
+          "seed": 653975856,
+          "tEvac": 250.6,
+          "tSafe": 286.4
+        },
+        {
+          "seed": 618185560,
+          "tEvac": 278.2,
+          "tSafe": 296.8
+        },
+        {
+          "seed": 1854591219,
+          "tEvac": 254.6,
+          "tSafe": 283.9
+        },
+        {
+          "seed": 863383835,
+          "tEvac": 273.6,
+          "tSafe": 289.1
+        },
+        {
+          "seed": 1183475955,
+          "tEvac": 275.1,
+          "tSafe": 303.9
+        },
+        {
+          "seed": 513925044,
+          "tEvac": 269.2,
+          "tSafe": 288.6
+        },
+        {
+          "seed": 229211339,
+          "tEvac": 250.5,
+          "tSafe": 277.2
+        },
+        {
+          "seed": 232536135,
+          "tEvac": 239.2,
+          "tSafe": 274.1
+        },
+        {
+          "seed": 731229269,
+          "tEvac": 267.7,
+          "tSafe": 276.7
+        },
+        {
+          "seed": 591607904,
+          "tEvac": 256.3,
+          "tSafe": 316.7
+        },
+        {
+          "seed": 1030597639,
+          "tEvac": 252.5,
+          "tSafe": 273.6
+        },
+        {
+          "seed": 1323203988,
+          "tEvac": 259.5,
+          "tSafe": 282.7
+        },
+        {
+          "seed": 841636617,
+          "tEvac": 258.7,
+          "tSafe": 280.6
+        },
+        {
+          "seed": 1921222558,
+          "tEvac": 270.1,
+          "tSafe": 285.4
+        },
+        {
+          "seed": 111850202,
+          "tEvac": 269.4,
+          "tSafe": 305.4
+        },
+        {
+          "seed": 1818640267,
+          "tEvac": 246.5,
+          "tSafe": 270.8
+        },
+        {
+          "seed": 228947731,
+          "tEvac": 236.5,
+          "tSafe": 271
+        },
+        {
+          "seed": 1174295531,
+          "tEvac": 269.6,
+          "tSafe": 300
+        },
+        {
+          "seed": 879836714,
+          "tEvac": 248.7,
+          "tSafe": 275.6
+        },
+        {
+          "seed": 529506579,
+          "tEvac": 274.4,
+          "tSafe": 293.2
+        },
+        {
+          "seed": 1517495200,
+          "tEvac": 275.7,
+          "tSafe": 292.1
+        },
+        {
+          "seed": 30456098,
+          "tEvac": 244.8,
+          "tSafe": 270.4
+        },
+        {
+          "seed": 659498778,
+          "tEvac": 263.6,
+          "tSafe": 284.3
+        },
+        {
+          "seed": 1984646950,
+          "tEvac": 281,
+          "tSafe": 298.6
+        },
+        {
+          "seed": 443517544,
+          "tEvac": 243.9,
+          "tSafe": 281.9
+        },
+        {
+          "seed": 1750521709,
+          "tEvac": 245.6,
+          "tSafe": 278.1
+        },
+        {
+          "seed": 816676554,
+          "tEvac": 279.4,
+          "tSafe": 300.7
+        },
+        {
+          "seed": 730376091,
+          "tEvac": 251.9,
+          "tSafe": 272.7
+        },
+        {
+          "seed": 514730907,
+          "tEvac": 257.2,
+          "tSafe": 276.5
+        },
+        {
+          "seed": 2006777899,
+          "tEvac": 261.8,
+          "tSafe": 290.3
+        },
+        {
+          "seed": 1478387406,
+          "tEvac": 274,
+          "tSafe": 290.6
+        },
+        {
+          "seed": 1142119044,
+          "tEvac": 269.9,
+          "tSafe": 285.2
+        },
+        {
+          "seed": 996092048,
+          "tEvac": 253.7,
+          "tSafe": 272.6
+        },
+        {
+          "seed": 12969245,
+          "tEvac": 258.4,
+          "tSafe": 281.1
+        },
+        {
+          "seed": 1479227856,
+          "tEvac": 257,
+          "tSafe": 293.7
+        },
+        {
+          "seed": 759688920,
+          "tEvac": 255.4,
+          "tSafe": 275.7
+        },
+        {
+          "seed": 1706535878,
+          "tEvac": 251.5,
+          "tSafe": 278.8
+        },
+        {
+          "seed": 1449660327,
+          "tEvac": 282.2,
+          "tSafe": 301.4
+        },
+        {
+          "seed": 375984858,
+          "tEvac": 256.1,
+          "tSafe": 278.2
+        }
+      ]
     },
     {
       "id": "selected-B-no-barrier",
@@ -7262,7 +9888,209 @@
           "MEZZ_E": 1
         }
       },
-      "label": "Selected B plan, barriers removed"
+      "label": "Selected B plan, barriers removed",
+      "times": [
+        {
+          "seed": 2132682877,
+          "tEvac": 179.5,
+          "tSafe": null
+        },
+        {
+          "seed": 653975856,
+          "tEvac": 156.75,
+          "tSafe": null
+        },
+        {
+          "seed": 618185560,
+          "tEvac": 155,
+          "tSafe": null
+        },
+        {
+          "seed": 1854591219,
+          "tEvac": 157,
+          "tSafe": null
+        },
+        {
+          "seed": 863383835,
+          "tEvac": 172.25,
+          "tSafe": null
+        },
+        {
+          "seed": 1183475955,
+          "tEvac": 168.25,
+          "tSafe": null
+        },
+        {
+          "seed": 513925044,
+          "tEvac": 155,
+          "tSafe": null
+        },
+        {
+          "seed": 229211339,
+          "tEvac": 173.5,
+          "tSafe": null
+        },
+        {
+          "seed": 232536135,
+          "tEvac": 164.25,
+          "tSafe": null
+        },
+        {
+          "seed": 731229269,
+          "tEvac": 187.75,
+          "tSafe": null
+        },
+        {
+          "seed": 591607904,
+          "tEvac": 152,
+          "tSafe": null
+        },
+        {
+          "seed": 1030597639,
+          "tEvac": 160.5,
+          "tSafe": null
+        },
+        {
+          "seed": 1323203988,
+          "tEvac": 171.75,
+          "tSafe": null
+        },
+        {
+          "seed": 841636617,
+          "tEvac": 175,
+          "tSafe": null
+        },
+        {
+          "seed": 1921222558,
+          "tEvac": 146.5,
+          "tSafe": null
+        },
+        {
+          "seed": 111850202,
+          "tEvac": 181,
+          "tSafe": null
+        },
+        {
+          "seed": 1818640267,
+          "tEvac": 162.5,
+          "tSafe": null
+        },
+        {
+          "seed": 228947731,
+          "tEvac": 162.25,
+          "tSafe": null
+        },
+        {
+          "seed": 1174295531,
+          "tEvac": 155,
+          "tSafe": null
+        },
+        {
+          "seed": 879836714,
+          "tEvac": 192.5,
+          "tSafe": null
+        },
+        {
+          "seed": 529506579,
+          "tEvac": 158,
+          "tSafe": null
+        },
+        {
+          "seed": 1517495200,
+          "tEvac": 165,
+          "tSafe": null
+        },
+        {
+          "seed": 30456098,
+          "tEvac": 168.5,
+          "tSafe": null
+        },
+        {
+          "seed": 659498778,
+          "tEvac": 178.25,
+          "tSafe": null
+        },
+        {
+          "seed": 1984646950,
+          "tEvac": 156.75,
+          "tSafe": null
+        },
+        {
+          "seed": 443517544,
+          "tEvac": 173,
+          "tSafe": null
+        },
+        {
+          "seed": 1750521709,
+          "tEvac": 172.75,
+          "tSafe": null
+        },
+        {
+          "seed": 816676554,
+          "tEvac": 159.25,
+          "tSafe": null
+        },
+        {
+          "seed": 730376091,
+          "tEvac": 180.75,
+          "tSafe": null
+        },
+        {
+          "seed": 514730907,
+          "tEvac": 181.5,
+          "tSafe": null
+        },
+        {
+          "seed": 2006777899,
+          "tEvac": 160.5,
+          "tSafe": null
+        },
+        {
+          "seed": 1478387406,
+          "tEvac": 180.75,
+          "tSafe": null
+        },
+        {
+          "seed": 1142119044,
+          "tEvac": 153.25,
+          "tSafe": null
+        },
+        {
+          "seed": 996092048,
+          "tEvac": 163.25,
+          "tSafe": null
+        },
+        {
+          "seed": 12969245,
+          "tEvac": 151,
+          "tSafe": null
+        },
+        {
+          "seed": 1479227856,
+          "tEvac": 167,
+          "tSafe": null
+        },
+        {
+          "seed": 759688920,
+          "tEvac": 159.25,
+          "tSafe": null
+        },
+        {
+          "seed": 1706535878,
+          "tEvac": 160,
+          "tSafe": null
+        },
+        {
+          "seed": 1449660327,
+          "tEvac": 190.5,
+          "tSafe": null
+        },
+        {
+          "seed": 375984858,
+          "tEvac": 198,
+          "tSafe": null
+        }
+      ]
     },
     {
       "id": "refined-A",
@@ -7745,7 +10573,209 @@
           "LOGE_E_S": 1
         }
       },
-      "label": "Selected for A after refinement"
+      "label": "Selected for A after refinement",
+      "times": [
+        {
+          "seed": 2132682877,
+          "tEvac": 235.1,
+          "tSafe": 266
+        },
+        {
+          "seed": 653975856,
+          "tEvac": 239.7,
+          "tSafe": 268.1
+        },
+        {
+          "seed": 618185560,
+          "tEvac": 222.2,
+          "tSafe": 263.2
+        },
+        {
+          "seed": 1854591219,
+          "tEvac": 222.3,
+          "tSafe": 256.2
+        },
+        {
+          "seed": 863383835,
+          "tEvac": 233.1,
+          "tSafe": 258.3
+        },
+        {
+          "seed": 1183475955,
+          "tEvac": 260.1,
+          "tSafe": 293.8
+        },
+        {
+          "seed": 513925044,
+          "tEvac": 240,
+          "tSafe": 293.3
+        },
+        {
+          "seed": 229211339,
+          "tEvac": 233.8,
+          "tSafe": 261.7
+        },
+        {
+          "seed": 232536135,
+          "tEvac": 229.6,
+          "tSafe": 272.4
+        },
+        {
+          "seed": 731229269,
+          "tEvac": 252.4,
+          "tSafe": 257.2
+        },
+        {
+          "seed": 591607904,
+          "tEvac": 241.1,
+          "tSafe": 273
+        },
+        {
+          "seed": 1030597639,
+          "tEvac": 215.2,
+          "tSafe": 249.5
+        },
+        {
+          "seed": 1323203988,
+          "tEvac": 215.3,
+          "tSafe": 245.7
+        },
+        {
+          "seed": 841636617,
+          "tEvac": 222.4,
+          "tSafe": 263.4
+        },
+        {
+          "seed": 1921222558,
+          "tEvac": 242.3,
+          "tSafe": 285.3
+        },
+        {
+          "seed": 111850202,
+          "tEvac": 244,
+          "tSafe": 276.4
+        },
+        {
+          "seed": 1818640267,
+          "tEvac": 220.7,
+          "tSafe": 255.6
+        },
+        {
+          "seed": 228947731,
+          "tEvac": 217.3,
+          "tSafe": 247.1
+        },
+        {
+          "seed": 1174295531,
+          "tEvac": 223.7,
+          "tSafe": 263.4
+        },
+        {
+          "seed": 879836714,
+          "tEvac": 243.4,
+          "tSafe": 284
+        },
+        {
+          "seed": 529506579,
+          "tEvac": 230.6,
+          "tSafe": 269.9
+        },
+        {
+          "seed": 1517495200,
+          "tEvac": 212.9,
+          "tSafe": 258.3
+        },
+        {
+          "seed": 30456098,
+          "tEvac": 225.4,
+          "tSafe": 257.1
+        },
+        {
+          "seed": 659498778,
+          "tEvac": 223.5,
+          "tSafe": 256
+        },
+        {
+          "seed": 1984646950,
+          "tEvac": 227.1,
+          "tSafe": 259.6
+        },
+        {
+          "seed": 443517544,
+          "tEvac": 230.7,
+          "tSafe": 261.9
+        },
+        {
+          "seed": 1750521709,
+          "tEvac": 221.8,
+          "tSafe": 245.2
+        },
+        {
+          "seed": 816676554,
+          "tEvac": 241,
+          "tSafe": 255.2
+        },
+        {
+          "seed": 730376091,
+          "tEvac": 249.8,
+          "tSafe": 281.7
+        },
+        {
+          "seed": 514730907,
+          "tEvac": 215.5,
+          "tSafe": 250.8
+        },
+        {
+          "seed": 2006777899,
+          "tEvac": 239.7,
+          "tSafe": 264.7
+        },
+        {
+          "seed": 1478387406,
+          "tEvac": 224.3,
+          "tSafe": 261.1
+        },
+        {
+          "seed": 1142119044,
+          "tEvac": 227.2,
+          "tSafe": 256.3
+        },
+        {
+          "seed": 996092048,
+          "tEvac": 244.4,
+          "tSafe": 282.8
+        },
+        {
+          "seed": 12969245,
+          "tEvac": 231.3,
+          "tSafe": 285.6
+        },
+        {
+          "seed": 1479227856,
+          "tEvac": 218.3,
+          "tSafe": 259.2
+        },
+        {
+          "seed": 759688920,
+          "tEvac": 233.6,
+          "tSafe": 264.8
+        },
+        {
+          "seed": 1706535878,
+          "tEvac": 238.1,
+          "tSafe": 270
+        },
+        {
+          "seed": 1449660327,
+          "tEvac": 233.6,
+          "tSafe": 266.7
+        },
+        {
+          "seed": 375984858,
+          "tEvac": 227.4,
+          "tSafe": 257.4
+        }
+      ]
     },
     {
       "id": "refined-A",
@@ -8226,7 +11256,209 @@
           "MEZZ_C_W": 1
         }
       },
-      "label": "Selected for A after refinement"
+      "label": "Selected for A after refinement",
+      "times": [
+        {
+          "seed": 2132682877,
+          "tEvac": 190,
+          "tSafe": null
+        },
+        {
+          "seed": 653975856,
+          "tEvac": 165.25,
+          "tSafe": null
+        },
+        {
+          "seed": 618185560,
+          "tEvac": 188.75,
+          "tSafe": null
+        },
+        {
+          "seed": 1854591219,
+          "tEvac": 194.75,
+          "tSafe": null
+        },
+        {
+          "seed": 863383835,
+          "tEvac": 175,
+          "tSafe": null
+        },
+        {
+          "seed": 1183475955,
+          "tEvac": 172.75,
+          "tSafe": null
+        },
+        {
+          "seed": 513925044,
+          "tEvac": 174.25,
+          "tSafe": null
+        },
+        {
+          "seed": 229211339,
+          "tEvac": 180,
+          "tSafe": null
+        },
+        {
+          "seed": 232536135,
+          "tEvac": 178.25,
+          "tSafe": null
+        },
+        {
+          "seed": 731229269,
+          "tEvac": 188.25,
+          "tSafe": null
+        },
+        {
+          "seed": 591607904,
+          "tEvac": 177.25,
+          "tSafe": null
+        },
+        {
+          "seed": 1030597639,
+          "tEvac": 180.75,
+          "tSafe": null
+        },
+        {
+          "seed": 1323203988,
+          "tEvac": 186.5,
+          "tSafe": null
+        },
+        {
+          "seed": 841636617,
+          "tEvac": 188.5,
+          "tSafe": null
+        },
+        {
+          "seed": 1921222558,
+          "tEvac": 175.25,
+          "tSafe": null
+        },
+        {
+          "seed": 111850202,
+          "tEvac": 170.25,
+          "tSafe": null
+        },
+        {
+          "seed": 1818640267,
+          "tEvac": 175.25,
+          "tSafe": null
+        },
+        {
+          "seed": 228947731,
+          "tEvac": 189.25,
+          "tSafe": null
+        },
+        {
+          "seed": 1174295531,
+          "tEvac": 182.5,
+          "tSafe": null
+        },
+        {
+          "seed": 879836714,
+          "tEvac": 172,
+          "tSafe": null
+        },
+        {
+          "seed": 529506579,
+          "tEvac": 175.25,
+          "tSafe": null
+        },
+        {
+          "seed": 1517495200,
+          "tEvac": 174,
+          "tSafe": null
+        },
+        {
+          "seed": 30456098,
+          "tEvac": 189.25,
+          "tSafe": null
+        },
+        {
+          "seed": 659498778,
+          "tEvac": 189,
+          "tSafe": null
+        },
+        {
+          "seed": 1984646950,
+          "tEvac": 178,
+          "tSafe": null
+        },
+        {
+          "seed": 443517544,
+          "tEvac": 160.25,
+          "tSafe": null
+        },
+        {
+          "seed": 1750521709,
+          "tEvac": 176.25,
+          "tSafe": null
+        },
+        {
+          "seed": 816676554,
+          "tEvac": 171,
+          "tSafe": null
+        },
+        {
+          "seed": 730376091,
+          "tEvac": 178.5,
+          "tSafe": null
+        },
+        {
+          "seed": 514730907,
+          "tEvac": 168,
+          "tSafe": null
+        },
+        {
+          "seed": 2006777899,
+          "tEvac": 177.75,
+          "tSafe": null
+        },
+        {
+          "seed": 1478387406,
+          "tEvac": 175.75,
+          "tSafe": null
+        },
+        {
+          "seed": 1142119044,
+          "tEvac": 174.75,
+          "tSafe": null
+        },
+        {
+          "seed": 996092048,
+          "tEvac": 198.5,
+          "tSafe": null
+        },
+        {
+          "seed": 12969245,
+          "tEvac": 173.25,
+          "tSafe": null
+        },
+        {
+          "seed": 1479227856,
+          "tEvac": 202.75,
+          "tSafe": null
+        },
+        {
+          "seed": 759688920,
+          "tEvac": 178.5,
+          "tSafe": null
+        },
+        {
+          "seed": 1706535878,
+          "tEvac": 194,
+          "tSafe": null
+        },
+        {
+          "seed": 1449660327,
+          "tEvac": 220.75,
+          "tSafe": null
+        },
+        {
+          "seed": 375984858,
+          "tEvac": 175,
+          "tSafe": null
+        }
+      ]
     }
   ]
 }

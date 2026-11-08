@@ -218,23 +218,28 @@ export function batchStats(label: string, runs: RunSummary[], benchmark = 180): 
   for (const g of EXIT_GROUPS) meanUsage[g] = R ? runs.reduce((a, r) => a + (r.exitGroupUsage[g] ?? 0), 0) / R : 0;
   const mq: Record<string, number> = {};
   for (const r of runs) for (const [k, v] of Object.entries(r.maxQueue)) mq[k] = (mq[k] ?? 0) + v / R;
+  // A completion-conditioned mean is not the mean full-house clearance time.
+  const completion = (values:number[]) => {
+    const s=summarize(values);
+    return s.nValid===s.n?s:{...s,mean:NaN,ciLow:NaN,ciHigh:NaN,median:NaN,sd:NaN,p5:NaN,p95:NaN,max:NaN};
+  };
   return {
     label,
     runs: R,
     benchmark,
-    tEvac: summarize(runs.map((r) => r.tEvac)),
+    tEvac: completion(runs.map((r) => r.allLeftBuilding && !r.unresolvedInside ? r.tEvac : NaN)),
     tEvacAmbulatory: summarize(runs.map((r) => r.tEvacAmbulatory)),
-    tSafe: summarize(runs.map((r) => r.tSafe)),
+    tSafe: completion(runs.map((r) => r.tSafe)),
     p95Exit: summarize(runs.map((r) => r.p95Exit)),
     p99Exit: summarize(runs.map((r) => r.p99Exit ?? NaN)),
     insideAt180: summarize(runs.map((r) => r.insideAt180 ?? NaN)),
-    tSafeAll: summarize(runs.map((r) => r.tSafeAll ?? NaN)),
+    tSafeAll: completion(runs.map((r) => r.tSafeAll ?? NaN)),
     meanExit: summarize(runs.map((r) => r.meanExit)),
     medianStart: summarize(runs.map((r) => r.medianStart)),
     peakDensity: summarize(runs.map((r) => r.peakDensity)),
     exposure: summarize(runs.map((r) => r.highDensityExposure)),
     imbalance: summarize(runs.map((r) => r.exitImbalance)),
-    pMeet: wilson(runs.filter((r) => Number.isFinite(r.tEvac) && r.tEvac <= benchmark).length, R),
+    pMeet: wilson(runs.filter((r) => r.allLeftBuilding && !r.unresolvedInside && Number.isFinite(r.tEvac) && r.tEvac <= benchmark).length, R),
     pMeetAmbulatory: wilson(runs.filter((r) => Number.isFinite(r.tEvacAmbulatory) && r.tEvacAmbulatory <= benchmark).length, R),
     fracGridlock: R ? runs.filter((r) => r.gridlock).length / R : 0,
     fracUnresolved: R ? runs.filter((r) => !r.allLeftBuilding || r.trapped > 0).length / R : 0,

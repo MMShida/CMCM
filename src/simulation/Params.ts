@@ -42,6 +42,9 @@ export type Occupancy = { orchestra: number; mezzanine: number; balcony: number;
 export interface GuidanceSign {
   id: string; x: number; y: number; floor: number;
   facingDegrees: number; exit: ExitGroupId;
+  /** Optional floor strip, in metres on an existing link. Ordered points show arrow direction.
+   * Finite, public message; range/occlusion still apply. No display-facing cone for floor strips. */
+  strip?: { linkId: string; points: [number, number][] };
 }
 
 export interface SimConfig {

@@ -1,5 +1,6 @@
 node_modules
 dist
+.vite-cache/
 *.log
 
 # local safety snapshots (not for the repository)
@@ -159,3 +160,12 @@ results/**/*-source.json
 results/**/*-checkpoint.json
 docs/research-180/screenshots/
 docs/research-180/figures/*.png
+
+# Six-manager raw records: lossless .gz evidence is tracked.
+/results/placement-study/screen.json
+/results/placement-study/shortlist.json
+/results/placement-study/confirmation.json
+/results/placement-study/blocked.json
+/results/placement-study/visibility.json
+/results/placement-study/run-*.json
+/results/placement-study/complete.json

@@ -1,8 +1,189 @@
 # What changed after 04:20 — and did it reach 180 seconds?
 
-**Original guidance study: A 231.2 s; B 166.4 s. Later A-Lite study: 191.4 s [188.3, 194.6] on forty new audiences. A and Lite remain above the mean 180-second target.**
+<!-- SIX_MANAGER_START -->
+## Current scope: six managers and the original problem constraints
+This update addresses **Question 2** (full-house concert emergency, including an initially unknown blocked exit) and **Question 4** (removable corridor barriers and directional LED strips). The original seven-page *Bail(ey)ing Out* PDF was reread, including the evacuation plans and seating maps. The brief requires at least six managers; this comparison uses **exactly six**, as requested. Earlier 10/18-manager results remain historical resource sensitivities.
 
-The tables in sections 1–8 preserve the original intervention study, including historical panel configurations. The later no-barrier simplification study is summarized below and fully documented in **SIMPLIFICATION_AUDIT.pdf**. Its structural changes to group motion are separate from the earlier unchanged-group intervention scope.
+| Constraint | Source page | Treatment |
+|---|---|---|
+| 1,329 occupants, including up to three wheelchair users | 2–3 | All 1,329 retained, including three wheelchair users; not 1,329 plus three. |
+| Declaration to last person outside | 1–2 | Response time included; no 180 s censoring; building boundary and street safety reported separately. |
+| At least six staff at concerts | 2 | Exactly six actual posts; no staff removed by the device interventions. |
+| Temporary corridor barriers; directional floor/wall LEDs | 2 | Original corridor slots and finite floor-strip segments; no physical rate or width bonus. |
+| Exit obstruction and execution error | 2 | Matched discovery-mode blocked-door tests; visibility and notice sensitivities. |
+| No elevator; preserve building layout | 3–7 | Original graph and prohibited links unchanged; all candidate rows and wheelchair seats retain an egress path. |
+| One-page executive summary, explicit questions addressed | 2–3 | Summary addressed to Timothy Ryan precedes this report; Questions 2 and 4 selected. |
+
+The user's target is an average below 180 s. The brief's wording is stricter: an evacuation must finish under 180 s. The report therefore shows both the mean last-person time and the count at or below 180. Graph connectivity does not establish installation feasibility, body-level pressure, smoke tenability or empirical accuracy. The full audit is `CONSTRAINTS.md`.
+
+## Why your Model A run can differ from 230 seconds
+
+The historical refined A result is **231.2475 s**, averaged over 40 specified audiences. It uses six existing managers, W1/E1 hard corridor panels, pre-announcement, abstract LEDs, adaptive managers and conservative service integration. The default concert baseline is **268.645 s** on the same audiences. The configuration's stored seed 1 is not the batch's first generated seed.
+
+The archived refined A audience with seed **2132682877** leaves the building at **235.1 s**, the last ambulatory person reaches street level at **266.0 s**, and all-person street safety including scheduled wheelchair assistance is **282.7 s**. Individual clearance times in that 40-run batch span **212.9–260.1 s**. The interface's former prominent clock included outside travel and assistance; it was not the study's clearance metric. The live view now displays building clearance separately. The study tab loads exact configurations, replays a known audience, and reproduces the complete archived seed list.
+
+A fresh current-code audit reproduced **all 1,000 runs** in the original A/B and later A-Lite main confirmation archives, including the known incomplete corrected-A case. Numerical run fields match; measured CPU runtime is excluded. Real browser checks independently matched the live A/B results and all 40 refined A worker results. Multiple local checkouts were serving different code on ports 5173/5174; this worktree serves port 5180. A shared Vite dependency cache also caused duplicate-React errors; the cache is now local to this checkout.
+
+The generic Monte Carlo summary previously could show a completion-conditioned mean when another audience failed. It now reports no finite full-house mean for an incomplete batch, preserving failures in the success fraction. This display correction does not change trajectories. Reproduction verifies implementation consistency; it cannot establish agreement with a real Bailey evacuation without calibration data.
+
+## Placement experiment and resource budget
+
+Three six-manager layouts (existing, seat coverage, decision points), four LED choices (none, early approach, decision areas, corridor/exit approach) and seven barrier choices give **84 configurations**, each tested on four common training audiences. Barrier choices are none; hard W0/E0, W1/E1, W2/E2; W1/E1 ropes; and asymmetric hard W0/E2 or W2/E0. Thus symmetry is tested, not presumed.
+
+The same expanded seat-block instructions and pre-announcement are used throughout the screen. Staff have acoustic reach and individual message hearing; congestion redirection is initially held static, while closure handling remains enabled. Four additional zone-control variants enter the longer shortlist. Physical probabilities remain 0.9 notice and 0.7 acceptance for LEDs, 0.8 base staff acceptance, with inherited imperfect hearing. Ropes add 15 perceived seconds, a sensitivity assumption rather than an observed Bailey deterrent.
+
+Each LED layout uses **twelve 2 m floor strips, 24 m total**, clipped to existing links. The message is public and fixed; no strip reads a person's original seat. Range is 12 m, same-floor only, with walls, columns and hard panels occluding. One notice/acceptance opportunity uses the original random draws. Body occlusion, height, luminance and optical smoke effects are not calibrated. The strips are localized cues, not an uninterrupted illuminated route. Floor strips are visible from either side; arrow direction is distinct from the facing cone of a wall sign. Model Guide equation 25 specifies the finite-strip visibility calculation.
+
+Bernardini et al. [R20] support investigating low-level directional cues and message comprehension, using isolated-person VR evidence. Galea et al. [R8] support message consistency. Neither establishes Bailey's notice/acceptance values. Barrier experiments [R11–R12,R17] show configuration-dependent benefits and harm; no published percentage is pasted onto capacity.
+
+![All three equal-length LED layouts and all six candidate corridor barrier slots; arrows show public exit directions.](figures/placement-layouts.svg)
+
+## Training selection, fixed before independent confirmation
+
+The shortlist contains **17 candidates**, each evaluated on 12 new training audiences (base seed 61007), after screening with base seed 61006. Selection was frozen before viewing the 40-audience confirmation set (61106). The lowest training mean selected `decision-none-rope1` overall; the best candidate containing both devices selected `coverage-decision-rope1`. These are two prespecified roles, not a choice of the best holdout result.
+
+
+| Training configuration | Mean s [95% CI] | Failures |
+|---|---|---|
+| decision-none-rope1 | 191.6 [182.8, 200.5] | 0 |
+| zone-none-hard1 | 193.1 [182.1, 204.0] | 0 |
+| coverage-decision-rope1 | 193.8 [186.7, 200.8] | 0 |
+| decision-none-hard1 | 194.6 [185.9, 203.4] | 0 |
+| decision-corridor-hard1 | 194.8 [184.6, 205.0] | 0 |
+| zone-corridor-hard1 | 195.8 [187.6, 204.0] | 0 |
+| existing-none-rope1 | 199.5 [185.1, 214.0] | 0 |
+| zone-decision-hard1 | 201.7 [186.0, 217.5] | 0 |
+
+## Independent six-manager comparison
+
+Exactly six managers: the preselected combined plan gives 230.1 s in A, 194.2 s in A-Lite and 182.6 s in B (40 independent audiences each). The mean 180-second target is not demonstrated.
+
+| Configuration / model | Mean s [95% CI] | ≤180 | Unresolved |
+|---|---|---|---|
+| Training-selected overall plan / A | 232.7 [229.4, 236.1] | 0/40 | 0/40 |
+| Training-selected overall plan / B | 190.5 [186.2, 194.8] | 9/40 | 0/40 |
+| Training-selected overall plan / Lite | 201.2 [195.0, 207.5] | 3/40 | 0/40 |
+| Training-selected LEDs + barriers / A | 230.1 [226.6, 233.6] | 0/40 | 0/40 |
+| Training-selected LEDs + barriers / B | 182.6 [178.7, 186.5] | 18/40 | 0/40 |
+| Training-selected LEDs + barriers / Lite | 194.2 [189.1, 199.3] | 7/40 | 0/40 |
+| Same combined plan, LEDs off / Lite | 194.7 [190.1, 199.4] | 3/40 | 0/40 |
+| Same combined plan, barriers removed / Lite | 218.2 [213.5, 222.9] | 0/40 | 0/40 |
+| Same posts and messages, both devices off / A | 235.7 [231.9, 239.6] | 0/40 | 0/40 |
+| Same posts and messages, both devices off / B | 189.4 [185.6, 193.1] | 8/40 | 0/40 |
+| Same posts and messages, both devices off / Lite | 216.1 [211.3, 221.0] | 0/40 | 0/40 |
+| Existing posts, no devices / Lite | 219.2 [214.5, 223.9] | 0/40 | 0/40 |
+
+Negative paired differences mean faster; confidence intervals describe the paired audience sample. The intervention comparison keeps posts, instructions and pre-announcement fixed.
+
+| A-Lite paired comparison | Difference s [95% CI] |
+|---|---|
+| Combined minus neither device | -21.91 [-26.89, -16.92] |
+| Add LEDs to same barrier plan | -0.54 [-4.48, 3.40] |
+| Add ropes to same LED plan | -24.00 [-28.25, -19.74] |
+
+The combined policy is retained as the prespecified device comparison even if the overall training winner performs differently on confirmation. A small LED difference with an interval containing zero is not evidence of a reliable improvement. Simpler device layouts can be preferable when the effect is uncertain. Search does not prove a global optimum.
+
+| Combined plan / model | Max local density, persons/m² | Mean exposure, persons·s/m² |
+|---|---|---|
+| A | 5.8 | 19.1 |
+| Lite | 4.5 | 14.5 |
+| B | 9.7 | 18.5 |
+
+Exposure integrates density above 2 persons/m² per person, then averages over people and runs. This is an analytical comparison, not a safety threshold. Local A windows, Lite whole-link averages and B edge averages differ in resolution; their peak values are not interchangeable.
+
+## Where the selected devices and six managers are
+
+The combined plan uses **coverage** posts, **decision** LED placement, and **rope1** barriers. The frozen configuration contains every polyline point, arrow message, staff setting and seat-block instruction.
+
+![Selected combined plan: six managers, physical directional strips and corridor barriers on both floors.](figures/placement-selected.svg)
+
+| Strip / existing link | Floor | Centre (x, y), m | Public destination |
+|---|---|---|---|
+| L1 / FX_2 | 1 | (-2.33, -7.60) | STAGE_W |
+| L2 / FX_3 | 1 | (2.33, -7.60) | STAGE_E |
+| L3 / WK_2 | 1 | (-15.25, -1.10) | PORTICO_W |
+| L4 / WK_9 | 1 | (15.25, -1.10) | PORTICO_E |
+| L5 / WK_4 | 1 | (-9.88, 12.50) | PORTICO_W |
+| L6 / WK_7 | 1 | (9.88, 12.50) | PORTICO_E |
+| L7 / WK_5 | 1 | (-3.70, 15.21) | FOYER |
+| L8 / WK_6 | 1 | (3.70, 15.21) | FOYER |
+| L9 / BWK_1 | 2 | (-18.40, 0.08) | BAL_NW |
+| L10 / BWK_8 | 2 | (18.40, 0.08) | BAL_NE |
+| L11 / BWK_2 | 2 | (-14.32, 12.54) | FOYER |
+| L12 / BWK_7 | 2 | (14.32, 12.54) | FOYER |
+
+Each listed strip is 2 m long along its existing link. Coordinates use east-positive x and south-positive y; they are reconstruction coordinates, not surveyed installation dimensions. Full ordered endpoints are retained in the JSON and drawn as arrows.
+
+
+| Manager | Existing: (x,y,floor) | Coverage: (x,y,floor) | Decision: (x,y,floor) |
+|---|---|---|---|
+| CM1 | (-12.8, -4.8, 1) | (-5.1, -3.2, 1) | (0, -7, 1) |
+| CM2 | (12.8, -4.8, 1) | (5.1, -3.2, 1) | (0, 12, 1) |
+| CM3 | (-4.9, 12.4, 1) | (-4.9, 12.4, 1) | (-16.5, 7.5, 1) |
+| CM4 | (4.9, 12.4, 1) | (4.9, 12.4, 1) | (16.5, 7.5, 1) |
+| CM5 | (-18.4, 2.85, 2) | (-18.4, 2.85, 2) | (-17.6, 3.6, 2) |
+| CM6 | (18.4, 2.85, 2) | (18.4, 2.85, 2) | (17.6, 3.6, 2) |
+
+| Slot / link | Centre (x,y), m | Corridor width, m |
+|---|---|---|
+| W0 / CO_3 | (-17.476, 1.222) | 3.042 |
+| W1 / CO_7 | (-14.269, 10.753) | 2.4 |
+| W2 / CO_10 | (-9.404, 15.05) | 2.589 |
+| E2 / CO_17 | (9.404, 15.05) | 2.589 |
+| E1 / CO_20 | (14.269, 10.753) | 2.4 |
+| E0 / CO_24 | (17.476, 1.222) | 3.042 |
+
+The maps number staff CM1–CM6 for comparison; implementation IDs are CM1–CM6 for existing, CV1–CV6 for coverage and DP1–DP6 for decision posts. Panel and rope positions are the same slot midpoints; panels close the slot and obscure sight, ropes remain crossable. All six managers remain available. Staff footprint and their own evacuation remain absent from the inherited audience model.
+
+## Blocked exit and visibility robustness
+
+Twelve matched audiences (base 61206) compare open conditions with **F3 blocked from the start**, initially discovered locally. F3 is one exterior foyer door; no door is removed from the intervention geometry. Neither the static strips nor people receive perfect initial closure information.
+
+| Policy / model | Open mean s | F3 blocked mean s | Paired change s [95% CI] |
+|---|---|---|---|
+| best-six / A | 234.2 | 243.8 | 9.62 [1.16, 18.08] |
+| best-six / B | 201.8 | 194.0 | -7.79 [-23.28, 7.69] |
+| best-six / Lite | 194.2 | 200.8 | 6.63 [-4.77, 18.04] |
+| combined-six / A | 226.6 | 247.4 | 20.84 [6.19, 35.49] |
+| combined-six / B | 185.5 | 189.8 | 4.23 [-6.78, 15.24] |
+| combined-six / Lite | 197.3 | 183.0 | -14.25 [-25.40, -3.10] |
+
+The combined-policy blockage result is model-dependent: F3 closure slows A but speeds Lite in this sample. Mean foyer use in Lite falls from 650.6 to 605.6 people, redistributing demand toward portico and stage routes. This is a route-choice/queue interaction, not increased physical capacity. It is not a recommendation to close an exit, and the disagreement with A limits transfer to the real building. An additional final-state audit checks zero passages through F3 and full completion on every combined-plan blocked replicate.
+
+Twelve further paired audiences (61306) check a 6 m visibility range and a reduced 0.60 notice probability separately. Acceptance remains 0.70; the full audience, six staff and devices remain. These are labeled uncertainty sensitivities, not refits used to select a faster model.
+
+| Combined-plan visibility case | Lite mean s [95% CI] | Change from same-seed control |
+|---|---|---|
+| range6 | 198.6 [187.6, 209.5] | -0.97 [-6.47, 4.52] |
+| notice60 | 194.2 [184.6, 203.8] | -5.34 [-12.60, 1.92] |
+| visibility-control | 199.6 [189.2, 209.9] | 0.00 [0.00, 0.00] |
+
+## Code changes and reproduction
+
+The update adds finite physical strips to the shared sign-visibility code, preserving all point-sign and abstract-sign behavior when strips are absent. The renderer shows their actual locations and arrows. A-Lite runs the same barrier/LED guidance machinery as A and is now available in live and Monte Carlo views. No movement coefficient, door/stair rate, row speed, group rule, response distribution or original geometry was changed in this update. All new cases retain conservative service integration; Lite also retains its mandatory exhausted-path correction.
+
+The original 1,000-run replay, browser verification, exact seeds, raw per-run results, frozen configurations and geometry/source hashes are stored in `results/placement-study/`. `comparisons.csv` contains every new experiment. Large records are compressed, and source snapshots are deduplicated; intermediate logs and caches remain local.
+
+```
+node --import tsx scripts/placement-cases.ts
+node --import tsx scripts/verify-published-study.ts --workers 4
+node --import tsx scripts/lite-study.ts --cases results/placement-study/confirmation-cases.json --out /tmp/six-manager-confirmation.json --runs 40 --seed 61106 --workers 4
+python3 scripts/placement-report.py
+python3 scripts/build-latex-docs.py --compile
+```
+
+No frozen six-manager plan demonstrated a mean below 180 seconds in A or A-Lite. A defensible next improvement needs better measured visibility, route-use or movement evidence; lowering congestion solely to cross a target would change the physical hypothesis.
+
+<!-- SIX_MANAGER_END -->
+
+
+
+
+
+
+**Historical guidance study: A 231.2 s; B 166.4 s. Later A-Lite study: 191.4 s [188.3, 194.6] on forty new audiences. A and Lite remain above the mean 180-second target.**
+
+The historical tables below preserve the original intervention study, including historical panel configurations. The later no-barrier simplification study is summarized below and fully documented in **SIMPLIFICATION_AUDIT.pdf**. Its structural changes to group motion are separate from the earlier unchanged-group intervention scope.
 
 This is a continuation of Mateus's 8 November 2026, 04:20:42 EST commit **3e4bcf0**, in the isolated `mateus-0420` checkout. Earlier dirty work is preserved in the parent checkout. This report accompanies **MODEL_GUIDE.pdf**, which develops all model equations and research references from basic flow to the full agent model.
 

@@ -6,6 +6,7 @@ export function StatisticsPanel({ ctl }: { ctl: LiveController }) {
   const s = ctl.currentStats();
   const flows = ctl.recentFlows(10);
   const frac = s.N ? s.left / s.N : 0;
+  const clearance = s.inside === 0 ? Math.max(0, ...ctl.sim.agents.map(a => a.tLeftBuilding)) : null;
   const done = ctl.sim.finished && ctl.replay === null;
   const snaps = ctl.snapshots;
   const upto = ctl.replay ?? snaps.length - 1;
@@ -18,7 +19,7 @@ export function StatisticsPanel({ ctl }: { ctl: LiveController }) {
       <div className="stat-hero">
         <div>
           <div className="hero-num">{fmt(s.t, 1)} s</div>
-          <div className="muted small">simulated time{ctl.replay !== null ? ' (replay)' : ''}</div>
+          <div className="muted small">simulation clock (includes outside travel){ctl.replay !== null ? ' (replay)' : ''}</div>
         </div>
         <div>
           <div className="hero-num">{pct(frac, 1)}</div>
@@ -29,6 +30,7 @@ export function StatisticsPanel({ ctl }: { ctl: LiveController }) {
         <div style={{ width: `${frac * 100}%` }} />
         {s.t >= 180 || true ? <span className="bench" style={{ left: `${Math.min(100, (180 / maxT) * 100)}%` }} /> : null}
       </div>
+      {clearance !== null && ctl.replay === null && <div className="done-note"><strong>Everyone left the building at {fmt(clearance, 1)} s.</strong> Later simulation time includes travel and assistance outside.</div>}
       <table className="kv">
         <tbody>
           <tr>

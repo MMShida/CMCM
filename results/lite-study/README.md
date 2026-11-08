@@ -1,4 +1,6 @@
-# A-Lite study evidence
+# Historical A-Lite staffing/simplification study evidence
+
+The current exactly-six-manager LED/barrier comparison is in [../placement-study](../placement-study/README.md). Its combined configuration is now the default Lite CLI input. The eighteen-staff files here preserve the earlier study unchanged.
 
 Reference: Mateus's commit `3e4bcf0`; original A remains the default engine. The final technical report is `docs/research-180/SIMPLIFICATION_AUDIT.pdf`.
 

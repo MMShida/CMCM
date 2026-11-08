@@ -1,35 +1,43 @@
-# Bail(ey)ing Out: agent-based evacuation simulator for Bailey Hall
+# Bail(ey)ing Out: Bailey Hall evacuation models
 
-This checkout continues Mateus's **8 November, 04:20:42 EST** commit `3e4bcf0`.
-The professional technical documents are [the mathematical model guide](docs/research-180/MODEL_GUIDE.pdf),
-[the A-Lite specification and experimental audit](docs/research-180/SIMPLIFICATION_AUDIT.pdf), and
-[the earlier intervention results](docs/research-180/RESULTS_AND_CHANGES.pdf).
-Editable LaTeX sources are in [docs/research-180/latex](docs/research-180/latex/README.md).
+This checkout continues Mateus's **8 November, 04:20:42 EST** commit `3e4bcf0` on branch **bailey-model**.
+The current study keeps **exactly six crowd managers and all 1,329 occupants**, including three wheelchair users.
+It compares physical directional LED strips and removable corridor barriers in **A, A-Lite and B**.
 
-The separate **A-Lite** engine retains the original spatial graph, uses lane FIFO travel/service and strict storage,
-and simplifies group movement. Forty independent audiences give **191.4 s [188.3, 194.6]** with the selected
-no-barrier, eighteen-staff policy; the same policy gives **259.0 s in A** and **166.4 s in B**.
-The finer 0.025 s Lite step gives **188.7 s [186.2, 191.2]**. Neither A nor Lite establishes the mean 180 s target.
-Original A is preserved; numerical corrections and structural sensitivities are optional.
-The previous 231.2 s A result used hard panels and is retained as historical evidence, not an installation recommendation.
+The preselected combined plan (six coverage posts, twelve 2 m decision-area strips, W1/E1 ropes) gives
+**230.1 s in A, 194.2 s in A-Lite and 182.6 s in B** on 40 independent audiences each.
+The mean 180-second target is not demonstrated. The earlier eighteen-manager study is retained as historical evidence.
+
+- [Technical model and mathematics](docs/research-180/MODEL_GUIDE.pdf)
+- [Current results, placement maps, constraint audit and one-page executive summary](docs/research-180/RESULTS_AND_CHANGES.pdf)
+- [A-Lite specification and historical simplification audit](docs/research-180/SIMPLIFICATION_AUDIT.pdf)
+- [Original-problem constraint ledger](docs/research-180/CONSTRAINTS.md)
+- [Editable LaTeX sources](docs/research-180/latex/README.md)
+- [Exact configurations, seeds and verification](results/placement-study/README.md)
+
+**Reproducing “230 seconds”:** the historical refined A mean is **231.2475 s**, not the default concert baseline
+(**268.645 s**) and not a single seed. Seed **2132682877** under that historical plan clears the building at
+**235.1 s**; ambulatory street clearance is **266.0 s**, and the endpoint including scheduled wheelchair assistance is **282.7 s**. The app now shows these endpoints separately and offers exact
+single-audience and 40-run replay buttons. All 1,000 main archived confirmation runs reproduced numerically;
+actual browser workers reproduced the 40-run historical A mean and the new 40-run A-Lite mean.
 
 ```bash
-npm run lite -- --config results/lite-study/best-config.json --seed 1294506412 --out results/lite-study/reproduced.json
-npm run lite:study -- --cases results/lite-study/confirmation-cases.json --out results/lite-study/reproduced-confirmation.json --seed 20261109 --runs 40 --workers 3
+npm run dev -- --port 5180 --strictPort
+npm run lite -- --seed 1466857514 --out /tmp/bailey-six.json
+node --import tsx scripts/lite-study.ts --cases results/placement-study/confirmation-cases.json --out /tmp/bailey-six-confirmation.json --seed 61106 --runs 40 --workers 4
 python3 scripts/build-latex-docs.py --compile
 python3 scripts/check-research-pdfs.py
 ```
 
-Use the app's **180-second study** tab to inspect the original intervention study and open the technical PDFs.
-A-Lite currently runs through the reproducible CLI above. Its configs, raw data, failures, source snapshots and
-selection record are in [results/lite-study](results/lite-study/README.md).
-Large raw evidence is stored as verified `.json.gz`/`.jsonl.gz` files. Restore original paths for analysis with
-`python3 scripts/restore-research-data.py`; runnable configuration files remain readable JSON.
-Exact source snapshots are deduplicated under `results/source-snapshots/`.
+The default Lite CLI now uses the six-manager combined configuration; the example seed clears in **219.0 s**,
+illustrating why a single audience differs from a mean. A-Lite is also available in the live and Monte Carlo views.
+Use **http://127.0.0.1:5180/?tab=research** for this checkout. Other local checkouts may still run on 5173/5174;
+Vite now uses a worktree-local dependency cache to avoid mixing React versions between those servers.
 
-From this directory, run `npm run dev -- --port 5180 --strictPort` to keep this
-04:20 continuation separate from other checkouts. The confirmation batch is reproduced with
-`node --import tsx scripts/research-study.ts --mode evaluate --cases results/research-180/confirmation-cases.json --runs 40 --seed 20261108 --out results/research-180/confirmation.json`.
+Large raw records are losslessly compressed and source snapshots are deduplicated.
+`python3 scripts/restore-research-data.py --only results/placement-study/` restores missing records for analysis;
+small runnable configurations stay readable. Default A's movement remains unchanged; Lite's group and queue
+simplifications are explicitly documented, and no congestion coefficient was reduced to fit the target.
 
 An interactive, research-grade simulator for the CMCM 2026 problem *"Bail(ey)ing Out"*
 (evacuating Bailey Hall, Cornell University). Every one of the 1,329 occupants is an
@@ -55,7 +63,7 @@ random seeds.
 
 ```bash
 npm install
-npm run dev          # interactive app at http://localhost:5173
+npm run dev -- --port 5180 --strictPort  # this checkout at http://localhost:5180
 npm run test         # regression and model-invariant tests (vitest)
 npm run build        # type-check + production build into dist/
 ```

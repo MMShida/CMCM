@@ -12,9 +12,11 @@ def tab(h,b):return '| '+' | '.join(h)+' |\n|'+ '|'.join('---' for _ in h)+'|\n'
 conf=rows('confirmation');best={r['model']:r for r in conf if r['id']=='best-lite'};parts=[]
 parts.append('''# A-Lite: model simplification and experimental audit
 
-**Independent confirmation: A-Lite 191.4 s [188.3, 194.6]; the mean 180-second target was not achieved.** All forty A-Lite audiences cleared; six cleared by 180 s. The same guidance gives 259.0 s in A and 166.4 s in B. These are model-dependent predictions, not estimates to average together.
+**Historical 18-manager confirmation: A-Lite 191.4 s [188.3, 194.6]; the mean 180-second target was not achieved.** All forty A-Lite audiences cleared; six cleared by 180 s. The same guidance gives 259.0 s in A and 166.4 s in B. These are model-dependent predictions, not estimates to average together.
 
-The reference is Mateus's 8 November 2026, 04:20:42 EST commit `3e4bcf0`. The previous source was saved before this extension. Original A remains available when optional switches are absent. Every new operational finalist has **no barriers**, retains 1,329 people and three wheelchair users, and uses unchanged geometry, gate rates, body-size/speed/response distributions and imperfect compliance. A-Lite deliberately simplifies group motion; that structural change is not an operational achievement.
+The reference is Mateus's 8 November 2026, 04:20:42 EST commit `3e4bcf0`. The previous source was saved before this extension. Original A remains available when optional switches are absent. Every finalist in that earlier staffing/simplification study has **no barriers**, retains 1,329 people and three wheelchair users, and uses unchanged geometry, gate rates, body-size/speed/response distributions and imperfect compliance. A-Lite deliberately simplifies group motion; that structural change is not an operational achievement.
+
+The current six-manager LED/barrier comparison is documented in **RESULTS_AND_CHANGES.pdf**, and supersedes the earlier staffing choice. A-Lite shares the finite-strip visibility and hard/soft barrier code with A.
 
 The companion **MODEL_GUIDE.pdf** develops the full model ladder and shared mathematics. This report specifies A-Lite, audits mechanisms and reports verification and experiments. Historical panel-based winners remain in **RESULTS_AND_CHANGES.pdf**; they are not proposed egress installations.
 

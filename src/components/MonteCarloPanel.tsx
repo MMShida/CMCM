@@ -46,7 +46,7 @@ export function StatsTable({ s }: { s: BatchStats }) {
       <tbody>
         {row('Total evacuation time (last person out)', s.tEvac)}
         {row('Last ambulatory person out', s.tEvacAmbulatory)}
-        {row('Last person at street level', s.tSafe)}
+        {row('Last ambulatory person at street level', s.tSafe)}
         {row('Mean individual exit time', s.meanExit)}
         {row('95th-percentile individual exit time', s.p95Exit)}
         {s.p99Exit && row('99th-percentile individual exit time', s.p99Exit)}
@@ -61,8 +61,10 @@ export function StatsTable({ s }: { s: BatchStats }) {
   );
 }
 
-export function MonteCarloPanel({ geo, cfg, bundled }: { geo: GeometryData; cfg: SimConfig; bundled: boolean }) {
-  const [runs, setRuns] = useState(100);
+export interface StudyReplay { model:'A'|'B'|'Lite'; seeds:number[]; label:string; expectedMean:number|null; cfg:SimConfig }
+export function MonteCarloPanel({ geo, cfg, bundled, replay, clearReplay }: { geo: GeometryData; cfg: SimConfig; bundled: boolean; replay?:StudyReplay|null; clearReplay?:()=>void }) {
+  const [model,setModel] = useState<'A'|'B'|'Lite'>(replay?.model ?? 'A');
+  const [runs, setRuns] = useState(replay?.seeds.length ?? 100);
   const [baseSeed, setBaseSeed] = useState(2026);
   const [progress, setProgress] = useState<{ done: number; total: number } | null>(null);
   const [results, setResults] = useState<RunSummary[] | null>(null);
@@ -72,7 +74,7 @@ export function MonteCarloPanel({ geo, cfg, bundled }: { geo: GeometryData; cfg:
   const t0 = useRef(0);
 
   const start = () => {
-    const seeds = batchSeeds(baseSeed, runs);
+    const seeds = replay ? replay.seeds : batchSeeds(baseSeed, runs);
     setResults(null);
     setErr(null);
     setProgress({ done: 0, total: runs });
@@ -82,7 +84,7 @@ export function MonteCarloPanel({ geo, cfg, bundled }: { geo: GeometryData; cfg:
     handle.current = runBatchInWorkers(cfg, seeds, (d, n, last) => {
       if (last) partial.push(last);
       setProgress({ done: d, total: n });
-    }, bundled ? undefined : geo);
+    }, bundled ? undefined : geo, model);
     handle.current.promise.then((r) => {
       setResults(r);
       setProgress(null);
@@ -104,13 +106,15 @@ export function MonteCarloPanel({ geo, cfg, bundled }: { geo: GeometryData; cfg:
 
   return (
     <div className="page">
-      <h2>Monte Carlo simulation</h2>
+      <h2>Monte Carlo simulation · model {model}</h2>
+      {replay && <p className="card">Replaying {replay.label} on its exact {replay.seeds.length} archived seeds. Published mean: {replay.expectedMean?.toFixed(3) ?? 'unresolved'} s. {JSON.stringify(cfg)!==JSON.stringify(replay.cfg) ? 'Configuration edited: this is no longer an exact reproduction.' : 'Configuration matches the archived study.'}</p>}
       <p className="muted">
         Configuration: <b>{cfg.label}</b> (edit it in the left panel). Each replication re-samples the audience, reaction times, behaviour types and all stochastic decisions; scenario parameters stay fixed.
         Runs execute in {workerCount()} Web Workers (headless, no rendering), so the interface stays responsive.
       </p>
       <div className="row">
-        <span className="seg">
+        {replay ? <button className="btn small" onClick={clearReplay} disabled={!!progress}>Leave exact replay</button> : <label>Model <select value={model} onChange={e=>setModel(e.target.value as typeof model)} disabled={!!progress}><option>A</option><option>B</option><option value="Lite">A-Lite</option></select></label>}
+        {!replay && <><span className="seg">
           {[1, 10, 100, 500].map((n) => (
             <button key={n} className={`btn small ${runs === n ? 'on' : ''}`} onClick={() => setRuns(n)}>
               {n}
@@ -125,6 +129,7 @@ export function MonteCarloPanel({ geo, cfg, bundled }: { geo: GeometryData; cfg:
           base seed
           <input className="num wide" type="number" value={baseSeed} onChange={(e) => setBaseSeed(Number(e.target.value))} />
         </label>
+        </>}
         {!progress ? (
           <button id="mc-start" className="btn primary" onClick={start}>
             Run {runs} simulations

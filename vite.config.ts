@@ -3,6 +3,10 @@ import react from '@vitejs/plugin-react';
 
 export default defineConfig({
   plugins: [react()],
+  // This worktree shares node_modules with older checkouts. Separate Vite's
+  // optimized dependency cache so concurrent dev servers cannot mix React copies.
+  cacheDir: '.vite-cache',
+  resolve: { dedupe: ['react', 'react-dom'] },
   base: './',
   worker: { format: 'es' },
   test: {

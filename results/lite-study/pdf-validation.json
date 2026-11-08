@@ -1,24 +1,24 @@
 [
   {
     "document": "MODEL_GUIDE",
-    "pages": 21,
-    "links": 80,
-    "bookmarks": 20,
+    "pages": 22,
+    "links": 88,
+    "bookmarks": 22,
     "embeddedFonts": 23,
-    "equationsChecked": 27,
+    "equationsChecked": 28,
     "producer": "xdvipdfmx (0.1)",
-    "sha256": "43577bef29ecb38fe8e7440835f1107094db8b50a667be713447539e03c4fcd6",
+    "sha256": "0739c57a9c0139364ce8dea0e0e29b8baf97276e065c94a799806d3ab9602b7d",
     "checks": "native LaTeX; embedded fonts; no missing glyphs, overfull boxes or unresolved references; all text within page bounds"
   },
   {
     "document": "RESULTS_AND_CHANGES",
-    "pages": 13,
-    "links": 26,
-    "bookmarks": 14,
-    "embeddedFonts": 8,
+    "pages": 22,
+    "links": 45,
+    "bookmarks": 23,
+    "embeddedFonts": 10,
     "equationsChecked": 0,
     "producer": "xdvipdfmx (0.1)",
-    "sha256": "4f15237a47b69e132b603de13ac98ce621a0417ccd6aba132e8cfbc3320eda03",
+    "sha256": "f853f2630899f92dbc19a1a0caee00c75087a769e688572528b95e7fe0ce9774",
     "checks": "native LaTeX; embedded fonts; no missing glyphs, overfull boxes or unresolved references; all text within page bounds"
   },
   {
@@ -29,7 +29,7 @@
     "embeddedFonts": 14,
     "equationsChecked": 6,
     "producer": "xdvipdfmx (0.1)",
-    "sha256": "9045fd2c9cee832a4cf79ad1fe1d0ae7f68ca159924341fb2a6c8c84e203b80d",
+    "sha256": "72e19e9f51b80ee94b1bf485a398f3ef42a4821b357ea0d351af4cd4cf10ef4c",
     "checks": "native LaTeX; embedded fonts; no missing glyphs, overfull boxes or unresolved references; all text within page bounds"
   }
 ]

@@ -48,6 +48,24 @@ export class SignVisibility {
     if (!s) return;
     let best: GuidanceSign | undefined, distance = Infinity;
     for (const sign of s.signs) {
+      if (sign.strip) {
+        if (floor !== sign.floor) continue;
+        const points = sign.strip.points;
+        for (let i = 1; i < points.length; i++) {
+          const [ax,ay]=points[i-1], [bx,by]=points[i], dx=bx-ax, dy=by-ay;
+          const length2=dx*dx+dy*dy;
+          const nearest=length2?Math.max(0,Math.min(1,((x-ax)*dx+(y-ay)*dy)/length2)):0;
+          // Project onto each segment and sample at <=0.5 m intervals for partly occluded strips.
+          const n=Math.max(1,Math.ceil(Math.sqrt(length2)/0.5));
+          for(const u of [nearest,...Array.from({length:n+1},(_,j)=>j/n)]) {
+            const sx=ax+u*dx,sy=ay+u*dy,d=Math.hypot(x-sx,y-sy);
+            if(d>s.range||d>=distance)continue;
+            if(s.occlusion&&this.segments.some(w=>w.floor===floor&&blocksSight(x,y,sx,sy,w)))continue;
+            best=sign;distance=d;
+          }
+        }
+        continue;
+      }
       const dx = x - sign.x, dy = y - sign.y, d = Math.hypot(dx, dy);
       if (floor !== sign.floor || d > s.range || d >= distance) continue;
       const radians = sign.facingDegrees * Math.PI / 180;
