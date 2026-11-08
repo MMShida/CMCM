@@ -31,6 +31,22 @@ export function ModelDocs() {
           </li>
         </ul>
       </div>
+      <div className="card">
+        <h3>Dynamic behaviour and adaptive Crowd Managers (optional, docs/ADAPTIVE.md)</h3>
+        <pre className="eq">{`U_i(g,t) = -wT(1+k u_i) T_ig/30 - wU(1-c_ig) + wF(1-k u_i) F_g + wS s_i S_ig
+          + 3 wG (0.75+0.5 coop_i) G_ig + wI 1[g = current] + eps_ig
+T_ig = perceived route time + max(0, remembered wait x e^(-age/60 s) - wait seen now)
+re-evaluate when: queuing > max(12 s, 1.5 x expected) | visible queue > expected + max(10 s, 50%)
+                 | new closure | new Crowd Manager instruction   (commitment 10 s, cooldown 6 s)
+manager:  est(g) = walk + known waits + announced/own load / capacity(g);
+          switch if > 20 s better after >= 20 s hold; return to plan when no worse;
+          one lead per planned exit among managers whose voice areas overlap`}</pre>
+        <p className="small muted">
+          Off by default (previous fixed model, reproduced exactly). Walls block sight and voice in the adaptive mode; managers only know what they observe or hear by radio. All
+          magnitudes are assumptions. Density over time: ρ_A(t) = N_A(t) / Area(A) on 19 regions; exposure E_i = ∫ max(0, ρ − ρ_ref) dt with ρ_ref = 2 p/m² as an analytical reference, not a
+          safety limit.
+        </p>
+      </div>
       <h3>Parameters and sources</h3>
       <table className="data">
         <thead>

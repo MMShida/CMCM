@@ -198,3 +198,18 @@ Remaining issues:
 - C ignores the wheelchair route restriction.
 - Sensitivity effects other than stair/access-point width are not significant with 15 seeds; more
   seeds are needed (`npm run compare -- --only sensitivity --runs 40`).
+
+## Milestone 8: dynamic behaviour, adaptive Crowd Managers, density over time (2026-11-07/08)
+
+Full description in [ADAPTIVE.md](ADAPTIVE.md); defects found and fixed are listed in its §8.
+
+- Dynamic individuals (beliefs, confidence, urgency, trust, event-triggered re-evaluation, commitment
+  and hysteresis), adaptive Crowd Managers (local observation, radio, peer coordination, walls block
+  the voice), five six-manager placements, density regions, *Density over time* and *Crowd Managers*
+  tabs. Both switches default to off; `scripts/legacy-reference.ts` reproduces the previous results exactly.
+- The first 40-seed run showed the decision-point layout 59 s slower than the existing posts with
+  adaptive managers. `scripts/adaptive-diag.ts` (adaptive switches split, manager histories,
+  ablations via `--patch`) traced it to double counting at the redirect target and to the lead
+  ignoring its followers' people; both fixed and covered by tests. That run is kept in
+  `results/adaptive/superseded-2026-11-07/` and is not used.
+- 119 tests pass.

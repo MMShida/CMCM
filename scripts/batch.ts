@@ -49,6 +49,13 @@ async function main() {
   console.log(`\n${cfg.label}: ${runs} runs in ${((Date.now() - t0) / 1000).toFixed(1)} s`);
   console.log(`  T_evac mean ${f(stats.tEvac.mean)} s (95% CI ${f(stats.tEvac.ciLow)}-${f(stats.tEvac.ciHigh)}), median ${f(stats.tEvac.median)}, sd ${f(stats.tEvac.sd)}, p5-p95 ${f(stats.tEvac.p5)}-${f(stats.tEvac.p95)}`);
   console.log(`  P(T_evac <= 180 s) = ${(stats.pMeet.p * 100).toFixed(1)}% [${(stats.pMeet.lo * 100).toFixed(1)}, ${(stats.pMeet.hi * 100).toFixed(1)}]; unresolved runs ${(stats.fracUnresolved * 100).toFixed(1)}%`);
+  console.log(`  tail: 95% out by ${f(stats.p95Exit.mean)} s, 99% by ${f(stats.p99Exit.mean)} s; still inside at 180 s: ${f(stats.insideAt180.mean)} (sd ${f(stats.insideAt180.sd)}); mean exit ${f(stats.meanExit.mean)} s`);
+  // who sets the evacuation time: zones of the last 20 persons out, pooled over runs
+  const zones: Record<string, number> = {};
+  for (const r of res) for (const [z, n] of Object.entries(r.lastOut?.zones ?? {})) zones[z] = (zones[z] ?? 0) + n / res.length;
+  const top = Object.entries(zones).sort((a, b) => b[1] - a[1]).slice(0, 4).map(([z, n]) => `${z} ${n.toFixed(1)}`).join(', ');
+  const lo = (k: 'elderlyShare' | 'groupShare' | 'meanStart' | 'meanWait') => res.reduce((s, r) => s + (r.lastOut?.[k] ?? 0), 0) / res.length;
+  console.log(`  last 20 out: ${top} | elderly ${(lo('elderlyShare') * 100).toFixed(0)}%, in groups ${(lo('groupShare') * 100).toFixed(0)}%, started at ${lo('meanStart').toFixed(0)} s, queued ${lo('meanWait').toFixed(0)} s`);
   console.log(`  written ${out}.runs.csv and ${out}.json`);
 }
 

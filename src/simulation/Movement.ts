@@ -219,7 +219,7 @@ export class MovementSystem {
         }
       }
     }
-    gates.refill(dt);
+    gates.refill(dt, sim.t);
     gates.resetQueueCounts();
 
     // ---- 2. longitudinal movement (leader first) ------------------------------
@@ -250,7 +250,8 @@ export class MovementSystem {
             // desired speed
             let vd = a.v0 * env;
             if (L.isStair) {
-              terrain = a.stairRatio;
+              const up = (L.drop > 0 && dirSign < 0) || (L.drop < 0 && dirSign > 0);
+              terrain = up ? a.stairRatioUp : a.stairRatio;
               if (L.outdoorStair) terrain *= cfg.environment.outdoorStairFactor;
               vd *= terrain;
             }
@@ -379,7 +380,8 @@ export class MovementSystem {
           for (let k = 1; k < arr.length; k++) {
             const a = A[arr[k]];
             if (a.blockedTime < 0.4 || a.state === ST.FALLEN) continue;
-            if (sim.rngDyn.random() > 0.15 * (0.5 + a.impatience)) continue;
+            // lane-change attempt rate 1.5 (0.5 + impatience) per second (dt-independent)
+            if (sim.rngDyn.random() > Math.min(1, 1.5 * (0.5 + a.impatience) * dt)) continue;
             const target = ln + (sim.rngDyn.random() < 0.5 ? -1 : 1);
             if (target < 0 || target >= this.allowedLanes(li, d)) continue;
             const tl = lanes[target];

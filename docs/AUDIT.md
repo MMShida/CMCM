@@ -1,5 +1,9 @@
 # Repository audit and feature verification (2026-11-07)
 
+> **Second update:** dynamic behaviour, adaptive Crowd Managers and density over time were added (both switches default to off; see [ADAPTIVE.md](ADAPTIVE.md), which also contains the audit of static and dynamic mechanisms).
+>
+> **Update:** the model was revised later the same day. See [IMPROVEMENTS.md](IMPROVEMENTS.md): numerical fixes, routing fixes, seat-block plans, interventions, Model C bounds, the 180 s analysis, 95 tests. The numbers below describe the model *before* that revision.
+
 ## Starting state
 
 - **Version control:** not a git repository, so there is no status or commit hash. The source

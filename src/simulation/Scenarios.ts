@@ -5,7 +5,34 @@
 import { BAILEY_HALL, slotId } from '../geometry/BaileyHall';
 import type { ExitGroupId, GeometryData } from '../geometry/types';
 import type { DeepPartial, SimConfig } from './Params';
+import OPTIMISED from '../data/plans/optimised-A.json';
 import { DEFAULT_PLAN, defaultConfig, mergeConfig } from './Params';
+
+/** Seat-block plan optimised with Model A (scripts/optimise-plan.ts, results/plans/opt-A-so.json). */
+export const OPTIMISED_PLAN = OPTIMISED.plan as Record<string, ExitGroupId>;
+
+/** Optimised plan used by the Crowd Managers (and LEDs if enabled). */
+export function optimisedPlan(): SimConfig {
+  return with_('optimised-plan', 'CM + optimised seat-block plan', { crowdManagers: { plan: { ...OPTIMISED_PLAN } } });
+}
+
+/** Optimised plan announced before the show (pre-assigned exits) and used by the Crowd Managers. */
+export function preassigned(): SimConfig {
+  return with_('preassigned', 'Optimised plan + pre-assigned exits', { crowdManagers: { plan: { ...OPTIMISED_PLAN } }, preassign: { enabled: true, plan: { ...OPTIMISED_PLAN } } });
+}
+
+/**
+ * Operations package aimed at the 180 s rule: optimised and pre-announced plan, informative
+ * voice alarm, groups told to meet outside, Crowd Managers rebalancing on queues.
+ */
+export function package180(): SimConfig {
+  return with_('package-180', '180 s package (plan + pre-assignment + voice + meet outside + rebalancing)', {
+    crowdManagers: { plan: { ...OPTIMISED_PLAN }, rebalance: { enabled: true, interval: 5, threshold: 20 } },
+    preassign: { enabled: true, plan: { ...OPTIMISED_PLAN } },
+    alarm: { mode: 'voice' },
+    population: { groupMeetOutside: true },
+  });
+}
 
 export interface ScenarioDef {
   id: string;
@@ -272,6 +299,64 @@ export const SCENARIOS: ScenarioDef[] = [
     build: () => with_('reunite', 'Emergency, separated groups', { stress: { separatedGroups: 0.3 } }),
   },
   {
+    id: 'optimised-plan',
+    name: '7. Optimised seat-block plan',
+    group: 'core',
+    description: 'Crowd Managers use the seat-block plan found by scripts/optimise-plan.ts (front halves of the centre orchestra to the porticos via the front access stairs, part of the back to the porticos / stage exits).',
+    build: () => optimisedPlan(),
+  },
+  {
+    id: 'preassigned',
+    name: '8. Optimised plan + pre-assigned exits',
+    group: 'core',
+    description: 'The optimised plan is also announced before the show (60% hear it, 70% of them follow it from t = 0).',
+    build: () => preassigned(),
+  },
+  {
+    id: 'package-180',
+    name: '9. 180 s operations package',
+    group: 'core',
+    description: 'Optimised + pre-announced plan, informative voice alarm, groups meet outside, Crowd Managers rebalance on queues.',
+    build: () => package180(),
+  },
+  {
+    id: 'voice-alarm',
+    name: 'Informative voice alarm',
+    group: 'additional',
+    description: 'Voice message instead of an alarm tone: recognition x0.6, response x0.8 (assumed magnitudes; direction from Proulx & Sime 1991).',
+    build: () => with_('voice-alarm', 'Emergency, voice alarm', { alarm: { mode: 'voice' } }),
+  },
+  {
+    id: 'meet-outside',
+    name: 'Groups meet outside',
+    group: 'additional',
+    description: 'Announcement: groups leave individually and meet outside (no waiting for members, no cohesion).',
+    build: () => with_('meet-outside', 'Emergency, groups meet outside', { population: { groupMeetOutside: true } }),
+  },
+  {
+    id: 'rebalance',
+    name: 'Crowd Managers rebalance on queues',
+    group: 'additional',
+    description: 'Every 5 s each active Crowd Manager redirects its zones if the planned exit is more than 20 s slower than the best alternative.',
+    build: () => with_('rebalance', 'Emergency, CM queue rebalancing', { crowdManagers: { rebalance: { enabled: true } } }),
+  },
+  {
+    id: 'late-alarm',
+    name: 'Alarm 10 s after the declaration',
+    group: 'stress',
+    description: 'The 180 s clock starts at the declaration; the alarm sounds 10 s later.',
+    approximate: true,
+    build: () => with_('late-alarm', 'Emergency, alarm 10 s late', { alarm: { declarationDelay: 10 } }),
+  },
+  {
+    id: 'responders',
+    name: 'Responders entering through the foyer',
+    group: 'stress',
+    description: 'From 60 s, responders entering through F2-F4 reduce those doors to 60% capacity.',
+    approximate: true,
+    build: () => with_('responders', 'Emergency, responders entering', { stress: { responders: { links: ['F2', 'F3', 'F4'], fromTime: 60, capacityFactor: 0.6 } } }),
+  },
+  {
     id: 'competitive',
     name: 'Faster-is-slower test (high competitiveness)',
     group: 'stress',
@@ -305,6 +390,13 @@ export const STRATEGIES: StrategyDef[] = [
   { id: 'S3', name: 'S3 CM + barriers', build: (g) => with_('S3', 'S3 CM + barriers', { barriers: ['W1', 'E1'].map((s) => slotId(g, s)) }) },
   { id: 'S4', name: 'S4 CM + LED + barriers', build: (g) => with_('S4', 'S4 CM + LED + barriers', { led: { enabled: true }, barriers: ['W1', 'E1'].map((s) => slotId(g, s)) }) },
   { id: 'S5', name: 'S5 FC2 blocked, static guidance', build: () => with_('S5', 'S5 blocked, static', { blocked: { links: ['FC2'], knowledge: 'discovery' }, crowdManagers: { dynamic: false } }) },
+  { id: 'S7', name: 'S7 CM + optimised block plan', build: () => with_('S7', 'S7 optimised plan', { crowdManagers: { plan: { ...OPTIMISED_PLAN } } }) },
+  {
+    id: 'S8',
+    name: 'S8 S7 + pre-assigned exits',
+    build: () => with_('S8', 'S8 optimised + pre-assigned', { crowdManagers: { plan: { ...OPTIMISED_PLAN } }, preassign: { enabled: true, plan: { ...OPTIMISED_PLAN } } }),
+  },
+  { id: 'S9', name: 'S9 180 s package', build: () => { const c = package180(); c.scenarioId = 'S9'; c.label = 'S9 180 s package'; return c; } },
   {
     id: 'S6',
     name: 'S6 FC2 blocked, dynamic CM + LED',

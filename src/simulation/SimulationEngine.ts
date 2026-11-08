@@ -18,6 +18,10 @@ import type { Agent } from './Agent';
 import { ST } from './Agent';
 import { updatePremovement, updateSocialPhi } from './Behavior';
 import { DensityField, HeatGrid } from './Congestion';
+import type { DensityResult, HeatItem } from './DensityRegions';
+import { DensityRecorder, buildRegions } from './DensityRegions';
+import type { ManagerSummary } from './ManagerPolicy';
+import { summarizeManagers } from './ManagerPolicy';
 import { GuidanceSystem } from './Guidance';
 import { MetricsRecorder, buildResult } from './Metrics';
 import type { RunResult } from './Metrics';
@@ -82,6 +86,11 @@ export class SimulationEngine {
   /** true on steps where slowly varying quantities (group cohesion) are refreshed */
   cohesionTick = true;
   private densAcc = 0;
+  private cohesionAcc = 0;
+  private groupAcc = 0;
+  /** time each assisting team is next free (wheelchair users) */
+  private assistFree: number[] = [];
+  private readonly rngAssist: RNG;
   private rowWaiting: number[] = [];
   private socialAcc = 0;
   private secondAcc = 0;
@@ -91,6 +100,12 @@ export class SimulationEngine {
   /** junctions where a route decision is possible (>= 3 non-row links) */
   readonly decisionNode: Uint8Array;
   private staffFieldCache = new Map<string, Field[]>();
+  private nominalFieldCache: Field[] | null = null;
+  /** density measurement: region of every navigation link (-1 = not measured), recorder, heat-map links */
+  readonly regionOfLink: Int16Array;
+  readonly densityRec: DensityRecorder;
+  private readonly heatLinks: number[];
+  private lastDensitySample = -1;
   private staffAffected: Uint8Array;
   private gridHead: Int32Array;
   private gridNext: Int32Array;
@@ -111,9 +126,12 @@ export class SimulationEngine {
     this.seatLink = Int32Array.from(this.agents.map((a) => g.linkByIdOrThrow(geo.seats[a.seat].link)));
     this.rngDyn = new RNG(this.seed, 'dynamics');
     this.rngRoute = new RNG(this.seed, 'routing');
+    this.rngAssist = new RNG(this.seed, 'assist');
     this.envSpeed = effectiveSpeedFactor(cfg);
     this.visibilityRange = cfg.routing.visibilityRange * (cfg.environment.darkness ? 0.4 : 1) * (1 - 0.7 * Math.min(1, cfg.environment.smoke));
     this.gates = new GateSystem(g, cfg);
+    const resp = cfg.stress.responders?.links ?? [];
+    if (resp.length) this.gates.setResponderLinks(resp.map((id) => g.linkByIdOrThrow(id)));
     this.density = new DensityField(g);
     this.movement = new MovementSystem(this);
     this.routing = new RouteSystem(this);
@@ -127,6 +145,18 @@ export class SimulationEngine {
     this.barrierLinks = cfg.barriers.map((id) => g.linkByIdOrThrow(id));
     for (const li of [...this.blockedLinks, ...this.barrierLinks]) this.movement.closed[li] = 1;
     this.staffAffected = this.computeStaffAffected();
+    // density regions (geometry links -> regions) and the recorder (no effect on behaviour)
+    const regions = buildRegions(geo, cfg);
+    this.regionOfLink = Int16Array.from(g.links, (L) => regions.byLink.get(L.id) ?? -1);
+    this.heatLinks = g.links.filter((L) => !L.isRow && !L.prohibited && L.kind !== 'outdoor').map((L) => L.idx);
+    const heatItems: HeatItem[] | null = cfg.analysis?.keepSeries
+      ? this.heatLinks.map((li) => {
+          const L = g.links[li];
+          const G = geo.links.find((x) => x.id === L.id)!;
+          return { id: L.id, floor: L.floor === 2 ? 2 : L.floor === 0 ? 0 : 1, pts: G.pts, area: Math.max(0.05, L.len * L.width), region: this.regionOfLink[li] };
+        })
+      : null;
+    this.densityRec = new DensityRecorder(regions, cfg, heatItems);
     this.guidance = new GuidanceSystem(this);
 
     this.decisionNode = Uint8Array.from(g.nodes.map((_, ni) => (g.adj[ni].filter((e) => !g.links[e.link].isRow).length >= 3 ? 1 : 0)));
@@ -194,6 +224,7 @@ export class SimulationEngine {
     this.rebuildGrid();
     updateSocialPhi(this);
     this.metrics.sample();
+    this.sampleDensity();
   }
 
   // ------------------------------------------------------------------------------------
@@ -223,7 +254,10 @@ export class SimulationEngine {
       }
       this.rowWaiting = still;
     }
-    this.cohesionTick = this.steps % 5 === 1;
+    // group cohesion caps are refreshed every 0.5 s of simulated time (dt-independent)
+    this.cohesionAcc += dt;
+    this.cohesionTick = this.cohesionAcc >= 0.5 - 1e-9 || this.steps === 1;
+    if (this.cohesionTick) this.cohesionAcc = 0;
     this.movement.step(dt);
     for (const a of this.agents) if (a.rerouteFlash > 0) a.rerouteFlash -= dt;
     const G = this.gates;
@@ -243,10 +277,14 @@ export class SimulationEngine {
     this.secondAcc += dt;
     if (this.secondAcc >= 1 - 1e-9) {
       this.secondAcc = 0;
+      if (this.assistFree.length) this.completeAssists();
       this.metrics.sample();
       this.sampleHeat();
+      this.sampleDensity();
+      if (this.cfg.adaptive?.agents) this.perceive();
     }
     this.checkTermination();
+    if (this.finished && this.lastDensitySample < this.t) this.sampleDensity();
   }
 
   run(maxSteps = Infinity): RunResult {
@@ -309,7 +347,7 @@ export class SimulationEngine {
     a.state = ST.WAITING;
     a.clock = 0;
     this.progress();
-    if (a.group >= 0) {
+    if (a.group >= 0 && !this.cfg.population.groupMeetOutside) {
       if (Number.isNaN(this.groupWaitSince[a.group])) this.groupWaitSince[a.group] = this.t;
       if (a.separated && a.link >= 0) {
         a.state = ST.REUNITING;
@@ -352,11 +390,14 @@ export class SimulationEngine {
 
   private groupTimeouts() {
     if (!this.groups.length) return;
-    if (this.steps % 10 !== 0) return;
+    // checked once per simulated second (dt-independent)
+    this.groupAcc += this.cfg.movement.dt;
+    if (this.groupAcc < 1 - 1e-9) return;
+    this.groupAcc = 0;
     for (let gid = 0; gid < this.groups.length; gid++) {
       const t0 = this.groupWaitSince[gid];
       if (Number.isNaN(t0)) continue;
-      if (this.t - t0 > 90) this.checkGroup(gid, true); // give up waiting after 90 s
+      if (this.t - t0 > (this.cfg.population.groupWaitMax ?? 90)) this.checkGroup(gid, true); // give up waiting
       else this.checkGroup(gid, false);
     }
   }
@@ -391,7 +432,7 @@ export class SimulationEngine {
 
   groupSpeedCap(a: Agent): number {
     const gid = a.group;
-    if (gid < 0 || this.groupBroken[gid] || a.separated) return Infinity;
+    if (gid < 0 || this.groupBroken[gid] || a.separated || this.cfg.population.groupMeetOutside) return Infinity;
     const M = this.cfg.movement;
     let cap = Infinity;
     for (const m of this.groups[gid]) {
@@ -462,9 +503,11 @@ export class SimulationEngine {
   reconsiderWhileWaiting(a: Agent, node: number) {
     if (a.blockedTime < 6 || a.meetNode >= 0 || !a.inside) return;
     const w = this.cfg.routing.weights[a.type];
-    if (this.rngDyn.random() < 0.006 * (0.3 + w.reeval)) {
+    // reconsideration rate 0.06 (0.3 + reeval) per second of waiting (dt-independent)
+    if (this.rngDyn.random() < 0.06 * (0.3 + w.reeval) * this.cfg.movement.dt) {
       a.pendingNext = -1;
-      this.routing.chooseExit(a, 'node', node);
+      // after 20 s stuck, turning back is allowed (people do turn round in a jammed aisle)
+      this.routing.chooseExit(a, a.blockedTime > 20 ? 'stuck' : 'node', node);
     }
   }
 
@@ -496,6 +539,7 @@ export class SimulationEngine {
 
   markSafe(a: Agent, n: number) {
     const node = this.graph.nodes[n];
+    if (a.link >= 0) this.densityRec.cross(this.regionOfLink[a.link], -1);
     a.state = ST.EXITED;
     a.tSafe = this.t;
     if (Number.isNaN(a.tLeftBuilding)) a.tLeftBuilding = this.t;
@@ -509,6 +553,7 @@ export class SimulationEngine {
 
   markAwaitingAssist(a: Agent, n: number) {
     const node = this.graph.nodes[n];
+    if (a.link >= 0) this.densityRec.cross(this.regionOfLink[a.link], -1);
     a.state = ST.AWAITING_ASSIST;
     a.link = -1;
     a.x = node.x + ((a.id % 3) - 1) * 0.6;
@@ -516,9 +561,33 @@ export class SimulationEngine {
     a.floor = 1;
     this.doneCount++;
     this.progress();
+    const S = this.cfg.assist;
+    if (S && S.enabled) {
+      // the first free assisting team carries the person to the street (closed form: nothing
+      // else interacts with the assisted descent, so the completion time is known on arrival)
+      if (!this.assistFree.length) this.assistFree = new Array(Math.max(1, S.teams)).fill(S.staffAvailableAt);
+      let k = 0;
+      for (let i = 1; i < this.assistFree.length; i++) if (this.assistFree[i] < this.assistFree[k]) k = i;
+      const start = Math.max(this.t, this.assistFree[k]);
+      const dur = this.rngAssist.lognormalMedian(S.descentMedian, S.descentSigma);
+      a.assistDue = start + dur;
+      this.assistFree[k] = a.assistDue + 0.5 * S.descentMedian; // walk back up for the next person
+    }
+  }
+
+  /** assisted descents complete (display / live statistics; results use the closed form) */
+  private completeAssists() {
+    for (const a of this.agents)
+      if (a.state === ST.AWAITING_ASSIST && this.t >= a.assistDue) {
+        a.state = ST.EXITED;
+        a.tSafe = a.assistDue;
+        a.x = this.graph.nodes[this.graph.safeByGroup[0][0]].x;
+        a.y = this.graph.nodes[this.graph.safeByGroup[0][0]].y;
+      }
   }
 
   recordTraversal(a: Agent, from: number, to: number) {
+    this.densityRec.cross(from >= 0 ? this.regionOfLink[from] : -1, this.regionOfLink[to]);
     const L = this.graph.links[to];
     a.remCost = this.routing.staticRemaining(a, a.dir > 0 ? L.b : L.a);
     if (this.traceHook) this.traceHook({ agent: a.id, from, to, t: this.t });
@@ -537,6 +606,15 @@ export class SimulationEngine {
       this.staffFieldCache.set(k, f);
     }
     return f;
+  }
+
+  /** nominal fields (ignoring closures): what staff assume before they know of a closure */
+  nominalFields(): Field[] {
+    if (!this.nominalFieldCache) {
+      const g = this.graph;
+      this.nominalFieldCache = g.safeByGroup.map((targets) => computeField(g, targets, (li) => g.links[li].prohibited));
+    }
+    return this.nominalFieldCache;
   }
 
   staffPlanBlocked(gi: number): boolean {
@@ -640,6 +718,83 @@ export class SimulationEngine {
           this.routing.chooseExit(b, 'info');
         }
       });
+    }
+  }
+
+  // ------------------------------------------------------------------------------------
+  // density over time (DensityRegions.ts)
+  // ------------------------------------------------------------------------------------
+  private sampleDensity() {
+    const nR = this.densityRec.nR;
+    const occ = new Int32Array(nR);
+    const spd = new Float64Array(nR);
+    const que = new Int32Array(nR);
+    for (const a of this.agents) {
+      if (a.link < 0 || a.done) continue;
+      const r = this.regionOfLink[a.link];
+      if (r < 0) continue;
+      occ[r]++;
+      spd[r] += a.v;
+      if (a.state === ST.QUEUING) que[r]++;
+    }
+    const heat = this.cfg.analysis?.keepSeries ? this.heatLinks.map((li) => this.movement.linkCount[li]) : null;
+    this.densityRec.sample(this.t, occ, spd, que, heat);
+    this.lastDensitySample = this.t;
+  }
+
+  densityResult(): DensityResult {
+    const ex = this.agents.map((a) => a.exposure);
+    const ta = this.agents.map((a) => a.timeAboveRef);
+    return this.densityRec.finish(ex, ta, 'Model A: local density = persons in the 2 m window ahead / (2 m x width), links >= 1.5 m, every 0.5 s');
+  }
+
+  managerSummaries(): ManagerSummary[] {
+    return summarizeManagers(this.guidance.cms, !!this.cfg.analysis?.keepSeries);
+  }
+
+  // ------------------------------------------------------------------------------------
+  // dynamic behaviour (adaptive.agents): perception, urgency, trust, event-triggered review
+  // ------------------------------------------------------------------------------------
+  /**
+   * Once per simulated second for every aware person still inside:
+   *   urgency  u <- u + (u* - u)(1 - e^{-1/10}),  u* = min(1, b + 0.2 [instructed] + 0.3 [knows a closure]
+   *            + 0.15 min(1, rho/3) + 0.15 min(1, wait/60)),  b = 0.35 (voice alarm) or 0.2 (tone)
+   *   trust    following a manager's instruction and queuing more than max(30, 2 x expected + 20) s
+   *            since the decision costs trustLoss (once per decision)
+   *   events   a moving person re-evaluates (cause 'event') when
+   *              (a) time spent queuing since the last decision > max(waitExcessMin, waitExcessFactor x expected), or
+   *              (b) the visible queue on the current route > expected + max(queueSurpriseMin, 50 % of expected),
+   *            at most once per eventCooldown s. The commitment interval and route inertia still apply.
+   */
+  private perceive() {
+    const A = this.cfg.adaptive;
+    const t = this.t;
+    const base = this.cfg.alarm?.mode === 'voice' ? 0.35 : 0.2;
+    const k = 1 - Math.exp(-1 / 10);
+    for (const a of this.agents) {
+      if (a.done || !a.inside || a.state === ST.UNAWARE) continue;
+      let blockedKnown = false;
+      for (const li of a.knownBlocked) if (this.blockedLinks.includes(li)) blockedKnown = true;
+      const target = Math.min(1, base + (a.instructedCM ? 0.2 : 0) + (blockedKnown ? 0.3 : 0) + 0.15 * Math.min(1, a.densityHere / 3) + 0.15 * Math.min(1, a.waitTotal / 60));
+      a.urgency += (target - a.urgency) * k;
+      if (a.state < ST.MOVING || a.state > ST.REUNITING || a.link < 0 || a.meetNode >= 0 || a.wheelchair) continue;
+      if (this.graph.links[a.link].isRow) continue;
+      if (a.state === ST.QUEUING) a.delaySince += 1;
+      if (a.cmSource >= 0 && a.targetGroup === a.cmGroup && a.delaySince > Math.max(30, 2 * a.expDelay + 20) && a.cmTime <= a.lastDecisionT && a.trustHitT !== a.lastDecisionT) {
+        a.trustHitT = a.lastDecisionT;
+        a.trust = Math.max(0.2, a.trust - A.trustLoss);
+      }
+      if (t < a.nextEventT) continue;
+      let fire = a.delaySince > Math.max(A.waitExcessMin, A.waitExcessFactor * a.expDelay);
+      if (!fire && A.congestionInfo !== 'none') {
+        const vq = this.routing.visibleQueueOnPath(a);
+        fire = vq > a.expDelay + Math.max(A.queueSurpriseMin, 0.5 * a.expDelay);
+      }
+      if (!fire) continue;
+      a.events++;
+      a.nextEventT = t + A.eventCooldown;
+      a.pendingNext = -1;
+      this.routing.chooseExit(a, 'event');
     }
   }
 

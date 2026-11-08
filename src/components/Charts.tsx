@@ -44,7 +44,7 @@ export interface LineSeries {
   dashed?: boolean;
 }
 
-export function LineChart({ series, xLabel, yLabel, height = 220, refX, yMax }: { series: LineSeries[]; xLabel: string; yLabel: string; height?: number; refX?: number; yMax?: number }) {
+export function LineChart({ series, xLabel, yLabel, height = 220, refX, yMax, digits = 0, markX, refLabel }: { series: LineSeries[]; xLabel: string; yLabel: string; height?: number; refX?: number; yMax?: number; digits?: number; markX?: number; refLabel?: string }) {
   const wrap = useRef<HTMLDivElement>(null);
   const { tip, setTip } = useTip();
   const [hx, setHx] = useState<number | null>(null);
@@ -71,7 +71,7 @@ export function LineChart({ series, xLabel, yLabel, height = 220, refX, yMax }: 
           <b>t = {i} s</b>
           {series.map((s) => (
             <div key={s.name}>
-              <span className="swatch" style={{ background: s.color }} /> {s.name}: {fmt(s.values[i] ?? NaN, 0)}
+              <span className="swatch" style={{ background: s.color }} /> {s.name}: {fmt(s.values[i] ?? NaN, digits)}
             </div>
           ))}
         </>
@@ -99,7 +99,7 @@ export function LineChart({ series, xLabel, yLabel, height = 220, refX, yMax }: 
           <g>
             <line x1={X(refX)} x2={X(refX)} y1={M.t} y2={H - M.b} className="ref" />
             <text x={X(refX) + 4} y={M.t + 10} className="tick">
-              {refX} s benchmark
+              {refLabel ?? `${refX} s benchmark`}
             </text>
           </g>
         )}
@@ -107,6 +107,7 @@ export function LineChart({ series, xLabel, yLabel, height = 220, refX, yMax }: 
         {series.map((s) => (
           <path key={s.name} d={path(s.values)} fill="none" stroke={s.color} strokeWidth={2} strokeDasharray={s.dashed ? '5 4' : undefined} />
         ))}
+        {markX !== undefined && <line x1={X(markX)} x2={X(markX)} y1={M.t} y2={H - M.b} className="crosshair" strokeWidth={2} />}
         {hx !== null && <line x1={X(hx)} x2={X(hx)} y1={M.t} y2={H - M.b} className="crosshair" />}
         <text x={(M.l + W - M.r) / 2} y={H - 4} className="axis-label" textAnchor="middle">
           {xLabel}
@@ -134,7 +135,7 @@ export function Legend({ items }: { items: { name: string; color: string }[] }) 
   );
 }
 
-export function Histogram({ values, xLabel, refX, color = '#2a78d6', bins = 24 }: { values: number[]; xLabel: string; refX?: number; color?: string; bins?: number }) {
+export function Histogram({ values, xLabel, refX, color = '#2a78d6', bins = 24, unit = 'runs', valueUnit = 's' }: { values: number[]; xLabel: string; refX?: number; color?: string; bins?: number; unit?: string; valueUnit?: string }) {
   const wrap = useRef<HTMLDivElement>(null);
   const { tip, setTip } = useTip();
   const v = values.filter(Number.isFinite);
@@ -172,7 +173,7 @@ export function Histogram({ values, xLabel, refX, color = '#2a78d6', bins = 24 }
             fill={color}
             onMouseMove={(e) => {
               const wr = wrap.current!.getBoundingClientRect();
-              setTip({ x: e.clientX - wr.left, y: e.clientY - wr.top, content: <>{fmt(lo + i * bw, 0)}-{fmt(lo + (i + 1) * bw, 0)} s: <b>{c}</b> runs</> });
+              setTip({ x: e.clientX - wr.left, y: e.clientY - wr.top, content: <>{fmt(lo + i * bw, 0)}-{fmt(lo + (i + 1) * bw, 0)} {valueUnit}: <b>{c}</b> {unit}</> });
             }}
           />
         ))}
@@ -187,7 +188,7 @@ export function Histogram({ values, xLabel, refX, color = '#2a78d6', bins = 24 }
           {xLabel}
         </text>
         <text x={12} y={(H - M.b) / 2} className="axis-label" textAnchor="middle" transform={`rotate(-90 12 ${(H - M.b) / 2})`}>
-          runs
+          {unit}
         </text>
       </svg>
       {tip}
@@ -267,12 +268,12 @@ export function BoxPlot({ items, xLabel, refX }: { items: { label: string; value
   );
 }
 
-export function HBarChart({ items, unit = '', maxValue }: { items: { label: string; value: number; color: string; err?: [number, number]; note?: string }[]; unit?: string; maxValue?: number }) {
+export function HBarChart({ items, unit = '', maxValue, labelWidth = 150 }: { items: { label: string; value: number; color: string; err?: [number, number]; note?: string }[]; unit?: string; maxValue?: number; labelWidth?: number }) {
   const wrap = useRef<HTMLDivElement>(null);
   const { tip, setTip } = useTip();
   const W = 560;
   const rowH = 22;
-  const L = 150;
+  const L = labelWidth;
   const H = items.length * rowH + 10;
   const vmax = maxValue ?? Math.max(1e-9, ...items.map((i) => Math.max(i.value, i.err?.[1] ?? 0)));
   const X = (v: number) => L + (v / vmax) * (W - L - 60);

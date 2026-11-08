@@ -22,13 +22,31 @@
  *   8. statistics (once per simulated second)
  * Agents that cannot reach any exit are reported (TRAPPED), runs end at tMax, and a run with
  * no progress for 120 s is flagged as gridlock. Nothing loops forever.
+ *
+ * Dynamic behaviour and adaptive Crowd Managers (cfg.adaptive, docs/ADAPTIVE.md) use the same rules
+ * as Model A where the network representation allows: beliefs / confidence / urgency / trust /
+ * commitment / event-triggered review in the exit choice (events are checked for people waiting
+ * in a queue, since a person in transit on an edge cannot turn), and the shared ManagerPolicy
+ * (observation of arc queues, radio, coordinated instructions). Reach uses the network: same
+ * floor, straight line <= R and the same room (graph without door edges) or a walking distance
+ * through a door <= reachFactor x R. Density is measured on the same regions as Model A (edges are
+ * mapped back to the geometry links they contain); individual exposure uses the density of the
+ * edge the person is on (coarser than Model A's 2 m window).
  */
 import type { GeometryData } from '../geometry/types';
 import { EXIT_GROUPS } from '../geometry/types';
 import type { Agent } from '../simulation/Agent';
 import { ST } from '../simulation/Agent';
+import type { DensityResult, HeatItem } from '../simulation/DensityRegions';
+import { DensityRecorder, buildRegions } from '../simulation/DensityRegions';
+import type { ManagerState, ManagerSummary, PolicyEnv } from '../simulation/ManagerPolicy';
+import { ManagerPolicy, newManager, plannedGroups, reassign, summarizeManagers, workloadIndex } from '../simulation/ManagerPolicy';
 import type { GateStat, RunResult } from '../simulation/Metrics';
+import { behaviourSummary, tailMetrics } from '../simulation/Metrics';
+import { placementPosts } from '../simulation/Placements';
 import type { SimConfig } from '../simulation/Params';
+import { planExitIndex } from '../simulation/Plan';
+import { OUTWARD_ONLY } from '../simulation/Routing';
 import { createPopulation } from '../simulation/Population';
 import { effectiveSpeedFactor } from '../simulation/QueueSystem';
 import { RNG } from '../simulation/Random';
@@ -99,6 +117,14 @@ class Heap {
   }
 }
 
+interface NetCM extends ManagerState {
+  lastCheck: number;
+  /** walking distance (m) from the post to every network node */
+  dist: Float64Array;
+  /** edges in the observation area (local density) */
+  obsEdges: number[];
+}
+
 export class NetAgent {
   phase: number = PH.SEATED;
   /** current node (queue / arrival), source while seated */
@@ -125,6 +151,11 @@ export class NetAgent {
   lastArc = -1;
   /** re-plan at the next node (information received while walking) */
   pendingReplan = false;
+  /** the pending re-plan comes from a new Crowd Manager instruction (adaptive: bypasses commitment) */
+  pendingGuidance = false;
+  /** density region the person is in (for boundary flows) and the seat's row-end node (cached) */
+  region = -1;
+  seatNode = -1;
   constructor(public readonly a: Agent) {}
 }
 
@@ -161,7 +192,27 @@ export class NetworkSimulation {
   private readonly visibleArcs: number[][];
   private readonly nearClosed: number[][];
   private readonly nearSigns: number[][];
-  private readonly cmTimes: { x: number; y: number; floor: number; t: number; id: string; knows: boolean; version: number }[];
+  readonly cmTimes: NetCM[];
+  /** acoustic space (room) of each network node: components without door / exterior edges */
+  private readonly space: Int32Array;
+  private readonly isDoorEdge: Uint8Array;
+  readonly policy: ManagerPolicy | null = null;
+  private heardBy: Int32Array = new Int32Array(0);
+  private reachedEver: Uint8Array = new Uint8Array(0);
+  private instructedEver: Uint8Array = new Uint8Array(0);
+  private compliedEver: Uint8Array = new Uint8Array(0);
+  private zoneIdx: Int32Array = new Int32Array(0);
+  private zoneMask: Uint8Array[] = [];
+  private routeCache = new Map<string, { walk: number; gates: number[] } | null>();
+  /** per-second snapshot of positions (x, y, floor, node) used by reach and bookkeeping */
+  private snap: Float64Array = new Float64Array(0);
+  // density
+  readonly densityRec: DensityRecorder;
+  /** region segments of every edge along a -> b: [start s, end s, region] */
+  private readonly segs: { s0: number; s1: number; r: number }[][];
+  private readonly heatEdges: number[];
+  private readonly heatIndex: Int32Array;
+  private edgeDensity: Float64Array;
   private readonly heard: Int32Array;
   private readonly env: number;
   private lastProgress = 0;
@@ -228,30 +279,301 @@ export class NetworkSimulation {
     // Crowd Managers (same posts, count rule and activation distribution as Model A)
     const C = cfg.crowdManagers;
     const nCM = C.count < 0 ? Math.ceil(this.agents.length / 250) : C.count;
-    const posts = geo.crowdManagerPosts.filter((p) => !C.unavailable.includes(p.id));
-    const act = geo.crowdManagerPosts.map(() => this.rngGuide.lognormalMedian(C.activationMedian, C.activationSigma));
-    this.cmTimes = posts.slice(0, Math.min(nCM, posts.length)).map((p) => ({
-      x: p.x,
-      y: p.y,
-      floor: p.floor,
-      t: act[geo.crowdManagerPosts.indexOf(p)],
-      id: p.id,
-      knows: cfg.blocked.links.length > 0 && cfg.blocked.knowledge === 'immediate',
-      version: 0,
-    }));
+    const allPosts = geo.crowdManagerPosts;
+    const order = C.posts && C.posts.length ? C.posts.map((id) => allPosts.find((p) => p.id === id)).filter((p): p is (typeof allPosts)[number] => !!p) : allPosts;
+    const posts = order.filter((p) => !C.unavailable.includes(p.id));
+    const act = allPosts.map(() => this.rngGuide.lognormalMedian(C.activationMedian, C.activationSigma));
+    const custom = placementPosts(geo, C.placement);
+    const chosen = custom
+      ? custom.slice(0, nCM).map((p, i) => ({ p, t: act[i % act.length] }))
+      : posts.slice(0, Math.min(nCM, posts.length)).map((p) => ({ p, t: act[allPosts.indexOf(p)] }));
+    const doorLinks = new Set(geo.links.filter((L) => L.kind === 'door').map((L) => L.id));
+    this.isDoorEdge = Uint8Array.from(net.edges, (E) => (E.kind === 'door' || E.exterior || E.links.some((id) => doorLinks.has(id)) ? 1 : 0));
+    this.space = this.computeSpaces();
+    const knows0 = cfg.blocked.links.length > 0 && cfg.blocked.knowledge === 'immediate';
+    this.cmTimes = chosen.map(({ p, t }, i) => {
+      const node = this.nearestNetNode(p.x, p.y, p.floor);
+      const base = newManager(i, p, node, t, plannedGroups(p.zones, C.plan), knows0);
+      base.group = this.space[node] * 4 + (p.floor === 2 ? 2 : 1);
+      return Object.assign(base, { lastCheck: -Infinity, dist: this.walkFrom(node), obsEdges: [] as number[] });
+    });
     this.heard = new Int32Array(this.agents.length).fill(-1);
+    this.outwardOnly = Uint8Array.from(net.edges.map((E) => (OUTWARD_ONLY.test(E.id) ? 1 : 0)));
+    // counterflow: the two directions of an edge share its capacity
+    this.oppArc = new Int32Array(net.arcs.length).fill(-1);
+    for (const A of net.arcs) {
+      const o = net.arcs.find((B) => B.edge === A.edge && B.idx !== A.idx);
+      if (o) this.oppArc[A.idx] = o.idx;
+    }
+    // responders entering against the flow (stress test)
+    const resp = new Set(cfg.stress.responders?.links ?? []);
+    this.responderArc = Uint8Array.from(net.arcs.map((A) => (resp.has(net.edges[A.edge].id) ? 1 : 0)));
+    this.groupWaitSince = new Float64Array(this.groups.length).fill(NaN);
+    // pre-assigned exits: same random stream and rule as Model A (identical assignments per seed)
+    const PA = cfg.preassign;
+    if (PA && PA.enabled) {
+      const rng = new RNG(seed, 'preassign');
+      for (const a of this.agents) {
+        const uReach = rng.random();
+        const uComply = rng.random();
+        if (a.wheelchair || uReach >= PA.reachProb) continue;
+        const gi = planExitIndex(PA.plan, geo, a.seat);
+        a.knownExits |= 1 << gi;
+        if (uComply < PA.complianceProb) a.assignGroup = gi;
+      }
+    }
     for (const n of this.na) {
       const a = n.a;
       n.node = net.sourceOfZone.get(geo.seats[a.seat].zone) ?? -1;
       n.vEff = a.v0;
       if (cfg.blocked.links.length && cfg.blocked.knowledge === 'immediate') for (const e of this.blockedEdges) this.learn(n, e);
     }
-    // groups move at the pace of their slowest member
-    for (const g of this.groups) {
-      const v = Math.min(...g.map((i) => this.agents[i].v0));
-      for (const i of g) this.na[i].vEff = v;
-    }
+    // groups move at the pace of their slowest member (unless they agreed to meet outside)
+    if (!cfg.population.groupMeetOutside)
+      for (const g of this.groups) {
+        const v = Math.min(...g.map((i) => this.agents[i].v0));
+        for (const i of g) this.na[i].vEff = v;
+      }
+    // density regions: edges mapped back to geometry links
+    const regions = buildRegions(geo, cfg);
+    const geoLen = new Map(geo.links.map((L) => [L.id, L.pts.reduce((acc, pt, k) => (k ? acc + Math.hypot(pt[0] - L.pts[k - 1][0], pt[1] - L.pts[k - 1][1]) : 0), 0)]));
+    this.segs = net.edges.map((E) => {
+      if (E.kind === 'rowExit' || !E.links.length) return [];
+      const lens = E.links.map((id) => geoLen.get(id) ?? 0);
+      const tot = lens.reduce((a, b) => a + b, 0) || 1;
+      const out: { s0: number; s1: number; r: number }[] = [];
+      let acc = 0;
+      E.links.forEach((id, k) => {
+        const s0 = (acc / tot) * E.length;
+        acc += lens[k];
+        out.push({ s0, s1: (acc / tot) * E.length, r: regions.byLink.get(id) ?? -1 });
+      });
+      return out;
+    });
+    this.heatEdges = net.edges.filter((E) => E.kind !== 'rowExit' && E.kind !== 'outdoor' && E.pts.length >= 2).map((E) => E.idx);
+    this.heatIndex = new Int32Array(net.edges.length).fill(-1);
+    this.heatEdges.forEach((e, i) => (this.heatIndex[e] = i));
+    this.edgeDensity = new Float64Array(net.edges.length);
+    const heatItems: HeatItem[] | null = cfg.analysis?.keepSeries
+      ? this.heatEdges.map((e) => {
+          const E = net.edges[e];
+          const segR = this.segs[e].length ? this.segs[e][Math.floor(this.segs[e].length / 2)].r : -1;
+          return { id: E.id, floor: E.floor, pts: E.pts, area: Math.max(0.05, E.area), region: segR };
+        })
+      : null;
+    this.densityRec = new DensityRecorder(regions, cfg, heatItems);
+    this.setupManagers();
     this.record();
+  }
+
+  // ------------------------------------------------------------------ rooms, reach, managers
+  private computeSpaces(): Int32Array {
+    const net = this.net;
+    const parent = Int32Array.from(net.nodes, (_, i) => i);
+    const find = (x: number): number => {
+      while (parent[x] !== x) x = parent[x] = parent[parent[x]];
+      return x;
+    };
+    for (const E of net.edges) {
+      if (this.isDoorEdge[E.idx]) continue;
+      const ra = find(E.a);
+      const rb = find(E.b);
+      if (ra !== rb) parent[ra] = rb;
+    }
+    return Int32Array.from(net.nodes, (_, i) => find(i));
+  }
+
+  /** walking distance (m) over the network from a node (row exits excluded) */
+  private walkFrom(src: number): Float64Array {
+    const net = this.net;
+    const d = new Float64Array(net.nodes.length).fill(Infinity);
+    d[src] = 0;
+    const h = new Heap();
+    h.push(0, src);
+    while (h.size) {
+      const k = h.topKey();
+      const u = h.pop();
+      if (k > d[u]) continue;
+      for (const ai of net.out[u]) {
+        const A = net.arcs[ai];
+        const E = net.edges[A.edge];
+        if (E.kind === 'rowExit') continue;
+        const nd = k + E.length;
+        if (nd < d[A.to]) {
+          d[A.to] = nd;
+          h.push(nd, A.to);
+        }
+      }
+    }
+    return d;
+  }
+
+  private setupManagers() {
+    const net = this.net;
+    const cfg = this.cfg;
+    const A = cfg.adaptive;
+    const R = A?.observeRange ?? 18;
+    const f = A?.reachFactor ?? 1.4;
+    for (const cm of this.cmTimes) {
+      const fl = cm.floor === 2 ? 2 : 1;
+      for (const E of net.edges) {
+        if (E.kind === 'rowExit') continue;
+        const N = net.nodes[E.a];
+        if ((N.floor === 2 ? 2 : 1) !== fl || Math.hypot(N.x - cm.x, N.y - cm.y) > R) continue;
+        const sameRoom = this.space[E.a] === this.space[cm.node] || this.space[E.b] === this.space[cm.node];
+        if (!sameRoom && cm.dist[E.a] > f * R) continue;
+        cm.obsEdges.push(E.idx);
+        if (E.isGate) for (const ai of net.out[E.a]) if (net.arcs[ai].edge === E.idx) cm.obsGates.push(ai);
+      }
+    }
+    const Rv = cfg.crowdManagers.radius;
+    for (const a of this.cmTimes) a.peers = this.cmTimes.filter((b) => b !== a && b.group === a.group && Math.hypot(a.x - b.x, a.y - b.y) <= 2 * Rv).map((b) => b.idx);
+    const nA = this.agents.length;
+    const nCM = Math.max(1, this.cmTimes.length);
+    this.reachedEver = new Uint8Array(nA * nCM);
+    this.instructedEver = new Uint8Array(nA * nCM);
+    this.compliedEver = new Uint8Array(nA * nCM);
+    const zones = [...new Set(this.geo.seats.map((x) => x.zone))];
+    this.zoneIdx = Int32Array.from(this.agents, (a) => zones.indexOf(this.geo.seats[a.seat].zone));
+    this.zoneMask = this.cmTimes.map((cm) => Uint8Array.from(zones, (z) => (cm.zones.includes(z) ? 1 : 0)));
+    this.snap = new Float64Array(nA * 4);
+    if (A?.managers) {
+      this.heardBy = new Int32Array(nA * nCM).fill(-1);
+      const groupCap = EXIT_GROUPS.map((_, gi) => net.edges.reduce((acc, E) => acc + (E.exterior && E.exitGroup === gi ? E.capacity : 0), 0));
+      const env: PolicyEnv = {
+        queueAt: (ai) => this.queues[ai].length,
+        capOf: (ai) => net.edges[net.arcs[ai].edge].capacity,
+        closedGate: (ai) => this.closed.has(net.arcs[ai].edge),
+        route: (node, gi, knows) => this.staffRoute(node, gi, knows),
+        groupCap,
+      };
+      (this as { policy: ManagerPolicy | null }).policy = new ManagerPolicy(cfg, this.cmTimes, env, this.seed, 'net-cm-policy');
+    }
+  }
+
+  /** staff route (walk at 1.2 m/s and gate arcs on it) from a node to exit group gi */
+  private staffRoute(from: number, gi: number, knows: boolean): { walk: number; gates: number[] } | null {
+    const key = `${from}|${gi}|${knows ? 1 : 0}`;
+    if (this.routeCache.has(key)) return this.routeCache.get(key)!;
+    const net = this.net;
+    const nV = net.nodes.length;
+    const dist = new Float64Array(nV).fill(Infinity);
+    const prev = new Int32Array(nV).fill(-1);
+    const h = new Heap();
+    dist[from] = 0;
+    h.push(0, from);
+    while (h.size) {
+      const d = h.topKey();
+      const u = h.pop();
+      if (d > dist[u]) continue;
+      if (net.nodes[u].kind === 'sink') continue;
+      for (const ai of net.out[u]) {
+        const A = net.arcs[ai];
+        const E = net.edges[A.edge];
+        if (E.kind === 'rowExit' || (knows && this.closed.has(A.edge))) continue;
+        const nd = d + E.length / 1.2;
+        if (nd < dist[A.to]) {
+          dist[A.to] = nd;
+          prev[A.to] = ai;
+          h.push(nd, A.to);
+        }
+      }
+    }
+    let best = Infinity;
+    let node = -1;
+    for (const sk of net.sinksByGroup[gi]) if (dist[sk] < best) {
+      best = dist[sk];
+      node = sk;
+    }
+    const out = node < 0 ? null : { walk: best, gates: this.pathTo(prev, node).filter((ai) => net.edges[net.arcs[ai].edge].isGate) };
+    this.routeCache.set(key, out);
+    return out;
+  }
+
+  private seatNodeOf(n: NetAgent): number {
+    if (n.seatNode < 0) {
+      const ex = seatExits(this.net, n.a.seat);
+      n.seatNode = ex.length ? ex[0].node : 0;
+    }
+    return n.seatNode;
+  }
+
+  /** network node that represents where the person is (for rooms and walking distances) */
+  private nodeOf(n: NetAgent): number {
+    const net = this.net;
+    switch (n.phase) {
+      case PH.SEATED:
+      case PH.ROW:
+        return this.seatNodeOf(n);
+      case PH.TRANSIT: {
+        if (n.arc < 0) return n.node;
+        const A = net.arcs[n.arc];
+        if (net.edges[A.edge].kind === 'rowExit') return n.rowNode >= 0 ? n.rowNode : this.seatNodeOf(n);
+        const f = n.total > 0 ? 1 - n.remaining / n.total : 1;
+        return f < 0.5 ? A.from : A.to;
+      }
+      default:
+        if (n.arc >= 0 && net.edges[net.arcs[n.arc].edge].kind === 'rowExit') return n.rowNode >= 0 ? n.rowNode : this.seatNodeOf(n);
+        return n.node >= 0 ? n.node : this.seatNodeOf(n);
+    }
+  }
+
+  /** once per second: position snapshot used by reach and bookkeeping */
+  private takeSnapshot() {
+    const S = this.snap;
+    for (const n of this.na) {
+      const i = n.a.id;
+      if (n.phase === PH.OUT) {
+        S[4 * i + 3] = -1;
+        continue;
+      }
+      const [x, y, f] = this.position(n);
+      S[4 * i] = x;
+      S[4 * i + 1] = y;
+      S[4 * i + 2] = f;
+      S[4 * i + 3] = this.nodeOf(n);
+    }
+  }
+
+  /** the building part of the reach rule: same room, or through a door within reachFactor x R on foot */
+  private topoOk(cm: NetCM, i: number, R: number): boolean {
+    const S = this.snap;
+    const node = S[4 * i + 3];
+    if (node < 0) return false;
+    if (this.space[node] === this.space[cm.node]) return true;
+    const N = this.net.nodes[node];
+    const walk = cm.dist[node] + Math.hypot(S[4 * i] - N.x, S[4 * i + 1] - N.y);
+    return walk <= (this.cfg.adaptive?.reachFactor ?? 1.4) * R;
+  }
+
+  private inVoiceRange(cm: NetCM, i: number, R: number): boolean {
+    const S = this.snap;
+    if (S[4 * i + 3] < 0) return false;
+    if ((S[4 * i + 2] === 2 ? 2 : 1) !== (cm.floor === 2 ? 2 : 1)) return false;
+    return Math.hypot(S[4 * i] - cm.x, S[4 * i + 1] - cm.y) <= R;
+  }
+
+  private readonly oppArc: Int32Array;
+  /** edges used outward only (same rule as Model A) */
+  private readonly outwardOnly: Uint8Array;
+  private readonly responderArc: Uint8Array;
+  private readonly groupWaitSince: Float64Array;
+  /** redirections made by Crowd Manager queue rebalancing (diagnostics) */
+  redirections = 0;
+
+  private nearestNetNode(x: number, y: number, floor: number): number {
+    const net = this.net;
+    let best = 0;
+    let bd = Infinity;
+    for (const N of net.nodes) {
+      if (N.kind !== 'junction' || (N.floor === 2 ? 2 : 1) !== (floor === 2 ? 2 : 1)) continue;
+      const d = Math.hypot(N.x - x, N.y - y);
+      if (d < bd) {
+        bd = d;
+        best = N.idx;
+      }
+    }
+    return best;
   }
 
   // ------------------------------------------------------------------ knowledge
@@ -284,9 +606,18 @@ export class NetworkSimulation {
     const dist = new Float64Array(nV).fill(Infinity);
     const prev = new Int32Array(nV).fill(-1);
     const w = this.cfg.routing.weights[n.a.type];
-    const qw = w.queue / Math.max(0.1, w.time);
+    const adaptive = !!this.cfg.adaptive?.agents;
+    const infoLevel = adaptive ? this.cfg.adaptive.congestionInfo : 'local';
+    const qw = infoLevel === 'none' ? 0 : w.queue / Math.max(0.1, w.time);
     const vis = viewNode >= 0 ? new Set(this.visibleArcs[viewNode]) : null;
+    const allVis = infoLevel === 'global';
+    // adaptive: walls block the view (same room or a door of that room), as in Model A
+    const roomOk = (ai: number) => !adaptive || infoLevel !== 'local' || viewNode < 0 || this.space[this.net.arcs[ai].from] === this.space[viewNode] || this.space[this.net.arcs[ai].to] === this.space[viewNode];
+    const od = adaptive ? new Float64Array(nV) : null;
+    const og = adaptive ? new Int32Array(nV) : null;
+    const oe = adaptive ? new Uint8Array(nV) : null;
     const boost = this.cfg.routing.narrowDoorBoost;
+    const noReentry = this.cfg.routing.noReentry !== false;
     const h = new Heap();
     for (const s of starts) {
       if (s.cost < dist[s.node]) {
@@ -306,24 +637,34 @@ export class NetworkSimulation {
         if (E.kind === 'rowExit') continue;
         if (this.knowsClosed(n, A.edge)) continue;
         if (n.a.wheelchair && !E.accessible) continue;
+        if (noReentry && A.dir < 0 && this.outwardOnly[A.edge] && !n.a.separated) continue; // as in Model A
         let c = this.arcTime(n, ai);
-        if (vis && vis.has(ai)) {
+        let delay = 0;
+        let seen = 0;
+        if (allVis || (vis && vis.has(ai) && roomOk(ai))) {
           const q = this.queues[ai].length;
           if (q > 0) {
             const cap = Math.max(0.05, E.capacity);
             const narrow = 1 + boost * Math.max(0, (2 - E.width) / 2);
             c += qw * (q / cap) * (E.isGate ? narrow : 1);
+            delay = q / cap;
           }
+          if (E.isGate && infoLevel !== 'none') seen = 1;
         }
         const nd = d + c;
         if (nd < dist[A.to]) {
           dist[A.to] = nd;
           prev[A.to] = ai;
+          if (od && og && oe) {
+            od[A.to] = od[u] + delay;
+            og[A.to] = og[u] + seen;
+            oe[A.to] = oe[u] | (seen && E.exterior ? 1 : 0);
+          }
           h.push(nd, A.to);
         }
       }
     }
-    return { dist, prev };
+    return { dist, prev, od, og, oe };
   }
 
   private pathTo(prev: Int32Array, target: number): number[] {
@@ -389,9 +730,11 @@ export class NetworkSimulation {
    * Exit choice (multinomial logit, Model A's weights) and path.
    * `fromSeat`: the agent is still at its seat (start = its row ends); otherwise at node n.node.
    */
-  chooseExit(n: NetAgent, cause: 'start' | 'node' | 'info'): boolean {
+  chooseExit(n: NetAgent, cause: 'start' | 'node' | 'info' | 'event' | 'guidance'): boolean {
     const net = this.net;
     const a = n.a;
+    const AD = this.cfg.adaptive;
+    const adaptive = !!AD?.agents;
     const prevGroup = n.exitGroup;
     const prevFirst = n.path[n.pathPos] ?? -1;
     let starts: { node: number; cost: number }[];
@@ -407,7 +750,8 @@ export class NetworkSimulation {
     }
     // routine re-plans never U-turn onto the edge just walked
     const lastEdge = n.lastArc >= 0 ? net.arcs[n.lastArc].edge : -1;
-    const uturn = !fromSeat && cause !== 'info' && lastEdge >= 0 ? net.arcs.findIndex((A) => A.edge === lastEdge && A.from === n.node) : -1;
+    const turnOk = cause === 'info' || (cause === 'event' && a.delaySince > 20);
+    const uturn = !fromSeat && !turnOk && lastEdge >= 0 ? net.arcs.findIndex((A) => A.edge === lastEdge && A.from === n.node) : -1;
     let r = this.search(n, starts, uturn, view);
     const groupCost = (k: number, res: typeof r) => {
       let best = Infinity;
@@ -427,7 +771,13 @@ export class NetworkSimulation {
     if (a.wheelchair) {
       // as in Model A: accessible route to the main entrance (assistance point outside the foyer)
       if (Number.isFinite(costs[0].cost)) best = 0;
-    } else if (a.group >= 0 && !a.groupLeader && this.na[this.groups[a.group][0]].exitGroup >= 0 && Number.isFinite(costs[this.na[this.groups[a.group][0]].exitGroup].cost)) {
+    } else if (
+      a.group >= 0 &&
+      !a.groupLeader &&
+      !this.cfg.population.groupMeetOutside &&
+      this.na[this.groups[a.group][0]].exitGroup >= 0 &&
+      Number.isFinite(costs[this.na[this.groups[a.group][0]].exitGroup].cost)
+    ) {
       best = this.na[this.groups[a.group][0]].exitGroup;
     } else {
       const w = this.cfg.routing.weights[a.type];
@@ -438,22 +788,61 @@ export class NetworkSimulation {
           if (s > 0.3 && !(a.knownExits & (1 << k)) && this.rngRoute.random() < this.cfg.routing.socialLearnProb) a.knownExits |= 1 << k;
         });
       let bestV = -Infinity;
+      const ku = adaptive ? AD.urgencyEffect * a.urgency : 0;
+      const expected = new Array(EXIT_GROUPS.length).fill(0);
+      const conf: number[] = new Array(EXIT_GROUPS.length).fill(NaN);
+      const util: number[] = new Array(EXIT_GROUPS.length).fill(-Infinity);
       for (let k = 0; k < EXIT_GROUPS.length; k++) {
         if (!(a.knownExits & (1 << k))) continue;
-        const T = costs[k].cost;
+        let T = costs[k].cost;
         if (!Number.isFinite(T)) continue;
-        const cmOk = a.cmGroup === k;
-        const ledOk = a.ledGroup === k;
-        let G = 0;
-        if (cmOk && ledOk) G = 1;
-        else if (cmOk) G = a.ledGroup >= 0 ? 0.5 : 1;
-        else if (ledOk) G = a.cmGroup >= 0 ? 0.5 : 1;
-        const u = -w.time * (T / 30) + w.familiarity * (k === 0 ? 1 : 0) + w.social * social[k] + w.guidance * 3 * G + w.inertia * (k === prevGroup ? 1 : 0);
-        const v = u + this.rngRoute.gumbel();
+        let unc = 0;
+        if (adaptive && r.od && r.og && r.oe) {
+          // beliefs and confidence (same rule as Model A, Routing.ts)
+          const tg = costs[k].node;
+          const c0 = k === 0 || a.familiar ? 0.8 : 0.5;
+          const obs = r.od[tg];
+          if (AD.congestionInfo !== 'none' && r.oe[tg]) {
+            a.belief[k] = obs;
+            a.beliefT[k] = this.t;
+            conf[k] = 1;
+            expected[k] = obs;
+          } else {
+            const age = this.t - a.beliefT[k];
+            const fresh = Number.isFinite(age) && AD.congestionInfo !== 'none' ? Math.exp(-Math.max(0, age) / AD.memoryTau) : 0;
+            const remembered = fresh > 0 ? a.belief[k] * fresh : 0;
+            T += Math.max(0, remembered - obs);
+            conf[k] = Math.max(c0, fresh);
+            expected[k] = Math.max(obs, remembered);
+            if (AD.congestionInfo !== 'none' && r.og[tg] > 0 && obs > remembered) {
+              a.belief[k] = obs;
+              a.beliefT[k] = this.t;
+            }
+          }
+          unc = -AD.uncertaintyWeight * (1 - conf[k]);
+        }
+        // guidance = share of adopted instructions (CM, LED, pre-assignment) pointing to k (as Model A)
+        const nSrc = (a.cmGroup >= 0 ? 1 : 0) + (a.ledGroup >= 0 ? 1 : 0) + (a.assignGroup >= 0 ? 1 : 0);
+        const G = nSrc ? ((a.cmGroup === k ? 1 : 0) + (a.ledGroup === k ? 1 : 0) + (a.assignGroup === k ? 1 : 0)) / nSrc : 0;
+        const S = adaptive ? social[k] * a.socialSus : social[k];
+        const gw = adaptive ? 0.75 + 0.5 * a.coop : 1;
+        if (adaptive && k === a.prevExit && k !== prevGroup && this.t - a.prevSwitchT < 30) unc -= w.inertia;
+        const u = -w.time * (1 + ku) * (T / 30) + w.familiarity * (1 - ku) * (k === 0 ? 1 : 0) + w.social * S + w.guidance * 3 * gw * G + w.inertia * (k === prevGroup ? 1 : 0) + unc;
+        util[k] = u;
+        const v = u + (this.cfg.routing.persistentTaste !== false && a.taste.length ? a.taste[k] : this.rngRoute.gumbel());
         if (v > bestV) {
           bestV = v;
           best = k;
         }
+      }
+      if (adaptive && best >= 0) {
+        const commit = AD.minCommit * (1 - 0.5 * a.urgency);
+        if (prevGroup >= 0 && best !== prevGroup && Number.isFinite(util[prevGroup]) && (cause === 'node' || cause === 'event') && this.t - a.lastSwitchT < commit) best = prevGroup;
+        if (best !== prevGroup) a.lastSwitchT = this.t;
+        a.lastDecisionT = this.t;
+        a.expDelay = expected[best];
+        a.delaySince = 0;
+        a.confidence = conf.map((c) => (Number.isFinite(c) ? Math.round(c * 100) / 100 : NaN));
       }
     }
     if (best < 0) {
@@ -479,6 +868,12 @@ export class NetworkSimulation {
     if (changed && cause !== 'start') {
       n.reroutes++;
       a.reroutes++;
+    }
+    if (prevGroup >= 0 && prevGroup !== best) {
+      a.exitSwitches++;
+      if (best === a.prevExit && this.t - a.prevSwitchT < 30) a.flipFlops++;
+      a.prevExit = prevGroup;
+      a.prevSwitchT = this.t;
     }
     return changed;
   }
@@ -581,16 +976,34 @@ export class NetworkSimulation {
 
   private ready(n: NetAgent) {
     const a = n.a;
-    if (a.group >= 0 && !a.separated) {
+    if (a.group >= 0 && !a.separated && !this.cfg.population.groupMeetOutside) {
       a.state = ST.WAITING;
       this.groupReadyCount[a.group]++;
       const members = this.groups[a.group];
+      if (members.some((i) => this.na[i].phase !== PH.SEATED)) {
+        // the group already gave up waiting: leave as soon as ready (as in Model A)
+        this.depart(n);
+        return;
+      }
+      if (Number.isNaN(this.groupWaitSince[a.group])) this.groupWaitSince[a.group] = this.t;
       if (this.groupReadyCount[a.group] < members.length) return;
       // everybody ready: leader first, then the others (they adopt the leader's exit)
       for (const i of members) this.depart(this.na[i]);
+      this.groupWaitSince[a.group] = NaN;
       return;
     }
     this.depart(n);
+  }
+
+  /** ready group members give up waiting after groupWaitMax (as in Model A) */
+  private groupTimeouts() {
+    const lim = this.cfg.population.groupWaitMax ?? 90;
+    for (let gid = 0; gid < this.groups.length; gid++) {
+      const t0 = this.groupWaitSince[gid];
+      if (Number.isNaN(t0) || this.t - t0 <= lim) continue;
+      for (const i of this.groups[gid]) if (this.agents[i].state === ST.WAITING) this.depart(this.na[i]);
+      this.groupWaitSince[gid] = NaN;
+    }
   }
 
   private depart(n: NetAgent) {
@@ -624,9 +1037,9 @@ export class NetworkSimulation {
   }
 
   // ------------------------------------------------------------------ guidance
-  private recommend(n: NetAgent, knows: boolean, dynamic: boolean, plan: Record<string, string>): number {
-    const zone = this.geo.seats[n.a.seat].zone;
-    let gi = EXIT_GROUPS.indexOf((plan[zone] ?? 'FOYER') as any);
+  private recommend(n: NetAgent, knows: boolean, dynamic: boolean, plan: Record<string, string>, cm: (typeof this.cmTimes)[number] | null = null): number {
+    let gi = planExitIndex(plan, this.geo, n.a.seat);
+    if (cm && cm.redirect.has(gi)) gi = cm.redirect.get(gi)!;
     if (knows && dynamic && this.closed.size) {
       // staff know the true state: nearest open exit group if the planned one is cut off
       const starts = n.phase === PH.SEATED || n.phase === PH.ROW ? seatExits(this.net, n.a.seat).map((e) => ({ node: e.node, cost: e.row })) : [{ node: n.node, cost: 0 }];
@@ -656,18 +1069,97 @@ export class NetworkSimulation {
     if (a.state === ST.UNAWARE) this.makeAware(a);
     if (first && a.state === ST.AWARE) a.tResponse = a.clock + Math.max(0, a.tResponse - a.clock) * this.cfg.premovement.cmFactor;
     let info = false;
-    if (cm.knows) for (const e of this.blockedEdges) info = this.learn(n, e) || info;
+    if (cm.knowsBlocked) for (const e of this.blockedEdges) info = this.learn(n, e) || info;
     for (const e of this.barrierEdges) info = this.learn(n, e) || info;
-    const gi = this.recommend(n, cm.knows, C.dynamic, C.plan);
+    const gi = this.recommend(n, cm.knowsBlocked, C.dynamic, C.plan, cm);
     a.knownExits |= 1 << gi;
+    this.countInstructed(n, cm);
+    const R = C.radius * (this.cfg.environment.smoke > 0.5 ? 0.7 : 1);
+    if (!this.topoOk(cm, a.id, R)) cm.throughWall++;
+    const prevTarget = n.exitGroup;
+    let complied = false;
     if (a.uCM < C.complianceProb) {
       const prev = a.cmGroup;
       a.cmGroup = gi;
+      a.cmSource = cm.idx;
+      a.cmTime = this.t;
+      complied = true;
       if (a.ledGroup >= 0 && a.ledGroup !== gi && prev !== gi) a.hesitate += this.cfg.led.conflictDelay;
     }
-    if (n.phase === PH.QUEUE && n.arc >= 0 && this.net.edges[this.net.arcs[n.arc].edge].kind !== 'rowExit') this.replanInQueue(n, 'info');
+    // as in Model A: only newly learned closures force an unconditional re-plan
+    if (n.phase === PH.QUEUE && n.arc >= 0 && this.net.edges[this.net.arcs[n.arc].edge].kind !== 'rowExit') this.replanInQueue(n, info ? 'info' : 'node');
     else if (n.phase === PH.TRANSIT || n.phase === PH.ROW || n.phase === PH.QUEUE) n.pendingReplan = true;
-    void info;
+    if (complied) this.countComplied(n, cm, prevTarget, gi);
+  }
+
+  /** adaptive instruction (same rules as Model A's GuidanceSystem.instructAdaptive) */
+  private instructAdaptive(n: NetAgent, cm: NetCM) {
+    const a = n.a;
+    const C = this.cfg.crowdManagers;
+    const A = this.cfg.adaptive;
+    const t = this.t;
+    const first = !a.instructedCM;
+    a.instructedCM = true;
+    if (a.state === ST.UNAWARE) this.makeAware(a);
+    if (first && a.state === ST.AWARE) a.tResponse = a.clock + Math.max(0, a.tResponse - a.clock) * this.cfg.premovement.cmFactor;
+    let info = false;
+    if (cm.knowsBlocked) for (const e of this.blockedEdges) info = this.learn(n, e) || info;
+    for (const e of this.barrierEdges) info = this.learn(n, e) || info;
+    const gi = this.recommend(n, cm.knowsBlocked, C.dynamic, C.plan, cm);
+    a.knownExits |= 1 << gi;
+    a.urgency = Math.max(a.urgency, 0.5);
+    this.countInstructed(n, cm);
+    if (A.shareCongestion && A.congestionInfo !== 'none' && this.policy) {
+      const gw = this.policy.groupWaits(cm);
+      for (let g = 0; g < gw.length; g++) {
+        if (!Number.isFinite(gw[g].w)) continue;
+        if (!Number.isNaN(a.beliefT[g]) && a.beliefT[g] > gw[g].t) continue;
+        a.belief[g] = gw[g].w;
+        a.beliefT[g] = gw[g].t;
+      }
+    }
+    if (a.cmGroup >= 0 && a.cmSource >= 0 && a.cmSource !== cm.idx) {
+      if (a.cmGroup !== gi && t - a.cmTime < 60) {
+        a.conflicts++;
+        cm.conflicts++;
+        this.cmTimes[a.cmSource].conflicts++;
+        a.hesitate += A.conflictDelay;
+        a.trust = Math.max(0.2, a.trust - 0.5 * A.trustLoss);
+      } else if (a.cmGroup === gi) a.trust = Math.min(1.2, a.trust + A.trustGain);
+    }
+    const prevTarget = n.exitGroup;
+    let complied = false;
+    if (a.uCM < C.complianceProb * a.trust) {
+      const prev = a.cmGroup;
+      a.cmGroup = gi;
+      a.cmSource = cm.idx;
+      a.cmTime = t;
+      complied = true;
+      if (a.ledGroup >= 0 && a.ledGroup !== gi && prev !== gi) a.hesitate += this.cfg.led.conflictDelay;
+    }
+    if (n.phase === PH.QUEUE && n.arc >= 0 && this.net.edges[this.net.arcs[n.arc].edge].kind !== 'rowExit') this.replanInQueue(n, info ? 'info' : 'guidance');
+    else if (n.phase === PH.TRANSIT || n.phase === PH.ROW || n.phase === PH.QUEUE) {
+      n.pendingReplan = true;
+      n.pendingGuidance = !info;
+    }
+    if (complied) this.countComplied(n, cm, prevTarget, gi);
+  }
+
+  private countInstructed(n: NetAgent, cm: NetCM) {
+    const k = n.a.id * this.cmTimes.length + cm.idx;
+    if (!this.instructedEver[k]) {
+      this.instructedEver[k] = 1;
+      cm.instructed++;
+    }
+  }
+
+  private countComplied(n: NetAgent, cm: NetCM, prevTarget: number, gi: number) {
+    const k = n.a.id * this.cmTimes.length + cm.idx;
+    if (!this.compliedEver[k]) {
+      this.compliedEver[k] = 1;
+      cm.complied++;
+    }
+    if (prevTarget >= 0 && prevTarget !== gi && n.exitGroup === gi) cm.changed++;
   }
 
   private ledPerceive(n: NetAgent) {
@@ -677,7 +1169,7 @@ export class NetworkSimulation {
     a.ledSeen = true;
     const pSee = L.perceiveProb * (1 - 0.5 * Math.min(1, this.cfg.environment.smoke));
     if (a.uLEDsee >= pSee) return;
-    let gi = EXIT_GROUPS.indexOf((L.plan[this.geo.seats[a.seat].zone] ?? 'FOYER') as any);
+    let gi = planExitIndex(L.plan, this.geo, a.seat);
     if (L.dynamic && this.blockedEdges.size) {
       for (const e of this.blockedEdges) this.learn(n, e);
       gi = this.recommend(n, true, true, L.plan);
@@ -694,8 +1186,8 @@ export class NetworkSimulation {
     const B = this.cfg.blocked;
     if (B.links.length && B.knowledge === 'announced' && t >= B.announceDelay)
       for (const cm of this.cmTimes)
-        if (!cm.knows) {
-          cm.knows = true;
+        if (!cm.knowsBlocked) {
+          cm.knowsBlocked = true;
           cm.version++;
         }
     const L = this.cfg.led;
@@ -707,11 +1199,20 @@ export class NetworkSimulation {
     this.guideAcc += this.opt.dt;
     if (this.guideAcc < 1 - 1e-9) return;
     this.guideAcc = 0;
+    if (this.groups.length) this.groupTimeouts();
     const C = this.cfg.crowdManagers;
     const pHear = 1 - Math.exp(-C.hearRate);
     const R = C.radius * (this.cfg.environment.smoke > 0.5 ? 0.7 : 1);
+    const RB = C.rebalance;
+    this.takeSnapshot();
+    if (this.policy) this.adaptiveGuidance(t, R, pHear);
     for (const cm of this.cmTimes) {
-      if (t < cm.t) continue;
+      if (this.policy) break;
+      if (t < cm.tActive) continue;
+      if (RB && RB.enabled && t - cm.lastCheck >= RB.interval - 1e-9) {
+        cm.lastCheck = t;
+        this.rebalance(cm, RB.threshold);
+      }
       for (const n of this.na) {
         if (n.phase === PH.OUT || n.phase === PH.STUCK) continue;
         if (this.heard[n.a.id] >= cm.version) continue;
@@ -722,6 +1223,7 @@ export class NetworkSimulation {
         this.instruct(n, cm);
       }
     }
+    this.recordManagers(t, R);
     // word of mouth: people waiting at the same node pass on blocked-exit knowledge
     if (this.blockedEdges.size) {
       const pShare = 1 - Math.exp(-this.cfg.routing.shareInfoRate);
@@ -742,6 +1244,170 @@ export class NetworkSimulation {
           if (changed) this.replanInQueue(n, 'info');
         }
       }
+    }
+  }
+
+  private adaptiveGuidance(t: number, R: number, pHear: number) {
+    const policy = this.policy!;
+    policy.step(t);
+    if (this.cfg.adaptive.reassign === 'whenClear' && reassign(this.cmTimes, t, (x, y) => (x as NetCM).dist[y.node], this.cfg.crowdManagers.plan)) {
+      const zones = [...new Set(this.geo.seats.map((x) => x.zone))];
+      this.zoneMask = this.cmTimes.map((cm) => Uint8Array.from(zones, (z) => (cm.zones.includes(z) ? 1 : 0)));
+    }
+    const nCM = this.cmTimes.length;
+    for (const cm of this.cmTimes) {
+      if (t < cm.tActive) continue;
+      for (const n of this.na) {
+        if (n.phase === PH.OUT || n.phase === PH.STUCK) continue;
+        const i = n.a.id;
+        if (!this.inVoiceRange(cm, i, R) || !this.topoOk(cm, i, R)) continue;
+        if (!cm.knowsBlocked && this.blockedEdges.size && n.known && [...this.blockedEdges].some((e) => n.known![e] === 1) && this.rngGuide.random() < 0.5) {
+          cm.knowsBlocked = true;
+          cm.version++;
+          cm.reviewNow = true;
+        }
+        const k = i * nCM + cm.idx;
+        if (this.heardBy[k] >= cm.version) continue;
+        if (this.rngGuide.random() > pHear) continue;
+        this.heardBy[k] = cm.version;
+        this.instructAdaptive(n, cm);
+      }
+    }
+  }
+
+  /** R / H / I / workload bookkeeping once per second (no random draws) */
+  private recordManagers(t: number, R: number) {
+    const nCM = this.cmTimes.length;
+    if (!nCM) return;
+    const plan = this.cfg.crowdManagers.plan;
+    const Rc = new Int32Array(nCM);
+    const Ic = new Int32Array(nCM);
+    const planned = this.cmTimes.map(() => new Map<number, number>());
+    for (const n of this.na) {
+      if (n.phase === PH.OUT || n.phase === PH.STUCK) continue;
+      const a = n.a;
+      const z = this.zoneIdx[a.id];
+      for (let m = 0; m < nCM; m++)
+        if (z >= 0 && this.zoneMask[m][z]) {
+          Rc[m]++;
+          const p = planExitIndex(plan, this.geo, a.seat);
+          planned[m].set(p, (planned[m].get(p) ?? 0) + 1);
+        }
+      if (a.cmSource >= 0 && a.cmGroup >= 0 && n.exitGroup === a.cmGroup) Ic[a.cmSource]++;
+    }
+    const crit = this.cfg.adaptive?.criticalWait ?? 30;
+    const adaptive = !!this.policy;
+    for (let m = 0; m < nCM; m++) {
+      const cm = this.cmTimes[m];
+      let H = 0;
+      const reachP = new Map<number, number>();
+      if (t >= cm.tActive)
+        for (const n of this.na) {
+          const i = n.a.id;
+          if (n.phase === PH.OUT || n.phase === PH.STUCK || !this.inVoiceRange(cm, i, R)) continue;
+          if (adaptive && !this.topoOk(cm, i, R)) continue;
+          H++;
+          const pp = planExitIndex(plan, this.geo, n.a.seat);
+          reachP.set(pp, (reachP.get(pp) ?? 0) + 1);
+          const k = i * nCM + m;
+          if (!this.reachedEver[k]) {
+            this.reachedEver[k] = 1;
+            cm.uniqueReached++;
+          }
+        }
+      let nCrit = 0;
+      for (const ai of cm.obsGates) if (this.queues[ai].length / Math.max(0.05, this.net.edges[this.net.arcs[ai].edge].capacity) > crit) nCrit++;
+      let dens = 0;
+      for (const e of cm.obsEdges) if (this.edgeDensity[e] > dens) dens = this.edgeDensity[e];
+      const W = t >= cm.tActive ? workloadIndex(H, nCrit, dens, this.cfg) : 0;
+      if (W > 1) cm.overloadTime += 1;
+      if (W > cm.maxW) cm.maxW = W;
+      cm.plannedCount = planned[m];
+      cm.plannedReach = reachP;
+      const S = cm.series;
+      S.t.push(t);
+      S.R.push(Rc[m]);
+      S.H.push(H);
+      S.I.push(Ic[m]);
+      S.reached.push(cm.uniqueReached);
+      S.W.push(Math.round(W * 100) / 100);
+      S.crit.push(nCrit);
+      S.dens.push(Math.round(dens * 100) / 100);
+    }
+  }
+
+  /**
+   * Staff estimate (s) from node `from` to each exit group: walking time (1.2 m/s) along the shortest
+   * open route + the longest current wait (queue / capacity) at an arc of that route (as Model A).
+   */
+  private staffEstimates(from: number): number[] {
+    const net = this.net;
+    const nV = net.nodes.length;
+    const dist = new Float64Array(nV).fill(Infinity);
+    const prev = new Int32Array(nV).fill(-1);
+    const h = new Heap();
+    dist[from] = 0;
+    h.push(0, from);
+    while (h.size) {
+      const d = h.topKey();
+      const u = h.pop();
+      if (d > dist[u]) continue;
+      if (net.nodes[u].kind === 'sink') continue;
+      for (const ai of net.out[u]) {
+        const A = net.arcs[ai];
+        const E = net.edges[A.edge];
+        if (E.kind === 'rowExit' || this.closed.has(A.edge)) continue;
+        const nd = d + E.length / 1.2;
+        if (nd < dist[A.to]) {
+          dist[A.to] = nd;
+          prev[A.to] = ai;
+          h.push(nd, A.to);
+        }
+      }
+    }
+    return EXIT_GROUPS.map((_, k) => {
+      let best = Infinity;
+      let node = -1;
+      for (const s of net.sinksByGroup[k]) if (dist[s] < best) {
+        best = dist[s];
+        node = s;
+      }
+      if (node < 0) return Infinity;
+      let wait = 0;
+      for (const ai of this.pathTo(prev, node)) {
+        const E = net.edges[net.arcs[ai].edge];
+        if (E.isGate) wait = Math.max(wait, this.queues[ai].length / Math.max(0.05, E.capacity));
+      }
+      return best + wait;
+    });
+  }
+
+  private rebalance(cm: (typeof this.cmTimes)[number], threshold: number) {
+    const plan = this.cfg.crowdManagers.plan;
+    const planned = new Set<number>();
+    for (const z of cm.zones) {
+      for (const [k, v] of Object.entries(plan)) if (k === z || k.startsWith(z + ':')) planned.add(EXIT_GROUPS.indexOf(v as any));
+      if (!(z in plan)) planned.add(0);
+    }
+    const est = this.staffEstimates(cm.node);
+    let changed = false;
+    for (const p of planned) {
+      if (p < 0) continue;
+      const cur = cm.redirect.has(p) ? cm.redirect.get(p)! : p;
+      let best = cur;
+      for (let k = 0; k < est.length; k++) if (est[k] < est[best]) best = k;
+      if (best !== cur && est[cur] - est[best] > threshold) {
+        if (best === p) cm.redirect.delete(p);
+        else cm.redirect.set(p, best);
+        changed = true;
+      } else if (cur !== p && est[p] <= est[cur] + 0.5 * threshold) {
+        cm.redirect.delete(p);
+        changed = true;
+      }
+    }
+    if (changed) {
+      cm.version++;
+      this.redirections++;
     }
   }
 
@@ -801,7 +1467,7 @@ export class NetworkSimulation {
   }
 
   /** re-plan while waiting at node n.node; moves the agent to another queue if the plan changes */
-  private replanInQueue(n: NetAgent, cause: 'node' | 'info') {
+  private replanInQueue(n: NetAgent, cause: 'node' | 'info' | 'event' | 'guidance') {
     if (n.phase !== PH.QUEUE || n.arc < 0) return;
     const A = this.net.arcs[n.arc];
     if (this.net.edges[A.edge].kind === 'rowExit') return;
@@ -830,6 +1496,8 @@ export class NetworkSimulation {
     if (viaArc >= 0) {
       const E = net.edges[net.arcs[viaArc].edge];
       if (E.exterior) {
+        this.densityRec.cross(n.region, -1);
+        n.region = -1;
         n.phase = PH.OUT;
         n.tLeft = this.t;
         n.exitEdge = E.idx;
@@ -842,6 +1510,8 @@ export class NetworkSimulation {
       }
     }
     if (net.nodes[v].kind === 'sink') {
+      this.densityRec.cross(n.region, -1);
+      n.region = -1;
       n.phase = PH.OUT;
       n.tLeft = this.t;
       a.tLeftBuilding = this.t;
@@ -863,8 +1533,10 @@ export class NetworkSimulation {
     const w = this.cfg.routing.weights[a.type];
     const planBroken = next === undefined || this.knowsClosed(n, net.arcs[next].edge);
     if (planBroken || info || n.pendingReplan || this.rngRoute.random() < w.reeval * 0.5) {
+      const guided = n.pendingReplan && n.pendingGuidance;
       n.pendingReplan = false;
-      this.chooseExit(n, planBroken || info ? 'info' : 'node');
+      n.pendingGuidance = false;
+      this.chooseExit(n, planBroken || info ? 'info' : guided ? 'guidance' : 'node');
       next = n.path[0];
       n.pathPos = 0;
     }
@@ -900,6 +1572,16 @@ export class NetworkSimulation {
         continue;
       }
       let cap = E.capacity;
+      if (this.responderArc[ai] && this.t >= this.cfg.stress.responders.fromTime) cap *= this.cfg.stress.responders.capacityFactor;
+      // counterflow: when both directions are in use they share the edge's capacity by demand
+      const o = this.oppArc[ai];
+      if (o >= 0 && E.kind !== 'rowExit') {
+        const dOpp = this.queues[o].length + this.transit[o];
+        if (dOpp > 0) {
+          const dMe = q.length + this.transit[ai];
+          cap *= dMe / Math.max(1, dMe + dOpp);
+        }
+      }
       if (E.isGate && fis.enabled) {
         let imp = 0;
         for (const id of q) imp += this.agents[id].impatience;
@@ -941,6 +1623,15 @@ export class NetworkSimulation {
         n.lastArc = ai;
         this.transit[ai]++;
         this.lastProgress = this.t;
+        // density regions crossed along this edge (counted when the person starts along it)
+        const sg = this.segs[A.edge];
+        if (sg.length) {
+          const order = A.dir === 1 ? sg : [...sg].reverse();
+          for (const g of order) {
+            if (g.r !== n.region) this.densityRec.cross(n.region, g.r);
+            n.region = g.r;
+          }
+        }
       }
       for (const id of q) {
         const m = this.na[id];
@@ -1004,7 +1695,130 @@ export class NetworkSimulation {
     }
   }
 
+  /** region of a person right now (transit: position along the edge; waiting: end of the last edge) */
+  private regionNow(n: NetAgent): number {
+    if (n.phase === PH.OUT || n.phase === PH.SEATED || n.phase === PH.ROW) return -1;
+    const net = this.net;
+    if (n.phase === PH.TRANSIT && n.arc >= 0) {
+      const A = net.arcs[n.arc];
+      const sg = this.segs[A.edge];
+      if (!sg.length) return -1;
+      const E = net.edges[A.edge];
+      const f = n.total > 0 ? 1 - n.remaining / n.total : 1;
+      const sPos = (A.dir === 1 ? f : 1 - f) * E.length;
+      for (const g of sg) if (sPos <= g.s1 + 1e-9) return g.r;
+      return sg[sg.length - 1].r;
+    }
+    if (n.arc >= 0 && net.edges[net.arcs[n.arc].edge].kind === 'rowExit') return -1;
+    return n.region;
+  }
+
+  /** heat-map edge of a person (transit: its edge; waiting: the edge it came along, else the one it waits for) */
+  private edgeNow(n: NetAgent): number {
+    const net = this.net;
+    if (n.phase === PH.TRANSIT && n.arc >= 0) return net.arcs[n.arc].edge;
+    if (n.phase === PH.QUEUE || n.phase === PH.STUCK) {
+      if (n.arc >= 0 && net.edges[net.arcs[n.arc].edge].kind === 'rowExit') return -1;
+      if (n.lastArc >= 0) return net.arcs[n.lastArc].edge;
+      if (n.arc >= 0) return net.arcs[n.arc].edge;
+    }
+    return -1;
+  }
+
+  private sampleDensity() {
+    const net = this.net;
+    const nR = this.densityRec.nR;
+    const occ = new Int32Array(nR);
+    const spd = new Float64Array(nR);
+    const que = new Int32Array(nR);
+    const eOcc = new Float64Array(net.edges.length);
+    for (const n of this.na) {
+      if (n.phase === PH.OUT || n.phase === PH.SEATED) continue;
+      const e = this.edgeNow(n);
+      if (e >= 0) eOcc[e]++;
+      const r = this.regionNow(n);
+      if (r < 0) continue;
+      occ[r]++;
+      if (n.phase === PH.TRANSIT && n.arc >= 0 && n.total > 0) spd[r] += net.edges[net.arcs[n.arc].edge].length / n.total;
+      if (n.phase === PH.QUEUE) que[r]++;
+    }
+    const ref = this.cfg.analysis?.densityRef ?? 2;
+    for (let e = 0; e < net.edges.length; e++) this.edgeDensity[e] = net.edges[e].area > 0 ? eOcc[e] / net.edges[e].area : 0;
+    // individual exposure with the density of the person's edge (1 s steps)
+    for (const n of this.na) {
+      const e = this.edgeNow(n);
+      const d = e >= 0 && net.edges[e].length >= 1.5 ? this.edgeDensity[e] : 0;
+      n.a.densityHere = d;
+      if (d > ref) {
+        n.a.exposure += d - ref;
+        n.a.timeAboveRef += 1;
+      }
+    }
+    const heat = this.cfg.analysis?.keepSeries ? this.heatEdges.map((e) => eOcc[e]) : null;
+    this.densityRec.sample(this.t, occ, spd, que, heat);
+  }
+
+  /** dynamic behaviour once per second (same rules as Model A's perceive; events for people in queues) */
+  private perceive() {
+    const A = this.cfg.adaptive;
+    const base = this.cfg.alarm?.mode === 'voice' ? 0.35 : 0.2;
+    const k = 1 - Math.exp(-1 / 10);
+    const net = this.net;
+    for (const n of this.na) {
+      const a = n.a;
+      if (n.phase === PH.OUT || n.phase === PH.STUCK || a.state === ST.UNAWARE) continue;
+      let blockedKnown = false;
+      if (n.known) for (const e of this.blockedEdges) if (n.known[e]) blockedKnown = true;
+      const target = Math.min(1, base + (a.instructedCM ? 0.2 : 0) + (blockedKnown ? 0.3 : 0) + 0.15 * Math.min(1, a.densityHere / 3) + 0.15 * Math.min(1, n.waitTotal / 60));
+      a.urgency += (target - a.urgency) * k;
+      if (n.phase !== PH.QUEUE || n.arc < 0 || a.wheelchair) continue;
+      if (net.edges[net.arcs[n.arc].edge].kind === 'rowExit') continue;
+      a.delaySince += 1;
+      if (a.cmSource >= 0 && n.exitGroup === a.cmGroup && a.delaySince > Math.max(30, 2 * a.expDelay + 20) && a.cmTime <= a.lastDecisionT && a.trustHitT !== a.lastDecisionT) {
+        a.trustHitT = a.lastDecisionT;
+        a.trust = Math.max(0.2, a.trust - A.trustLoss);
+      }
+      if (this.t < a.nextEventT) continue;
+      let fire = a.delaySince > Math.max(A.waitExcessMin, A.waitExcessFactor * a.expDelay);
+      if (!fire && A.congestionInfo !== 'none') fire = this.visibleQueueOnPath(n) > a.expDelay + Math.max(A.queueSurpriseMin, 0.5 * a.expDelay);
+      if (!fire) continue;
+      a.events++;
+      a.nextEventT = this.t + A.eventCooldown;
+      this.replanInQueue(n, 'event');
+    }
+  }
+
+  /** queue delay visible from the person's node on the rest of its path */
+  private visibleQueueOnPath(n: NetAgent): number {
+    if (n.node < 0) return 0;
+    const vis = this.cfg.adaptive.congestionInfo === 'global' ? null : new Set(this.visibleArcs[n.node]);
+    let c = 0;
+    for (let i = n.pathPos; i < n.path.length; i++) {
+      const ai = n.path[i];
+      if (vis && !vis.has(ai)) continue;
+      const A = this.net.arcs[ai];
+      if (vis && this.space[A.from] !== this.space[n.node] && this.space[A.to] !== this.space[n.node]) continue;
+      const q = this.queues[ai].length;
+      if (q > 0) c += q / Math.max(0.05, this.net.edges[this.net.arcs[ai].edge].capacity);
+    }
+    return c;
+  }
+
+  densityResult(): DensityResult {
+    return this.densityRec.finish(
+      this.agents.map((a) => a.exposure),
+      this.agents.map((a) => a.timeAboveRef),
+      'Model B: density of the edge the person is on (persons on the edge / edge area), edges >= 1.5 m, every 1 s',
+    );
+  }
+
+  managerSummaries(): ManagerSummary[] {
+    return summarizeManagers(this.cmTimes, !!this.cfg.analysis?.keepSeries);
+  }
+
   private record() {
+    if (this.densityRec) this.sampleDensity();
+    if (this.cfg.adaptive?.agents && this.t > 0) this.perceive();
     let inside = 0;
     let moving = 0;
     let queuing = 0;
@@ -1120,10 +1934,14 @@ export class NetworkSimulation {
       tEvac,
       tEvacAmbulatory: ambLeft ? Math.max(0, ...ambTimes) : NaN,
       tSafe: NaN,
+      tSafeAll: NaN,
       tEnd: this.t,
       meanExit: mean(exitTimes),
       medianExit: q(exitTimes, 0.5),
+      p90Exit: q(exitTimes, 0.9),
       p95Exit: q(exitTimes, 0.95),
+      p99Exit: q(exitTimes, 0.99),
+      ...tailMetrics(this.geo, this.agents, this.series.inside, (a) => this.na[a.id].waitTotal),
       meanStart: mean(starts),
       medianStart: q(starts, 0.5),
       p95Start: q(starts, 0.95),
@@ -1143,6 +1961,9 @@ export class NetworkSimulation {
         notSafe: N - left.length,
       },
       exitImbalance: imb,
+      density: this.densityResult(),
+      managers: this.managerSummaries(),
+      behaviour: behaviourSummary(this.agents, (a) => (this.na[a.id].exitEdge >= 0 ? net.edges[this.na[a.id].exitEdge].exitGroup : -1), this.cmTimes.reduce((acc, c) => acc + c.history.filter((h) => h.planned >= 0).length, 0)),
       wallTimeMs: Date.now() - this.wall0,
     };
   }

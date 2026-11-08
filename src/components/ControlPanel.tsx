@@ -83,6 +83,24 @@ export function ControlPanel({ cfg, geo, scenarioId, onScenario, update, replace
         <Slider label="Belongings probability" value={cfg.population.belongingsProb} min={0} max={1} step={0.05} format={pctFmt} onChange={(v) => update((c) => (c.population.belongingsProb = v))} />
         <Slider label="Belongings median" value={cfg.population.belongingsMedian} min={0} max={60} step={1} unit="s" onChange={(v) => update((c) => (c.population.belongingsMedian = v))} />
         <Slider label="Extra alarm delay" value={cfg.alarm.recognitionExtra} min={0} max={60} step={1} unit="s" tip="Additional recognition delay (unclear alarm)" onChange={(v) => update((c) => (c.alarm.recognitionExtra = v))} />
+        <Slider label="Declaration → alarm delay" value={cfg.alarm.declarationDelay ?? 0} min={0} max={30} step={1} unit="s" tip="The 180 s clock starts when the emergency is declared; nobody can react before the alarm" onChange={(v) => update((c) => (c.alarm.declarationDelay = v))} />
+        <Select
+          label="Alarm type"
+          value={cfg.alarm.mode ?? 'tone'}
+          options={[
+            { value: 'tone', label: 'Alarm tone' },
+            { value: 'voice', label: 'Informative voice message' },
+          ]}
+          onChange={(v) => update((c) => (c.alarm.mode = v as 'tone' | 'voice'))}
+        />
+        {cfg.alarm.mode === 'voice' && (
+          <>
+            <Slider label="Voice: recognition factor" value={cfg.alarm.voiceRecognitionFactor} min={0.2} max={1} step={0.05} tip="ASSUMPTION (direction: Proulx & Sime 1991)" onChange={(v) => update((c) => (c.alarm.voiceRecognitionFactor = v))} />
+            <Slider label="Voice: response factor" value={cfg.alarm.voiceResponseFactor} min={0.2} max={1} step={0.05} onChange={(v) => update((c) => (c.alarm.voiceResponseFactor = v))} />
+          </>
+        )}
+        <Slider label="Max wait for group" value={cfg.population.groupWaitMax ?? 90} min={0} max={180} step={5} unit="s" onChange={(v) => update((c) => (c.population.groupWaitMax = v))} />
+        <Toggle label="Groups meet outside (announcement)" value={!!cfg.population.groupMeetOutside} onChange={(v) => update((c) => (c.population.groupMeetOutside = v))} />
       </Section>
 
       <Section title="Walking & physical movement">
@@ -155,6 +173,86 @@ export function ControlPanel({ cfg, geo, scenarioId, onScenario, update, replace
         <Slider label="Voice radius" value={cfg.crowdManagers.radius} min={3} max={30} step={1} unit="m" onChange={(v) => update((c) => (c.crowdManagers.radius = v))} />
         <Slider label="Activation median" value={cfg.crowdManagers.activationMedian} min={0} max={60} step={1} unit="s" onChange={(v) => update((c) => (c.crowdManagers.activationMedian = v))} />
         <Toggle label="Dynamic: redirect when an exit is blocked" value={cfg.crowdManagers.dynamic} onChange={(v) => update((c) => (c.crowdManagers.dynamic = v))} />
+        <Toggle label="Queue rebalancing (redirect when planned exit is much slower)" value={!!cfg.crowdManagers.rebalance?.enabled} onChange={(v) => update((c) => (c.crowdManagers.rebalance = { ...(c.crowdManagers.rebalance ?? { interval: 5, threshold: 20 }), enabled: v }))} />
+        {cfg.crowdManagers.rebalance?.enabled && (
+          <>
+            <Slider label="Rebalance threshold" value={cfg.crowdManagers.rebalance.threshold} min={5} max={60} step={1} unit="s" onChange={(v) => update((c) => (c.crowdManagers.rebalance.threshold = v))} />
+            <Slider label="Rebalance interval" value={cfg.crowdManagers.rebalance.interval} min={1} max={30} step={1} unit="s" onChange={(v) => update((c) => (c.crowdManagers.rebalance.interval = v))} />
+          </>
+        )}
+        <p className="muted small">Staffed posts in order: {(cfg.crowdManagers.posts?.length ? cfg.crowdManagers.posts : geo.crowdManagerPosts.map((p) => p.id)).join(', ')} (set crowdManagers.posts in the JSON section).</p>
+      </Section>
+
+      <Section title="Dynamic behaviour & adaptive Crowd Managers" badge={cfg.adaptive?.agents || cfg.adaptive?.managers ? 'on' : undefined}>
+        <p className="muted small">Both off = the previous fixed-behaviour model (reproduced exactly). See docs/ADAPTIVE.md.</p>
+        <Toggle label="Dynamic individuals (beliefs, confidence, urgency, trust, event-triggered rerouting)" value={!!cfg.adaptive?.agents} onChange={(v) => update((c) => (c.adaptive.agents = v))} />
+        <Toggle label="Adaptive Crowd Managers (local observation, radio, coordinated instructions, walls block the voice)" value={!!cfg.adaptive?.managers} onChange={(v) => update((c) => (c.adaptive.managers = v))} />
+        <Select
+          label="Manager placement (6 posts)"
+          value={cfg.crowdManagers.placement ?? 'existing'}
+          options={[
+            { value: 'existing', label: 'A. Existing posts (CM1-CM6)' },
+            { value: 'decision', label: 'B. Decision points' },
+            { value: 'bottleneck', label: 'C. Bottleneck-oriented' },
+            { value: 'hybrid222', label: 'D. Hybrid 2-2-2' },
+            { value: 'robust', label: 'E. Robust (one per exit group)' },
+          ]}
+          onChange={(v) => update((c) => (c.crowdManagers.placement = v as any))}
+        />
+        {cfg.adaptive?.agents && (
+          <>
+            <Select
+              label="Congestion information"
+              value={cfg.adaptive.congestionInfo}
+              options={[
+                { value: 'local', label: 'Local: own sight (same room) + memory + managers' },
+                { value: 'none', label: 'None: queues not perceived' },
+                { value: 'global', label: 'Idealised: every queue visible (benchmark only)' },
+              ]}
+              onChange={(v) => update((c) => (c.adaptive.congestionInfo = v as any))}
+            />
+            <Slider label="Memory of congestion information" value={cfg.adaptive.memoryTau} min={10} max={180} step={5} unit="s" onChange={(v) => update((c) => (c.adaptive.memoryTau = v))} />
+            <Slider label="Minimum commitment to an exit" value={cfg.adaptive.minCommit} min={0} max={40} step={1} unit="s" onChange={(v) => update((c) => (c.adaptive.minCommit = v))} />
+            <Slider label="Re-evaluate when waiting exceeds expected x" value={cfg.adaptive.waitExcessFactor} min={1} max={4} step={0.1} onChange={(v) => update((c) => (c.adaptive.waitExcessFactor = v))} />
+            <Slider label="Uncertainty aversion" value={cfg.adaptive.uncertaintyWeight} min={0} max={2} step={0.1} onChange={(v) => update((c) => (c.adaptive.uncertaintyWeight = v))} />
+          </>
+        )}
+        {cfg.adaptive?.managers && (
+          <>
+            <Select
+              label="Communication between managers"
+              value={cfg.adaptive.comm}
+              options={[
+                { value: 'radio', label: 'Radio' },
+                { value: 'none', label: 'None (each manager alone)' },
+              ]}
+              onChange={(v) => update((c) => (c.adaptive.comm = v as any))}
+            />
+            <Slider label="Radio reliability" value={cfg.adaptive.commReliability} min={0} max={1} step={0.05} format={pctFmt} onChange={(v) => update((c) => (c.adaptive.commReliability = v))} />
+            <Slider label="Radio delay" value={cfg.adaptive.commDelay} min={0} max={20} step={1} unit="s" onChange={(v) => update((c) => (c.adaptive.commDelay = v))} />
+            <Slider label="Observation range" value={cfg.adaptive.observeRange} min={5} max={40} step={1} unit="m" onChange={(v) => update((c) => (c.adaptive.observeRange = v))} />
+            <Slider label="Observation delay" value={cfg.adaptive.observeDelay} min={0} max={15} step={1} unit="s" onChange={(v) => update((c) => (c.adaptive.observeDelay = v))} />
+            <Slider label="Minimum instruction hold" value={cfg.adaptive.minHold} min={0} max={60} step={1} unit="s" onChange={(v) => update((c) => (c.adaptive.minHold = v))} />
+            <Slider label="Switch threshold" value={cfg.adaptive.switchThreshold} min={5} max={60} step={1} unit="s" onChange={(v) => update((c) => (c.adaptive.switchThreshold = v))} />
+            <Toggle label="Coordinated (one lead manager per planned exit)" value={cfg.adaptive.coordination} onChange={(v) => update((c) => (c.adaptive.coordination = v))} />
+            <Toggle label="Managers tell people the congestion they know" value={cfg.adaptive.shareCongestion} onChange={(v) => update((c) => (c.adaptive.shareCongestion = v))} />
+            <Toggle label="Formal reassignment when a manager's area is clear" value={cfg.adaptive.reassign === 'whenClear'} onChange={(v) => update((c) => (c.adaptive.reassign = v ? 'whenClear' : 'none'))} />
+          </>
+        )}
+        <Slider label="Reference density for exposure (analysis only)" value={cfg.analysis?.densityRef ?? 2} min={0.5} max={5} step={0.25} unit="p/m²" onChange={(v) => update((c) => (c.analysis.densityRef = v))} />
+      </Section>
+
+      <Section title="Pre-assigned exits (pre-show announcement)">
+        <Toggle label="Announce each seat block's exit before the show" value={!!cfg.preassign?.enabled} onChange={(v) => update((c) => (c.preassign = { ...c.preassign, enabled: v, plan: { ...c.crowdManagers.plan } }))} />
+        {cfg.preassign?.enabled && (
+          <>
+            <Slider label="Heard and remembered" value={cfg.preassign.reachProb} min={0} max={1} step={0.05} format={pctFmt} tip="ASSUMPTION" onChange={(v) => update((c) => (c.preassign.reachProb = v))} />
+            <Slider label="Follow the announced exit" value={cfg.preassign.complianceProb} min={0} max={1} step={0.05} format={pctFmt} tip="ASSUMPTION" onChange={(v) => update((c) => (c.preassign.complianceProb = v))} />
+            <button className="btn small" onClick={() => update((c) => (c.preassign.plan = { ...c.crowdManagers.plan }))}>
+              Announced plan = CM plan
+            </button>
+          </>
+        )}
       </Section>
 
       <Section title="Directional LED guidance">
@@ -168,6 +266,14 @@ export function ControlPanel({ cfg, geo, scenarioId, onScenario, update, replace
 
       <Section title="Guidance plans (zone → exit)">
         <p className="muted small">Crowd Manager plan and LED plan. Making them differ simulates contradictory instructions.</p>
+        {Object.keys(cfg.crowdManagers.plan).some((k) => k.includes(':')) && (
+          <p className="small">
+            The CM plan has {Object.keys(cfg.crowdManagers.plan).filter((k) => k.includes(':')).length} seat-block entries (ZONE:SIDE:BAND, e.g. an optimised plan) that override the zone rows below.{' '}
+            <button className="btn small" onClick={() => update((c) => (c.crowdManagers.plan = Object.fromEntries(Object.entries(c.crowdManagers.plan).filter(([k]) => !k.includes(':')))))}>
+              Remove block entries
+            </button>
+          </p>
+        )}
         <div className="row">
           <button className="btn small" onClick={() => update((c) => (c.led.plan = { ...c.crowdManagers.plan }))}>
             LED = CM plan

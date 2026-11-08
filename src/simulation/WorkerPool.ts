@@ -29,6 +29,7 @@ export function runBatchInWorkers(
   seeds: number[],
   onProgress: (done: number, total: number, last: RunSummary | null) => void,
   geo?: GeometryData,
+  model: 'A' | 'B' = 'A',
 ): BatchHandle {
   const n = Math.min(workerCount(), Math.max(1, seeds.length));
   ensurePool(n);
@@ -64,7 +65,7 @@ export function runBatchInWorkers(
       handlers.push(h);
       w.addEventListener('message', h);
       const idx = seeds.map((_, i) => i).filter((i) => i % workers.length === wi);
-      w.postMessage({ jobId, cfg, seeds: idx.map((i) => seeds[i]), indices: idx, geo });
+      w.postMessage({ jobId, cfg, seeds: idx.map((i) => seeds[i]), indices: idx, geo, model });
     });
   });
   return {

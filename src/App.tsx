@@ -10,16 +10,20 @@ import { CompareView } from './components/compare/CompareView';
 import { ModelExperiments } from './components/compare/ModelExperiments';
 import { ResultsDashboard } from './components/compare/ResultsDashboard';
 import { NetworkView } from './components/network/NetworkView';
+import { DensityView } from './components/dynamics/DensityView';
+import { ManagersView } from './components/dynamics/ManagersView';
 import { BAILEY_HALL } from './geometry/BaileyHall';
 import type { GeometryData } from './geometry/types';
 import type { SimConfig } from './simulation/Params';
 import { cloneConfig, defaultConfig, mergeConfig } from './simulation/Params';
 import { scenarioById } from './simulation/Scenarios';
 
-type Tab = 'live' | 'mc' | 'exp' | 'sens' | 'net' | 'cmp' | 'cmpx' | 'dash' | 'geo' | 'model';
+type Tab = 'live' | 'mc' | 'density' | 'cms' | 'exp' | 'sens' | 'net' | 'cmp' | 'cmpx' | 'dash' | 'geo' | 'model';
 const TABS: [Tab, string][] = [
   ['live', 'Live simulation (A)'],
   ['mc', 'Monte Carlo'],
+  ['density', 'Density over time'],
+  ['cms', 'Crowd Managers'],
   ['exp', 'Compare strategies'],
   ['sens', 'Sensitivity'],
   ['net', 'Network model (B/C)'],
@@ -111,6 +115,8 @@ export default function App() {
         <main>
           {tab === 'live' && <LiveView geo={geo} cfg={cfg} dark={dark} />}
           {tab === 'mc' && <MonteCarloPanel geo={geo} cfg={cfg} bundled={bundled} />}
+          {tab === 'density' && <DensityView geo={geo} cfg={cfg} dark={dark} bundled={bundled} />}
+          {tab === 'cms' && <ManagersView geo={geo} cfg={cfg} dark={dark} bundled={bundled} />}
           {tab === 'exp' && <ExperimentComparison geo={geo} cfg={cfg} bundled={bundled} />}
           {tab === 'sens' && <SensitivityPanel geo={geo} cfg={cfg} bundled={bundled} />}
           {tab === 'net' && <NetworkView geo={geo} cfg={cfg} dark={dark} />}

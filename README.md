@@ -11,12 +11,21 @@ random seeds.
 > Simulated times depend on the documented assumptions (see [docs/PARAMETERS.md](docs/PARAMETERS.md)).
 > They are not calibrated predictions and do not prove regulatory compliance or real-world safety.
 
+> **New (2026-11-07, second round):**
+> - dynamic individual behaviour (beliefs, confidence, urgency, trust, event-triggered rerouting);
+> - adaptive Crowd Managers (local observation, radio, coordinated instructions, walls block the voice, five six-manager placements);
+> - responsibility / reach / influence / workload per manager;
+> - a **Density over time** tab and a **Crowd Managers** tab.
+>
+> Both adaptive switches default to off, which reproduces the previous model exactly. See
+> [docs/ADAPTIVE.md](docs/ADAPTIVE.md) and the generated tables in [docs/ADAPTIVE_RESULTS.md](docs/ADAPTIVE_RESULTS.md).
+
 ## Quick start
 
 ```bash
 npm install
 npm run dev          # interactive app at http://localhost:5173
-npm run test         # 74 automated tests (vitest)
+npm run test         # 95 automated tests (vitest)
 npm run build        # type-check + production build into dist/
 ```
 
@@ -28,6 +37,11 @@ npm run batch -- --scenario S4 --runs 200 --set movement.doorFlow=1.6 --set crow
 npm run experiments -- --runs 40 --seed 2026      # full suite -> docs/RESULTS.md + results/experiments/
 npm run geometry                                   # regenerate the geometry JSON from the parametric builder
 npx tsx scripts/flow-bound.ts                      # network max-flow / min-cut cross-check
+npx tsx scripts/optimise-plan.ts --base concert-emergency --seeds 16   # seat-block exit plan optimisation
+npx tsx scripts/requirements-180.ts --runs 40      # what it takes to reach 180 s (interventions + hypothetical geometry)
+npx tsx scripts/three-models-180.ts --runs 40      # baseline vs 180 s package in Models A, B and C
+npx tsx scripts/occupancy-curve.ts --base package-180 --runs 40   # T(N) and the largest audience meeting 180 s
+npx tsx scripts/convergence-check.ts --runs 30     # results at dt and dt/2 (numerical check)
 node scripts/ui-check.mjs docs/screenshots         # automated UI check + screenshots (needs npm run dev and Chrome)
 ```
 
@@ -120,6 +134,21 @@ flags "faster but denser" strategies.
 **Sensitivity.** One-at-a-time low/high sweeps (reaction times, walking speed, door/stair
 flow, compliance, habit, headway, groups) with a tornado chart and paired seeds.
 
+**Density over time.** *Run and record* a run (Model A or B, any seed):
+- a heat map of persons/m² updates live while it runs, then any second can be replayed;
+- a region table, the density timeline of one region (with occupancy, queue and outflow), several regions compared, and the congested area over time;
+- time above 1, 2, 3 or 4 p/m² per region, and the distribution of individual exposure ∫max(0, ρ − ρ_ref) dt;
+- Monte Carlo distributions of regional peak density and exposure;
+- CSV/JSON exports of the time series, region definitions (areas, links) and summaries.
+
+**Crowd Managers.** For the same recorded run:
+- per manager: R (formal responsibility), H (people in reach), I (people following its last instruction) and the workload index over time;
+- posts and voice rings on the map at any second, and the instruction history with reasons;
+- a paired comparison of the previous fixed model with dynamic individuals, adaptive managers and both.
+
+Placement, communication, information level and every adaptive parameter are in the left panel
+under *Dynamic behaviour & adaptive Crowd Managers*.
+
 **Geometry editor.** Overlay the scanned plans or seating charts, calibrate the overlay
 (offset, scale, rotation), drag nodes, edit door/stair widths, highlight approximate
 elements, and import/export the geometry JSON, then apply it to all simulations.
@@ -132,7 +161,11 @@ known immediately), (4) university lecture, (5) corridor barriers, (6) LED guida
 barriers. Additional: LED contradicting Crowd Managers, no guidance, 25/50/75% occupancy
 (legal CM minimum), one CM absent, older/younger audience, winter, uneven occupancy.
 Stress tests (simplified): darkness, smoke, blocked foyer, fire near the stage, falls on
-stairs, separated groups and counterflow, highly competitive crowd (faster-is-slower).
+stairs, separated groups and counterflow, highly competitive crowd (faster-is-slower), alarm
+10 s after the declaration, responders entering through the foyer.
+Improvement scenarios (docs/IMPROVEMENTS.md): (7) optimised seat-block plan, (8) + pre-assigned
+exits, (9) the 180 s operations package; also voice alarm, groups meet outside, Crowd Manager
+queue rebalancing. Strategies S7–S9 in the experiment tabs.
 
 ## The model in brief
 
@@ -197,17 +230,28 @@ The 36 network and comparison tests (`tests/network-flow.test.ts`, `tests/networ
 - **Framework:** ordering of the C benchmarks, shared-clock synchronisation of the two live
   engines, door-width sensitivity direction, paired statistics and report assembly.
 
+`tests/improvements.test.ts` (21 tests) covers the first improvement round, and `tests/adaptive.test.ts` (24 tests) covers dynamic behaviour, adaptive managers, scope, placements and density over time; see [docs/ADAPTIVE.md](docs/ADAPTIVE.md) §7. The suite has **119 tests**. `npx tsx scripts/legacy-reference.ts` checks that the fixed model is unchanged, and `node scripts/ui-check-dynamics.mjs <url>` checks the new tabs in headless Chrome.
+
 The development log with the problems found and fixed is in [docs/PROGRESS.md](docs/PROGRESS.md).
 
 ## Results
 
+- [docs/IMPROVEMENTS.md](docs/IMPROVEMENTS.md): the 2026-11-07 model improvements and the 180 s analysis (what it takes, three models, largest audience).
 - [docs/FINDINGS.md](docs/FINDINGS.md): interpretation of the example experiments (key findings and caveats).
 - [docs/RESULTS.md](docs/RESULTS.md): all tables, generated by `npm run experiments` (raw CSV/JSON in `results/experiments/`).
 - [docs/COMPARISON_RESULTS.md](docs/COMPARISON_RESULTS.md) and [docs/NETWORK_MODEL.md](docs/NETWORK_MODEL.md) (results section): Model A vs B vs C, interventions, occupancy, sensitivity.
 - [docs/screenshots/](docs/screenshots/): UI screenshots produced by `scripts/ui-check.mjs` and `scripts/ui-check-compare.mjs`.
 
-Headline (model outputs, 40 paired seeds, full house): concert emergency with 6 Crowd Managers
-T = 299 s [291, 306]; without Crowd Managers 366 s; ordinary departure 466 s; lecture 341 s.
+Headline after the 2026-11-07 improvements (40 paired seeds, full house, docs/IMPROVEMENTS.md):
+
+- **Concert emergency:** Model A T = 264 s [260, 268].
+- **180 s operations package:** 227 s in A and 195 s in B (5% of B runs ≤ 180 s).
+- **Ideal flow (Model C):** 143–163 s, so 180 s is physically feasible.
+- **Largest audience meeting 180 s with ≥ 95% probability:** about 560 today and about 750 (A) to 930 (B) with the package.
+
+Earlier headline, before the improvements (kept for reference): concert emergency with 6 Crowd
+Managers T = 299 s [291, 306]; without Crowd Managers 366 s; ordinary departure 466 s;
+lecture 341 s.
 The internal orchestra access points (≤ 5.8 p/s) and balcony stairs, not the exterior doors, bind.
 Corridor barriers at W1/E1 cut high-density exposure by 57% with a non-significant 9 s time gain;
 LED strips add little on top of compliant Crowd Managers.

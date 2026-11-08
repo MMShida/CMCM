@@ -49,6 +49,9 @@ export function StatsTable({ s }: { s: BatchStats }) {
         {row('Last person at street level', s.tSafe)}
         {row('Mean individual exit time', s.meanExit)}
         {row('95th-percentile individual exit time', s.p95Exit)}
+        {s.p99Exit && row('99th-percentile individual exit time', s.p99Exit)}
+        {s.insideAt180 && row('Persons still inside at 180 s', s.insideAt180, 'persons')}
+        {s.tSafeAll && row('Last person incl. assisted wheelchair users at street', s.tSafeAll)}
         {row('Median start time', s.medianStart)}
         {row('Peak local density', s.peakDensity, 'p/m²')}
         {row('Exposure above 3.5 p/m²', s.exposure, 'person-s')}
@@ -152,6 +155,7 @@ export function MonteCarloPanel({ geo, cfg, bundled }: { geo: GeometryData; cfg:
             <Tile label="P(evacuated within 180 s)" value={`${pct(stats.pMeet.p, 1)} [${pct(stats.pMeet.lo, 0)}, ${pct(stats.pMeet.hi, 0)}]`} warn={stats.pMeet.p < 0.95} />
             <Tile label="Runs with unresolved agents" value={pct(stats.fracUnresolved, 1)} warn={stats.fracUnresolved > 0} />
             <Tile label="Runs ending in gridlock" value={pct(stats.fracGridlock, 1)} warn={stats.fracGridlock > 0} />
+            {stats.insideAt180 && <Tile label="Still inside at 180 s (mean)" value={`${fmt(stats.insideAt180.mean, 0)} persons`} warn={stats.insideAt180.mean > 0} />}
           </div>
           <p className="muted small">
             Benchmark statistics count unfinished runs as failures. Simulated estimates are conditional on the documented assumptions; they are not a proof of regulatory compliance or real-world safety.
@@ -166,6 +170,7 @@ export function MonteCarloPanel({ geo, cfg, bundled }: { geo: GeometryData; cfg:
               <h3>Persons inside vs time (mean, p5-p95 band)</h3>
               <LineChart series={[{ name: 'mean inside', color: seriesColor(0), values: curves.mean, band: { lo: curves.lo, hi: curves.hi } }]} xLabel="time (s)" yLabel="persons inside" refX={180} />
             </div>
+            <TailCard results={results} />
             <div className="card">
               <h3>Mean exit utilisation</h3>
               <HBarChart items={EXIT_GROUPS.map((g) => ({ label: GROUP_SHORT[g], value: stats.meanUsage[g], color: seriesColor(GROUP_COLOR_INDEX[g]) }))} />
@@ -193,6 +198,34 @@ export function MonteCarloPanel({ geo, cfg, bundled }: { geo: GeometryData; cfg:
           </div>
         </>
       )}
+    </div>
+  );
+}
+
+/** Who sets the evacuation time: composition of the last 20 persons out and clearance per level. */
+export function TailCard({ results }: { results: RunSummary[] }) {
+  const R = results.length;
+  if (!R || !results[0].lastOut) return null;
+  const zones: Record<string, number> = {};
+  for (const r of results) for (const [z, n] of Object.entries(r.lastOut?.zones ?? {})) zones[z] = (zones[z] ?? 0) + n / R;
+  const avg = (f: (r: RunSummary) => number) => results.reduce((s, r) => s + (Number.isFinite(f(r)) ? f(r) : 0), 0) / R;
+  const levels = ['orchestra', 'mezzanine', 'balcony'];
+  return (
+    <div className="card">
+      <h3>Who sets the evacuation time (last 20 out, mean per run)</h3>
+      <HBarChart
+        items={Object.entries(zones)
+          .sort((a, b) => b[1] - a[1])
+          .slice(0, 8)
+          .map(([k, v]) => ({ label: k, value: v, color: seriesColor(3) }))}
+      />
+      <p className="small muted">
+        elderly {pct(avg((r) => r.lastOut?.elderlyShare ?? NaN), 0)} · in groups {pct(avg((r) => r.lastOut?.groupShare ?? NaN), 0)} · started moving at {fmt(avg((r) => r.lastOut?.meanStart ?? NaN), 0)} s ·
+        queued {fmt(avg((r) => r.lastOut?.meanWait ?? NaN), 0)} s
+      </p>
+      <p className="small muted">
+        Level cleared (mean): {levels.map((l) => `${l} ${fmt(avg((r) => r.clearanceByLevel?.[l] ?? NaN), 0)} s`).join(' · ')}
+      </p>
     </div>
   );
 }

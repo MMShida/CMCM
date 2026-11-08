@@ -79,6 +79,8 @@ export const REASON = {
   ONLY_KNOWN: 9,
   ACCESSIBLE: 10,
   REUNITE: 11,
+  ASSIGNED: 12,
+  WAIT_EXCEEDED: 13,
 } as const;
 export const REASON_LABEL: Record<number, string> = {
   0: '-',
@@ -93,6 +95,8 @@ export const REASON_LABEL: Record<number, string> = {
   9: 'Only exit known',
   10: 'Accessible route (wheelchair)',
   11: 'Going back to reunite with group',
+  12: 'Pre-assigned exit (announcement / seat card)',
+  13: 'Re-evaluated: queue worse / wait longer than expected',
 };
 
 export class Agent {
@@ -103,6 +107,7 @@ export class Agent {
   // physical attributes
   v0 = 1.2;
   stairRatio = 0.57;
+  stairRatioUp = 0.57;
   radius = 0.22;
   elderly = false;
   wheelchair = false;
@@ -127,6 +132,10 @@ export class Agent {
   instructedCM = false;
   cmGroup = -1; // exit group recommended by a Crowd Manager (if complied)
   ledGroup = -1;
+  /** persistent random utility (Gumbel) per exit group: the person's own taste, drawn once */
+  taste: Float64Array = new Float64Array(0);
+  assignGroup = -1; // exit pre-assigned before the emergency (announcement / seat card), if adopted
+  assistDue = NaN; // wheelchair users: time the assisted descent to the street is complete
   ledSeen = false;
   hesitate = 0; // remaining hesitation time (s)
   // knowledge
@@ -141,6 +150,12 @@ export class Agent {
   targetGroup = -1;
   reason: number = REASON.NONE;
   reroutes = 0;
+  /** changes of exit group (a subset of reroutes, which also counts path changes) */
+  exitSwitches = 0;
+  /** A -> B -> A switches within 30 s (oscillation diagnostic) */
+  flipFlops = 0;
+  prevExit = -1;
+  prevSwitchT = -Infinity;
   rerouteFlash = 0;
   lastNode = -1;
   noRouteTime = 0;
@@ -177,6 +192,42 @@ export class Agent {
   pathValid = false;
   pathGroup = -1;
   groupCosts: number[] = [];
+
+  // ---------------------------------------------------------------------------------
+  // dynamic behaviour (adaptive.agents; docs/ADAPTIVE.md). Stable traits are drawn once
+  // (stream 'traits'); the dynamic state below changes during the evacuation.
+  // ---------------------------------------------------------------------------------
+  /** STABLE: susceptibility to social influence (multiplies the social weight; mean 1) */
+  socialSus = 1;
+  /** STABLE: cooperation tendency in [0, 1] (scales how strongly accepted guidance counts) */
+  coop = 0.5;
+  /** DYNAMIC: perceived urgency in [0, 1] */
+  urgency = 0;
+  /** DYNAMIC: trust in Crowd Managers relative to the baseline (1 = baseline compliance) */
+  trust = 1;
+  /** DYNAMIC: believed extra delay (s) at each exit group (queues seen or heard of) and when it was learned */
+  belief: Float32Array = new Float32Array(0);
+  beliefT: Float32Array = new Float32Array(0);
+  /** DYNAMIC: confidence in each exit group's estimate at the last decision (0..1, display) */
+  confidence: number[] = [];
+  /** time of the last change of exit group, of the last decision, and earliest next event-triggered review */
+  lastSwitchT = -Infinity;
+  lastDecisionT = -Infinity;
+  nextEventT = 0;
+  /** queue delay expected on the chosen route at the last decision, and time spent queuing since */
+  expDelay = 0;
+  delaySince = 0;
+  /** guidance bookkeeping: manager whose instruction is adopted (-1 none) and when */
+  cmSource = -1;
+  cmTime = -Infinity;
+  /** event-triggered re-evaluations and contradictory instructions received */
+  events = 0;
+  conflicts = 0;
+  /** accumulated density exposure int max(0, rho - rho_ref) dt (p s / m^2) and time above rho_ref (s) */
+  exposure = 0;
+  timeAboveRef = 0;
+  /** decision whose bad outcome already cost trust */
+  trustHitT = NaN;
 
   constructor(id: number, seat: number, type: BehaviorType) {
     this.id = id;

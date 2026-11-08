@@ -1,0 +1,147 @@
+{
+ "base": "concert-emergency",
+ "model": "A",
+ "objective": "so",
+ "preassign": false,
+ "seeds": [
+  1294506412,
+  508989624,
+  873585096,
+  18336668,
+  906972993,
+  574932812,
+  1026987649,
+  1958502456,
+  1966304808,
+  34696703,
+  1570542464,
+  1582844163,
+  423389539,
+  162760554,
+  1427288491,
+  491103699
+ ],
+ "K": 16,
+ "evaluations": 214,
+ "wallSeconds": 3446.292,
+ "plan": {
+  "ORCH_FRONT_W:W:F": "STAGE_W",
+  "ORCH_FRONT_W:W:B": "STAGE_W",
+  "ORCH_SIDE_W:W:F": "PORTICO_W",
+  "ORCH_SIDE_W:W:B": "PORTICO_W",
+  "ORCH_FRONT_E:E:F": "STAGE_E",
+  "ORCH_FRONT_E:E:B": "STAGE_E",
+  "ORCH_SIDE_E:E:F": "PORTICO_E",
+  "ORCH_SIDE_E:E:B": "PORTICO_E",
+  "ORCH_C_FRONT:W:F": "PORTICO_W",
+  "ORCH_C_FRONT:E:F": "PORTICO_E",
+  "ORCH_C_FRONT:W:B": "FOYER",
+  "ORCH_C_FRONT:E:B": "FOYER",
+  "ORCH_C_BACK:W:F": "PORTICO_W",
+  "ORCH_C_BACK:E:F": "PORTICO_E",
+  "ORCH_C_BACK:W:B": "FOYER",
+  "ORCH_C_BACK:E:B": "STAGE_E",
+  "LOGE_W_N:W:F": "PORTICO_W",
+  "LOGE_W_S:W:F": "PORTICO_W",
+  "LOGE_W_N:W:B": "STAGE_W",
+  "LOGE_W_S:W:B": "PORTICO_W",
+  "MEZZ_W:W:F": "PORTICO_W",
+  "MEZZ_W:W:B": "PORTICO_W",
+  "LOGE_E_N:E:F": "PORTICO_E",
+  "LOGE_E_S:E:F": "PORTICO_E",
+  "LOGE_E_N:E:B": "PORTICO_E",
+  "LOGE_E_S:E:B": "PORTICO_E",
+  "MEZZ_E:E:F": "PORTICO_E",
+  "MEZZ_E:E:B": "PORTICO_E",
+  "MEZZ_C_W:W:F": "FOYER",
+  "MEZZ_C_E:E:F": "FOYER",
+  "MEZZ_C_W:W:B": "PORTICO_W",
+  "MEZZ_C_E:E:B": "FOYER",
+  "BAL_W_N:W:F": "BAL_NW",
+  "BAL_W_S:W:F": "FOYER",
+  "BAL_C_W:W:F": "FOYER",
+  "BAL_W_N:W:B": "BAL_NW",
+  "BAL_W_S:W:B": "FOYER",
+  "BAL_C_W:W:B": "FOYER",
+  "BAL_E_N:E:F": "BAL_NE",
+  "BAL_E_S:E:F": "FOYER",
+  "BAL_C_E:E:F": "FOYER",
+  "BAL_E_N:E:B": "FOYER",
+  "BAL_E_S:E:B": "FOYER",
+  "BAL_C_E:E:B": "FOYER"
+ },
+ "summary": {
+  "meanTEvac": 267.03125,
+  "pMeet180": 0,
+  "meanP95Exit": 221.06749999999997,
+  "meanInsideAt180": 276.125,
+  "meanExposure": 6607.8125,
+  "usage": {
+   "FOYER": 668.1875,
+   "PORTICO_W": 240.25,
+   "PORTICO_E": 244,
+   "STAGE_W": 52.1875,
+   "STAGE_E": 53.375,
+   "BAL_NW": 39.25,
+   "BAL_NE": 31.75
+  }
+ },
+ "trace": [
+  {
+   "sweep": 1,
+   "block": "MEZZ_C_W:W:B",
+   "from": "FOYER",
+   "to": "PORTICO_W",
+   "J": 287.19374999999997
+  },
+  {
+   "sweep": 1,
+   "block": "ORCH_C_FRONT:E:F",
+   "from": "FOYER",
+   "to": "PORTICO_E",
+   "J": 282.6625
+  },
+  {
+   "sweep": 1,
+   "block": "ORCH_C_BACK:E:B",
+   "from": "FOYER",
+   "to": "STAGE_E",
+   "J": 281.35
+  },
+  {
+   "sweep": 1,
+   "block": "ORCH_C_BACK:E:F",
+   "from": "FOYER",
+   "to": "PORTICO_E",
+   "J": 277.775
+  },
+  {
+   "sweep": 1,
+   "block": "ORCH_C_FRONT:W:F",
+   "from": "FOYER",
+   "to": "PORTICO_W",
+   "J": 276.51875
+  },
+  {
+   "sweep": 1,
+   "block": "BAL_E_N:E:B",
+   "from": "BAL_NE",
+   "to": "FOYER",
+   "J": 271.625
+  },
+  {
+   "sweep": 2,
+   "block": "ORCH_C_BACK:W:F",
+   "from": "FOYER",
+   "to": "PORTICO_W",
+   "J": 268.425
+  },
+  {
+   "sweep": 2,
+   "block": "LOGE_W_N:W:B",
+   "from": "PORTICO_W",
+   "to": "STAGE_W",
+   "J": 267.03125
+  }
+ ]
+}

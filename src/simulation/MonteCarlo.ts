@@ -118,6 +118,19 @@ export interface RunSummary {
   /** persons still inside, per second */
   inside: number[];
   wallTimeMs: number;
+  // tail diagnostics (see Metrics.tailMetrics)
+  tSafeAll?: number;
+  p90Exit?: number;
+  p99Exit?: number;
+  insideAt180?: number;
+  clearanceByLevel?: Record<string, number>;
+  clearanceByZone?: Record<string, number>;
+  lastOut?: RunResult['lastOut'];
+  meanExitByBlock?: Record<string, number>;
+  /** density summary (no time series), Crowd Manager summary (no series), dynamic-behaviour diagnostics */
+  density?: RunResult['density'];
+  managers?: RunResult['managers'];
+  behaviour?: RunResult['behaviour'];
 }
 
 export function toRunSummary(r: RunResult): RunSummary {
@@ -156,6 +169,17 @@ export function toRunSummary(r: RunResult): RunSummary {
     meanWait,
     inside: r.series.inside,
     wallTimeMs: r.wallTimeMs,
+    tSafeAll: r.tSafeAll,
+    p90Exit: r.p90Exit,
+    p99Exit: r.p99Exit,
+    insideAt180: r.insideAt180,
+    clearanceByLevel: r.clearanceByLevel,
+    clearanceByZone: r.clearanceByZone,
+    lastOut: r.lastOut,
+    meanExitByBlock: r.meanExitByBlock,
+    density: r.density ? { ...r.density, series: undefined, heat: undefined, exposureValues: undefined } : undefined,
+    managers: r.managers?.map((m) => ({ ...m, series: undefined, history: m.history.slice(0, 40) })),
+    behaviour: r.behaviour,
   };
 }
 
@@ -167,6 +191,12 @@ export interface BatchStats {
   tEvacAmbulatory: Summary;
   tSafe: Summary;
   p95Exit: Summary;
+  /** time by which 99% of the occupants had left */
+  p99Exit: Summary;
+  /** persons still inside at the 180 s benchmark */
+  insideAt180: Summary;
+  /** last person (including assisted wheelchair users) at the street */
+  tSafeAll: Summary;
   meanExit: Summary;
   medianStart: Summary;
   peakDensity: Summary;
@@ -196,6 +226,9 @@ export function batchStats(label: string, runs: RunSummary[], benchmark = 180): 
     tEvacAmbulatory: summarize(runs.map((r) => r.tEvacAmbulatory)),
     tSafe: summarize(runs.map((r) => r.tSafe)),
     p95Exit: summarize(runs.map((r) => r.p95Exit)),
+    p99Exit: summarize(runs.map((r) => r.p99Exit ?? NaN)),
+    insideAt180: summarize(runs.map((r) => r.insideAt180 ?? NaN)),
+    tSafeAll: summarize(runs.map((r) => r.tSafeAll ?? NaN)),
     meanExit: summarize(runs.map((r) => r.meanExit)),
     medianStart: summarize(runs.map((r) => r.medianStart)),
     peakDensity: summarize(runs.map((r) => r.peakDensity)),

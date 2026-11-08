@@ -119,11 +119,33 @@ describe('simulation invariants (full house, concert emergency)', () => {
     }
   });
 
-  it('wheelchair users are not reported as safe: they wait at the assistance point', () => {
+  it('wheelchair users reach the street only through assisted descent (staff), never on their own', () => {
     const wc = sim.agents.filter((a) => a.wheelchair);
     expect(wc.length).toBe(3);
+    const S = cfg.assist;
+    for (const a of wc) {
+      expect([ST.AWAITING_ASSIST, ST.EXITED]).toContain(a.state);
+      expect(Number.isFinite(a.assistDue)).toBe(true);
+      expect(a.assistDue).toBeGreaterThan(S.staffAvailableAt);
+      expect(a.assistDue).toBeGreaterThan(a.tLeftBuilding);
+      if (a.state === ST.EXITED) expect(a.tSafe).toBe(a.assistDue);
+    }
+    // two teams for three people: the third waits for a team to come back
+    const due = wc.map((a) => a.assistDue).sort((x, y) => x - y);
+    expect(due[2]).toBeGreaterThan(due[0] + 0.5 * S.descentMedian - 1e-9);
+    expect(res.tSafeAll).toBeGreaterThanOrEqual(due[2] - 1e-9);
+  });
+});
+
+describe('assisted evacuation switched off', () => {
+  it('wheelchair users are not reported as safe: they wait at the assistance point', () => {
+    const cfg = mergeConfig(scenarioById('concert-emergency'), { assist: { enabled: false } });
+    const sim = new SimulationEngine(geo, cfg, 5);
+    const res = sim.run();
+    const wc = sim.agents.filter((a) => a.wheelchair);
     for (const a of wc) expect(a.state).toBe(ST.AWAITING_ASSIST);
     expect(res.unresolved.awaitingAssistance).toBe(3);
+    expect(Number.isNaN(res.tSafeAll)).toBe(true);
   });
 });
 

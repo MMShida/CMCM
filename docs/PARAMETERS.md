@@ -135,3 +135,55 @@ Warren 2017), queue avoidance at narrow doors only (Kinateder & Warren 2021)):
 | Winter | coats for everyone, outdoor stairs ×0.7 speed and capacity | ASSUMPTION |
 | Falls | per-step probability 0.01 · Δt · max(0, ρ − 0.5) · v on stairs; lane blocked LogNormal(15 s) | ASSUMPTION (direction: Huo et al. 2022; arXiv 2211.08456) |
 | Separated groups | 30% of groups have one member in the foyer/corridor | ASSUMPTION |
+
+## 8. Parameters added on 2026-11-07 (see docs/IMPROVEMENTS.md)
+
+| Parameter | Value | Status | Source | Uncertainty |
+|---|---|---|---|---|
+| `routing.outdoorWeight` | 0.2 | ASSUMPTION | The route goal is the exterior door (the problem's definition of leaving; the sinks of Models B and C); the outdoor walk beyond it counts at 20% | 0–1 (1 = route to the street, the old behaviour) |
+| `routing.aisleQueueWeight` | 1 | ASSUMPTION | A visible crowd in an aisle or passage counts like a queue: n / (lanes available × 0.94 p/s). Direction: queue avoidance by sight (Haghani 2020 review) | 0–2 |
+| `routing.persistentTaste` | true | ASSUMPTION | The logit error term is a persistent per-person taste for each exit (standard random-utility interpretation) instead of being redrawn at every junction | on/off |
+| `routing.noReentry` | true | ASSUMPTION | Evacuees do not go back into the hall (D1–D9), the corridor (FC1–FC3) or down into the orchestra (access stairs) | on/off |
+| `crowdManagers.posts` | [] (default order) | ASSUMPTION | Which posts are staffed, in priority order | — |
+| `crowdManagers.rebalance` | off; 5 s / 20 s | ASSUMPTION | Redirect when the planned exit is > 20 s worse than the best one (staff estimate: walking + the longest queue on the route) | interval 3–15 s, threshold 10–40 s |
+| Plan keys `ZONE:SIDE:BAND` | — | PLAN | Seat-block plans (half-zones, front or back rows); the optimised plan is in `src/data/plans/optimised-A.json` | operational choice |
+| `preassign.reachProb` | 0.6 | ASSUMPTION | Share of the audience who hear and remember a pre-show exit announcement; no venue data | 0.3–0.9 |
+| `preassign.complianceProb` | 0.7 | ASSUMPTION | Share of those who follow it | 0.4–0.9 |
+| `alarm.declarationDelay` | 0 s | ASSUMPTION | Time from the declaration (start of the 180 s clock) to the alarm | 0–20 s |
+| `alarm.mode`, `voiceRecognitionFactor`, `voiceResponseFactor` | tone; 0.6; 0.8 | ASSUMPTION | Informative voice messages start movement sooner (direction: Proulx & Sime 1991); the magnitudes are not from data | 0.4–1.0 |
+| `population.groupWaitMax` | 90 s | ASSUMPTION | Ready members leave without the rest after this time (was hard-coded in A, absent in B) | 30–120 s |
+| `population.groupMeetOutside` | false | ASSUMPTION | Intervention: groups agree to meet outside | — |
+| `population.stairRatioUp(Elderly)` | 0.57 (0.51) | ASSUMPTION | Speed ratio climbing the orchestra access steps; set equal to the descending ratio until data is available | — |
+| `assist.*` | 2 teams, from 60 s, 60 s per descent | ASSUMPTION | Assisted descent of wheelchair users to the street (affects tSafeAll only) | 30–180 s per descent |
+| `stress.responders` | none | ASSUMPTION | Stress test: listed doors at 60% capacity from 60 s | — |
+
+## 9. Dynamic behaviour, adaptive Crowd Managers and density (2026-11-07, see docs/ADAPTIVE.md)
+
+Every value in this section is an **ASSUMPTION**. The mechanisms are motivated by the literature (information and queues in exit choice: Kinateder & Warren, Haghani 2020 review; trust in information sources: Lovreglio et al. 2016), but no magnitude is calibrated to Bailey Hall. Defaults are switched off (`adaptive.agents = adaptive.managers = false`).
+
+| Parameter | Default | Meaning | Suggested range |
+|---|---|---|---|
+| `adaptive.memoryTau` | 60 s | Decay time of congestion beliefs and confidence | 20-180 s |
+| `adaptive.uncertaintyWeight` | 0.5 | Utility penalty wU (1 - confidence) | 0-2 |
+| `adaptive.minCommit` | 10 s | Minimum time between exit changes on routine / event reviews (× (1 - u/2)) | 0-40 s |
+| `adaptive.eventCooldown` | 6 s | Minimum time between event reviews | 2-20 s |
+| `adaptive.waitExcessFactor`, `waitExcessMin` | 1.5, 12 s | Wait longer than expected triggers a review | 1.2-3, 5-30 s |
+| `adaptive.queueSurpriseMin` | 10 s | A visible queue worse than expected by max(10 s, 50 %) triggers a review | 5-30 s |
+| `adaptive.urgencyEffect` | 0.5 | Urgency scales the time weight (1 + k u) and the familiarity weight (1 - k u) | 0-1 |
+| `adaptive.trustLoss`, `trustGain` | 0.25, 0.05 | Trust change after a bad experience / confirmation (contradiction: -trustLoss/2) | 0-0.5 |
+| `adaptive.conflictDelay` | 3 s | Hesitation after contradictory instructions | 0-10 s |
+| `adaptive.socialSusSd` | 0.3 | Spread of social susceptibility | 0-0.6 |
+| `adaptive.congestionInfo` | local | none / local / global (global = idealised benchmark only) | - |
+| `adaptive.reachFactor` | 1.4 | Voice through a door: walking distance <= 1.4 × radius | 1.1-2 |
+| `adaptive.observeRange`, `observeDelay` | 18 m, 2 s | Manager observation range and delay | 10-30 m, 0-10 s |
+| `adaptive.comm`, `commReliability`, `commDelay` | radio, 0.9, 3 s | Radio between managers | 0.5-1, 1-15 s |
+| `adaptive.decisionInterval` | 5 s | Instruction review interval | 2-15 s |
+| `adaptive.minHold`, `switchThreshold` | 20 s, 20 s | Instruction hold and switching threshold (hysteresis band 0-20 s) | 10-40 s |
+| `adaptive.criticalWait` | 30 s | Watched gate counted as a critical bottleneck (immediate review) | 15-60 s |
+| `adaptive.coordination`, `shareCongestion` | true, true | Lead per planned exit among peers; managers pass on known congestion | - |
+| `adaptive.workloadRef` | 80 persons | Workload index reference (operational indicator) | 40-150 |
+| `adaptive.reassign` | none | Formal co-responsibility when a manager's area is clear | - |
+| `crowdManagers.placement` | existing | existing / decision / bottleneck / hybrid222 / robust | - |
+| `analysis.densityRef` | 2 p/m² | Analytical reference for exposure statistics (**not** a safety limit) | report 1-4 |
+| `analysis.thresholds` | 1, 2, 3, 4 p/m² | Reference densities for "time above" | - |
+| Region areas | Σ length × width | From the reconstructed geometry; widths ±0.3 m | ±20-30 % (narrow aisles) |

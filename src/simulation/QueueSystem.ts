@@ -79,14 +79,24 @@ export class GateSystem {
   }
 
   /** Refill token buckets; capacity responds to the impatience of the current queue. */
-  refill(dt: number) {
+  refill(dt: number, t = 0) {
+    const R = this.cfg.stress.responders;
+    const respOn = !!R && this.responder.length > 0 && t >= R.fromTime;
     for (let i = 0; i < this.isGate.length; i++) {
       if (!this.isGate[i]) continue;
       const qn = this.queueNow[i];
       const meanImp = qn > 0 ? this.impatienceSum[i] / qn : 0;
-      this.cap[i] = this.baseCap[i] * this.urgencyFactor(meanImp);
+      this.cap[i] = this.baseCap[i] * this.urgencyFactor(meanImp) * (respOn && this.responder[i] ? R.capacityFactor : 1);
       this.tokens[i] = Math.min(1, this.tokens[i] + this.cap[i] * dt);
     }
+  }
+
+  /** gates used by responders entering against the flow (stress.responders) */
+  private responder: Uint8Array = new Uint8Array(0);
+  setResponderLinks(idx: number[]) {
+    this.responder = new Uint8Array(this.isGate.length);
+    for (const i of idx) this.responder[i] = 1;
+    if (!idx.length) this.responder = new Uint8Array(0);
   }
 
   canPass(li: number): boolean {

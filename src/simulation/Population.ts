@@ -107,6 +107,7 @@ export function createPopulation(geo: GeometryData, cfg: SimConfig, seed: number
     const f = a.elderly ? P.elderlySpeedFactor : 1;
     a.v0 = Math.min(P.speedMax, Math.max(P.speedMin, P.speedMean * f + P.speedSd * f * zSpeed));
     a.stairRatio = a.elderly ? P.stairRatioElderly : P.stairRatio;
+    a.stairRatioUp = a.elderly ? (P.stairRatioUpElderly ?? a.stairRatio) : (P.stairRatioUp ?? a.stairRatio);
     a.radius = Math.min(0.3, Math.max(0.17, P.radiusMean + P.radiusSd * zRadius));
     a.familiar = uFam < P.familiarityProb;
     a.uCM = uCM;
@@ -119,15 +120,19 @@ export function createPopulation(geo: GeometryData, cfg: SimConfig, seed: number
       a.v0 = P.wheelchairSpeed;
       a.radius = 0.45;
       a.stairRatio = 0;
+      a.stairRatioUp = 0;
     }
-    // pre-movement: lognormal; median depends on seat position, level, familiarity
-    const recMedian = R.recognitionMedian * (cfg.environment.darkness ? 1.3 : 1) + cfg.alarm.recognitionExtra;
-    a.tRecognition = Math.max(0, recMedian) * Math.exp(R.recognitionSigma * zRec);
+    // pre-movement: lognormal; median depends on seat position, level, familiarity, alarm type
+    const voice = cfg.alarm.mode === 'voice';
+    const recMedian = (R.recognitionMedian * (cfg.environment.darkness ? 1.3 : 1) + cfg.alarm.recognitionExtra) * (voice ? cfg.alarm.voiceRecognitionFactor : 1);
+    // nobody can recognise the alarm before it starts (declarationDelay after the declaration)
+    a.tRecognition = Math.max(0, cfg.alarm.declarationDelay ?? 0) + Math.max(0, recMedian) * Math.exp(R.recognitionSigma * zRec);
     const lvl = R.levelFactor[seat.level];
     const doorDist = nearestDoorDistance(geo, seat);
     const respMedian =
       R.responseMedian *
       lvl *
+      (voice ? cfg.alarm.voiceResponseFactor : 1) *
       Math.exp(R.aisleCoef * Math.min(seat.aisleDist, 15) + R.exitDistCoef * (doorDist / 10) - (a.familiar ? R.familiarityCoef : 0));
     a.tResponse = respMedian * Math.exp(R.responseSigma * zResp);
     a.tPrepare = uBel < P.belongingsProb ? P.belongingsMedian * Math.exp(P.belongingsSigma * zBel) : 1.5 * Math.exp(0.3 * zBel);
@@ -215,6 +220,21 @@ export function createPopulation(geo: GeometryData, cfg: SimConfig, seed: number
         }
       }
     a.neighbours = Int32Array.from(near);
+  }
+  // persistent taste shocks of the exit-choice logit (separate stream: the audience is unchanged)
+  const taste = new RNG(seed, 'taste');
+  for (const a of agents) a.taste = Float64Array.from(EXIT_GROUPS, () => taste.gumbel());
+  // stable traits used by the dynamic behaviour model (separate stream: drawn always, so the
+  // audience and every legacy draw are unchanged whether or not adaptive behaviour is enabled)
+  const traits = new RNG(seed, 'traits');
+  const sd = cfg.adaptive?.socialSusSd ?? 0.3;
+  for (const a of agents) {
+    a.socialSus = Math.exp(sd * traits.normal() - 0.5 * sd * sd);
+    // cooperation tendency in [0, 1]: cooperative type high, impatient low, others around 0.5
+    const base = a.type === 'cooperative' ? 0.8 : a.type === 'impatient' ? 0.25 : 0.5;
+    a.coop = Math.max(0, Math.min(1, base + 0.15 * traits.normal()));
+    a.belief = new Float32Array(EXIT_GROUPS.length);
+    a.beliefT = new Float32Array(EXIT_GROUPS.length).fill(NaN);
   }
   return { agents, groups };
 }

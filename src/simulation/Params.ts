@@ -63,6 +63,16 @@ export interface SimConfig {
     exitKnowledge: Record<ExitGroupId, number>;
     groupFraction: number;
     groupSizeWeights: [number, number, number];
+    /** maximum time (s) a ready group member waits for the rest of the group before leaving alone */
+    groupWaitMax: number;
+    /**
+     * intervention: groups agree to meet OUTSIDE (pre-show announcement). Members leave as soon as
+     * they are individually ready, choose their own exit and do not wait for or slow down to each other.
+     */
+    groupMeetOutside: boolean;
+    /** speed ratio on stairs going UP (orchestra access steps); default = going-down ratio */
+    stairRatioUp: number;
+    stairRatioUpElderly: number;
     belongingsProb: number;
     belongingsMedian: number;
     belongingsSigma: number;
@@ -106,6 +116,20 @@ export interface SimConfig {
     socialLearnProb: number;
     /** perceived cost (s) per person walking towards you on the next link (per lane) */
     counterflowPenalty: number;
+    /**
+     * weight of the outdoor walk beyond an exterior door in the route cost. People inside aim for
+     * the exit door (leaving the building is the goal, as in Models B and C); 1 = route to the street.
+     */
+    outdoorWeight: number;
+    /**
+     * weight of a visible crowd inside aisles / cross-aisles / passages in the route cost
+     * (same queue weighting as at gates); 0 = only door and stair queues are perceived
+     */
+    aisleQueueWeight: number;
+    /** exit-choice noise is a persistent per-person taste (drawn once) instead of being redrawn at every decision */
+    persistentTaste: boolean;
+    /** evacuees never go back into the auditorium (D doors), the corridor (FC doors) or down into the orchestra */
+    noReentry: boolean;
   };
   movement: {
     dt: number;
@@ -145,6 +169,35 @@ export interface SimConfig {
     plan: Record<string, ExitGroupId>;
     /** Crowd Managers update their instructions when they learn an exit is blocked */
     dynamic: boolean;
+    /** posts to staff, in priority order (empty = the geometry's default order CM1, CM2, ...) */
+    posts: string[];
+    /** queue-based rebalancing by the Crowd Managers (see Guidance.ts) */
+    rebalance: { enabled: boolean; interval: number; threshold: number };
+    /**
+     * placement strategy (Placements.ts): 'existing' = the geometry's posts (CM1, CM2, ...);
+     * 'decision' | 'bottleneck' | 'hybrid222' | 'robust' = alternative six-manager layouts
+     */
+    placement: PlacementId;
+  };
+  /** exits announced before the emergency (pre-show announcement / seat cards), see Guidance.ts */
+  preassign: {
+    enabled: boolean;
+    plan: Record<string, ExitGroupId>;
+    /** share of attendees who heard / remember their assigned exit */
+    reachProb: number;
+    /** share of those who follow it (adopt it as guidance from t = 0) */
+    complianceProb: number;
+  };
+  /** assisted evacuation of wheelchair users from the assistance point to the street */
+  assist: {
+    enabled: boolean;
+    /** earliest time (s) staff are free to start assisting */
+    staffAvailableAt: number;
+    /** median duration (s) of one assisted descent (evacuation chair / carry down the main stair) */
+    descentMedian: number;
+    descentSigma: number;
+    /** assisting teams working in parallel */
+    teams: number;
   };
   led: {
     enabled: boolean;
@@ -157,7 +210,15 @@ export interface SimConfig {
     /** LEDs mark blocked exits as closed (dynamic signage) */
     dynamic: boolean;
   };
-  alarm: { recognitionExtra: number };
+  alarm: {
+    recognitionExtra: number;
+    /** time (s) from the declaration of the emergency (t = 0) until the alarm / announcement starts */
+    declarationDelay: number;
+    /** 'tone' = alarm sounder; 'voice' = informative voice message (shorter recognition and response) */
+    mode: 'tone' | 'voice';
+    voiceRecognitionFactor: number;
+    voiceResponseFactor: number;
+  };
   blocked: { links: string[]; knowledge: 'immediate' | 'announced' | 'discovery'; announceDelay: number; discoveryRange: number };
   barriers: string[];
   environment: {
@@ -166,14 +227,127 @@ export interface SimConfig {
     outdoorStairFactor: number;
     speedFactor: number;
   };
+  /**
+   * Dynamic behaviour and adaptive Crowd Managers (docs/ADAPTIVE.md). Both switches default to false,
+   * which reproduces the previous fixed-behaviour model exactly (results/legacy-reference.json).
+   */
+  adaptive: AdaptiveConfig;
+  /** density-over-time measurement (both models) */
+  analysis: AnalysisConfig;
   stress: {
     falls: boolean;
     fallRate: number;
     fallDurationMedian: number;
     separatedGroups: number;
+    /** responders entering against the flow: capacity of these gates is multiplied by capacityFactor from fromTime */
+    responders: { links: string[]; fromTime: number; capacityFactor: number };
   };
   tMax: number;
 }
+
+export type PlacementId = 'existing' | 'decision' | 'bottleneck' | 'hybrid222' | 'robust';
+
+export interface AdaptiveConfig {
+  /** dynamic individual behaviour: beliefs, confidence, urgency, trust, event-triggered rerouting */
+  agents: boolean;
+  /** adaptive Crowd Managers: local observation, radio, coordinated instruction policy, topological reach */
+  managers: boolean;
+  // ---- individuals ----
+  /** memory time constant (s) of information about an exit's congestion (belief and confidence decay) */
+  memoryTau: number;
+  /** utility weight of uncertainty: -wU * (1 - confidence) */
+  uncertaintyWeight: number;
+  /** minimum time (s) an exit choice is kept before a non-safety switch (reduced by urgency) */
+  minCommit: number;
+  /** minimum time (s) between two event-triggered re-evaluations of the same person */
+  eventCooldown: number;
+  /** event: waiting time exceeds max(waitExcessMin, waitExcessFactor x expected wait) */
+  waitExcessFactor: number;
+  waitExcessMin: number;
+  /** event: visible queue on the current route exceeds the expected one by max(queueSurpriseMin, 50 %) */
+  queueSurpriseMin: number;
+  /** urgency u in [0, 1] scales the time weight by (1 + k u) and the familiarity weight by (1 - k u) */
+  urgencyEffect: number;
+  /** trust: loss after conflicting instructions / a bad experience with guidance, gain after confirmation */
+  trustLoss: number;
+  trustGain: number;
+  /** hesitation (s) when two Crowd Managers give contradictory instructions */
+  conflictDelay: number;
+  /** spread (sd of a lognormal factor) of individual susceptibility to social influence */
+  socialSusSd: number;
+  /** congestion information: 'none' = no queue information; 'local' = own sight + memory + Crowd Managers; 'global' = every queue in the building visible (idealised benchmark only) */
+  congestionInfo: 'none' | 'local' | 'global';
+  // ---- Crowd Managers ----
+  /** a person can hear a manager if the walking distance through the building is <= reachFactor x voice radius (walls block) */
+  reachFactor: number;
+  /** managers see queues at gates within this range (m), same floor, walking distance <= reachFactor x range */
+  observeRange: number;
+  /** observations become usable after this delay (s) */
+  observeDelay: number;
+  /** radio between managers */
+  comm: 'radio' | 'none';
+  /** probability that a radio message arrives */
+  commReliability: number;
+  /** radio delay (s) */
+  commDelay: number;
+  /** managers review their instruction every decisionInterval s (or at once after a closure / a critical bottleneck) */
+  decisionInterval: number;
+  /** an instruction is kept at least minHold s (except when its exit is found to be closed) */
+  minHold: number;
+  /** switch only when the alternative is better by more than switchThreshold s */
+  switchThreshold: number;
+  /** a gate with a known wait above criticalWait s is a critical bottleneck (immediate review) */
+  criticalWait: number;
+  /** a planned exit is decided by one lead manager; the others follow its radio decision */
+  coordination: boolean;
+  /** managers tell people the congestion they know about (updates beliefs) */
+  shareCongestion: boolean;
+  /** persons in reach a manager can handle (workload index reference) */
+  workloadRef: number;
+  /** formal reassignment: 'none' or 'whenClear' (a manager whose area is empty for 10 s co-supervises its neighbour's zones) */
+  reassign: 'none' | 'whenClear';
+}
+
+export interface AnalysisConfig {
+  /** analytical reference density rho_ref (persons/m^2) for exposure E_i = int max(0, rho - rho_ref) dt; NOT a safety threshold */
+  densityRef: number;
+  /** reference densities for 'time above' statistics (persons/m^2) */
+  thresholds: number[];
+  /** keep per-link density frames (heat-map replay) and full regional time series in the result */
+  keepSeries: boolean;
+}
+
+export const DEFAULT_ADAPTIVE: AdaptiveConfig = {
+  agents: false,
+  managers: false,
+  memoryTau: 60,
+  uncertaintyWeight: 0.5,
+  minCommit: 10,
+  eventCooldown: 6,
+  waitExcessFactor: 1.5,
+  waitExcessMin: 12,
+  queueSurpriseMin: 10,
+  urgencyEffect: 0.5,
+  trustLoss: 0.25,
+  trustGain: 0.05,
+  conflictDelay: 3,
+  socialSusSd: 0.3,
+  congestionInfo: 'local',
+  reachFactor: 1.4,
+  observeRange: 18,
+  observeDelay: 2,
+  comm: 'radio',
+  commReliability: 0.9,
+  commDelay: 3,
+  decisionInterval: 5,
+  minHold: 20,
+  switchThreshold: 20,
+  criticalWait: 30,
+  coordination: true,
+  shareCongestion: true,
+  workloadRef: 80,
+  reassign: 'none',
+};
 
 const W = (time: number, queue: number, familiarity: number, social: number, guidance: number, inertia: number, reeval: number): RouteWeights => ({
   time,
@@ -242,6 +416,10 @@ export function defaultConfig(): SimConfig {
       exitKnowledge: { FOYER: 1, PORTICO_W: 0.25, PORTICO_E: 0.25, STAGE_W: 0.1, STAGE_E: 0.1, BAL_NW: 0.35, BAL_NE: 0.35 },
       groupFraction: 0.5,
       groupSizeWeights: [0.7, 0.2, 0.1],
+      groupWaitMax: 90,
+      groupMeetOutside: false,
+      stairRatioUp: 0.57,
+      stairRatioUpElderly: 0.51,
       belongingsProb: 0.5,
       belongingsMedian: 6,
       belongingsSigma: 0.6,
@@ -273,6 +451,10 @@ export function defaultConfig(): SimConfig {
       shareInfoRate: 0.2,
       socialLearnProb: 0.3,
       counterflowPenalty: 3,
+      outdoorWeight: 0.2,
+      aisleQueueWeight: 1,
+      persistentTaste: true,
+      noReentry: true,
     },
     movement: {
       dt: 0.1,
@@ -306,7 +488,12 @@ export function defaultConfig(): SimConfig {
       complianceProb: 0.8,
       plan: { ...DEFAULT_PLAN },
       dynamic: true,
+      posts: [],
+      rebalance: { enabled: false, interval: 5, threshold: 20 },
+      placement: 'existing',
     },
+    preassign: { enabled: false, plan: { ...DEFAULT_PLAN }, reachProb: 0.6, complianceProb: 0.7 },
+    assist: { enabled: true, staffAvailableAt: 60, descentMedian: 60, descentSigma: 0.4, teams: 2 },
     led: {
       enabled: false,
       activationTime: 3,
@@ -316,11 +503,13 @@ export function defaultConfig(): SimConfig {
       conflictDelay: 4,
       dynamic: false,
     },
-    alarm: { recognitionExtra: 0 },
+    alarm: { recognitionExtra: 0, declarationDelay: 0, mode: 'tone', voiceRecognitionFactor: 0.6, voiceResponseFactor: 0.8 },
     blocked: { links: [], knowledge: 'discovery', announceDelay: 45, discoveryRange: 6 },
     barriers: [],
     environment: { darkness: false, smoke: 0, outdoorStairFactor: 1, speedFactor: 1 },
-    stress: { falls: false, fallRate: 0.002, fallDurationMedian: 15, separatedGroups: 0 },
+    adaptive: { ...DEFAULT_ADAPTIVE },
+    analysis: { densityRef: 2, thresholds: [1, 2, 3, 4], keepSeries: false },
+    stress: { falls: false, fallRate: 0.002, fallDurationMedian: 15, separatedGroups: 0, responders: { links: [], fromTime: 60, capacityFactor: 0.6 } },
     tMax: 900,
   };
 }
@@ -385,4 +574,24 @@ export const PARAM_INFO: ParamInfo[] = [
   { path: 'population.groupFraction', label: 'Share of attendees in social groups', unit: '-', status: 'ASSUMPTION', source: 'groups start later (Bode et al. 2015)', uncertainty: 'sweep' },
   { path: 'geometry.doorWidths', label: 'Door widths (D 1.6 m, P 1.6 m, FC 1.8 m, F 1.8 m, stage 1.0 m)', unit: 'm', status: 'ASSUMPTION', source: 'estimated from door-swing symbols on the scanned plans', uncertainty: '+/-0.3 m' },
   { path: 'geometry.scale', label: 'Plan scale 0.08 m per pixel', unit: 'm/px', status: 'ASSUMPTION', source: 'calibrated with chart dimensions and stated areas', uncertainty: '+/-6%' },
+  { path: 'routing.outdoorWeight', label: 'Route goal is the exterior door; outdoor walk beyond it weighted 0.2', unit: '-', status: 'ASSUMPTION', source: "problem's definition of leaving the building; consistent with Models B and C (sinks at exterior doors)", uncertainty: 'sweep 0-1 (1 = route to the street)' },
+  { path: 'routing.aisleQueueWeight', label: 'A visible crowd in an aisle / cross-aisle / passage counts like a queue (n / (lanes x 0.94 p/s))', unit: '-', status: 'ASSUMPTION', source: 'queue avoidance by sight (direction: Kinateder & Warren; Haghani 2020 review); Model B already perceives all visible queues', uncertainty: 'sweep 0-2' },
+  { path: 'crowdManagers.plan (blocks)', label: 'Exit plan by seat block ZONE:SIDE:BAND (half-zone, front/back rows)', unit: '-', status: 'ASSUMPTION', source: 'operational choice; optimised by scripts/optimise-plan.ts', uncertainty: 'plan, not a physical parameter' },
+  { path: 'crowdManagers.rebalance', label: 'Crowd Managers redirect zones when the planned exit is > 20 s worse (checked every 5 s)', unit: 's', status: 'ASSUMPTION', source: 'assumes radio contact / sight of queues; no data on staff reaction', uncertainty: 'threshold 10-40 s, interval 3-15 s' },
+  { path: 'preassign.reachProb', label: 'Share of attendees who hear and remember a pre-show exit announcement (0.6)', unit: '-', status: 'ASSUMPTION', source: 'no venue data; direction: pre-event information increases use of emergency exits (Kinateder et al. review of exit choice)', uncertainty: 'sweep 0.3-0.9' },
+  { path: 'preassign.complianceProb', label: 'Share of informed attendees who follow the announced exit (0.7)', unit: '-', status: 'ASSUMPTION', source: 'order of magnitude of staff / signage compliance used elsewhere in the model', uncertainty: 'sweep 0.4-0.9' },
+  { path: 'alarm.voice*', label: 'Informative voice message: recognition x0.6, response x0.8 vs alarm tone', unit: '-', status: 'ASSUMPTION', source: 'direction from Proulx & Sime 1991 (informative messages start movement sooner); magnitudes assumed', uncertainty: 'high: sweep 0.4-1.0' },
+  { path: 'alarm.declarationDelay', label: 'Time from declaring the emergency to the alarm (default 0 s)', unit: 's', status: 'ASSUMPTION', source: 'the 180 s clock starts at the declaration (problem statement)', uncertainty: 'sweep 0-20 s' },
+  { path: 'population.groupWaitMax', label: 'Ready group members wait at most 90 s for the rest of the group', unit: 's', status: 'ASSUMPTION', source: '-', uncertainty: '30-120 s' },
+  { path: 'population.groupMeetOutside', label: 'Intervention: groups agree to meet outside (no waiting / cohesion)', unit: '-', status: 'ASSUMPTION', source: 'operational message; effect of groups on start times: Bode et al. 2015 (direction)', uncertainty: 'compliance not modelled (all groups follow)' },
+  { path: 'assist.*', label: 'Assisted descent of wheelchair users: 2 teams free from 60 s, 60 s per descent', unit: 's', status: 'ASSUMPTION', source: 'no evacuation-chair data extracted; affects street-level time only, not T_evac', uncertainty: 'descent 30-180 s' },
+  { path: 'adaptive.*', label: 'Dynamic behaviour: memory 60 s, uncertainty weight 0.5, commitment 10 s, event thresholds 1.5x / 12 s / 10 s, urgency effect 0.5, trust -0.25 / +0.05', unit: '-', status: 'ASSUMPTION', source: 'mechanisms from the literature (information, queues, trust: Kinateder & Warren; Haghani 2020 review; Lovreglio et al. 2016); every magnitude assumed', uncertainty: 'high: see docs/ADAPTIVE.md' },
+  { path: 'adaptive.reachFactor', label: 'Voice reach needs walking distance <= 1.4 x radius (walls and closed rooms block)', unit: '-', status: 'ASSUMPTION', source: 'geometric proxy for line of sight / acoustics; not measured', uncertainty: '1.1-2' },
+  { path: 'adaptive.observe*', label: 'Managers see gates within 18 m (same floor, walkable), observations usable after 2 s', unit: 'm, s', status: 'ASSUMPTION', source: '-', uncertainty: 'range 10-30 m, delay 0-10 s' },
+  { path: 'adaptive.comm*', label: 'Radio between managers: 90 % of messages arrive after 3 s', unit: '-', status: 'ASSUMPTION', source: 'no Bailey Hall data', uncertainty: 'reliability 0.5-1, delay 1-15 s' },
+  { path: 'adaptive.minHold', label: 'Managers keep an instruction >= 20 s; switch only if >= 20 s better', unit: 's', status: 'ASSUMPTION', source: 'anti-oscillation design choice', uncertainty: '10-40 s' },
+  { path: 'adaptive.workloadRef', label: 'Workload index reference: 80 persons in reach per manager', unit: 'persons', status: 'ASSUMPTION', source: 'operational index, not validated', uncertainty: 'high' },
+  { path: 'analysis.densityRef', label: 'Reference density 2 p/m^2 for exposure statistics (analytical reference, not a safety limit)', unit: 'p/m^2', status: 'ASSUMPTION', source: 'order of densities where walking speed falls markedly (Weidmann 1993; Fruin levels of service); no safety claim', uncertainty: 'report 1-4 p/m^2' },
+  { path: 'regions.area', label: 'Region areas = sum of link length x clear width of the reconstructed geometry', unit: 'm^2', status: 'ASSUMPTION', source: 'widths estimated from the plans (+/- 0.3 m), see DensityRegions.ts', uncertainty: '+/- 20-30 % for narrow aisles' },
+  { path: 'stress.responders', label: 'Responders entering through listed doors cut their capacity (x0.6 from 60 s)', unit: '-', status: 'ASSUMPTION', source: 'stress test only', uncertainty: 'high' },
 ];

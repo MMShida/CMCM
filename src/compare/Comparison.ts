@@ -18,7 +18,7 @@ import type { GeometryData } from '../geometry/types';
 import { networkFor } from '../network/NetworkGraph';
 import { NetworkSimulation } from '../network/NetworkSimulation';
 import { staticMaxFlow } from '../network/StaticFlow';
-import { releasesFromPopulation, timeExpandedFlow } from '../network/TimeExpanded';
+import { individualBound, premovementBudget, releasesFromPopulation, timeExpandedFlow } from '../network/TimeExpanded';
 import type { BatchStats, RunSummary, Summary } from '../simulation/MonteCarlo';
 import { batchStats, pairedComparison, summarize, toRunSummary, wilson } from '../simulation/MonteCarlo';
 import type { SimConfig } from '../simulation/Params';
@@ -43,6 +43,10 @@ export interface Benchmarks {
   pre: number;
   realA: number;
   realB: number;
+  /** individual lower bound with the intrinsic pre-movement (own speed, no congestion) */
+  indPre?: number;
+  /** max(C_pre, individual bound): the tighter lower bound */
+  boundPre?: number;
 }
 
 export interface PairRecord {
@@ -97,13 +101,24 @@ export function runModelB(geo: GeometryData, cfg: SimConfig, seed: number) {
 /** Model C benchmark for given departure times (NaN starts = never departed: excluded). */
 export function benchmark(geo: GeometryData, cfg: SimConfig, seed: number, starts: 'imm' | 'pre' | number[], dt = 1) {
   const net = networkFor(geo, cfg);
+  const people = benchmarkPeople(geo, cfg, seed, starts);
+  const ok = people.filter((p) => Number.isFinite(p.tDepart));
+  const flow = timeExpandedFlow(net, cfg, releasesFromPopulation(net, cfg, ok), { dt });
+  const ind = individualBound(net, cfg, ok);
+  // the tighter of the two lower bounds: capacity (flow at the representative speed) or the slowest individual
+  return { ...flow, tInd: ind.tInd, tBound: Math.max(Number.isFinite(flow.tStar) ? flow.tStar : Infinity, ind.tInd) };
+}
+
+/** people entering the Model C benchmarks (departure times + individual attributes) */
+export function benchmarkPeople(geo: GeometryData, cfg: SimConfig, seed: number, starts: 'imm' | 'pre' | number[]) {
   const pop = createPopulation(geo, cfg, seed).agents;
-  const people = pop.map((a, i) => ({
+  return pop.map((a, i) => ({
     seat: a.seat,
     tDepart: starts === 'imm' ? 0 : starts === 'pre' ? a.tRecognition + a.tResponse + a.tPrepare : starts[i],
+    v0: a.v0,
+    stairRatio: a.stairRatio,
+    wheelchair: a.wheelchair,
   }));
-  const ok = people.filter((p) => Number.isFinite(p.tDepart));
-  return timeExpandedFlow(net, cfg, releasesFromPopulation(net, cfg, ok), { dt });
 }
 
 export function runPair(geo: GeometryData, cfg: SimConfig, seed: number, opt: PairOptions = {}): PairRecord {
@@ -123,9 +138,12 @@ export function runPair(geo: GeometryData, cfg: SimConfig, seed: number, opt: Pa
   }
   if (opt.benchmarks !== false) {
     const dt = opt.teDt ?? 1;
+    const pre = benchmark(geo, cfg, seed, 'pre', dt);
     out.C = {
       imm: benchmark(geo, cfg, seed, 'imm', dt).tStar,
-      pre: benchmark(geo, cfg, seed, 'pre', dt).tStar,
+      pre: pre.tStar,
+      indPre: pre.tInd,
+      boundPre: pre.tBound,
       realA: sA ? benchmark(geo, cfg, seed, sA, dt).tStar : NaN,
       realB: sB ? benchmark(geo, cfg, seed, sB, dt).tStar : NaN,
     };
@@ -208,12 +226,13 @@ export function interventionEffect(ref: PairRecord[], alt: PairRecord[], model: 
 }
 
 /** Physical (Model C) analysis of a configuration: static flow, min cut, quickest evacuation. */
-export function physicalAnalysis(geo: GeometryData, cfg: SimConfig, seed = 1, dt = 1) {
+export function physicalAnalysis(geo: GeometryData, cfg: SimConfig, seed = 1, dt = 1, opts: { budget?: boolean; target?: number } = {}) {
   const net = networkFor(geo, cfg);
   const N = createPopulation(geo, cfg, seed).agents.length;
   const st = staticMaxFlow(net, cfg, N);
   const imm = benchmark(geo, cfg, seed, 'imm', dt);
   const pre = benchmark(geo, cfg, seed, 'pre', dt);
+  const budget = opts.budget ? premovementBudget(net, cfg, benchmarkPeople(geo, cfg, seed, 'pre'), opts.target ?? 180, dt) : null;
   return {
     N,
     maxFlow: st.maxFlow,
@@ -224,6 +243,12 @@ export function physicalAnalysis(geo: GeometryData, cfg: SimConfig, seed = 1, dt
     edgeFlow: st.edgeFlow,
     tStarImm: imm.tStar,
     tStarPre: pre.tStar,
+    /** individual (own speed, no congestion) lower bound with the sampled pre-movement */
+    tIndPre: pre.tInd,
+    /** tighter lower bound max(T*_pre, individual bound) */
+    tBoundPre: pre.tBound,
+    /** largest scaling of the sampled pre-movement for which the ideal flow still meets the target */
+    premovementAlpha: budget?.alpha ?? NaN,
     curveImm: imm.curve,
     curvePre: pre.curve,
     exitUsageImm: imm.exitUsage,
