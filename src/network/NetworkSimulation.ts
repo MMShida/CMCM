@@ -45,11 +45,13 @@ import type { GateStat, RunResult } from '../simulation/Metrics';
 import { behaviourSummary, tailMetrics } from '../simulation/Metrics';
 import { placementPosts } from '../simulation/Placements';
 import type { SimConfig } from '../simulation/Params';
-import { planExitIndex } from '../simulation/Plan';
+import { guidanceSeat, planExitIndex } from '../simulation/Plan';
 import { OUTWARD_ONLY } from '../simulation/Routing';
 import { createPopulation } from '../simulation/Population';
+import { hardPanelIds, ropeCost } from '../simulation/Barriers';
 import { effectiveSpeedFactor } from '../simulation/QueueSystem';
 import { RNG } from '../simulation/Random';
+import { SignVisibility } from '../simulation/SignVisibility';
 import type { BuildingNetwork } from './NetworkGraph';
 import { networkFor } from './NetworkGraph';
 import { closedEdges } from './StaticFlow';
@@ -189,6 +191,7 @@ export class NetworkSimulation {
   readonly rngRoute: RNG;
   readonly rngDyn: RNG;
   readonly rngGuide: RNG;
+  private signs: SignVisibility | null = null;
   private readonly visibleArcs: number[][];
   private readonly nearClosed: number[][];
   private readonly nearSigns: number[][];
@@ -243,8 +246,8 @@ export class NetworkSimulation {
     this.rngDyn = new RNG(seed, 'net-dyn');
     this.rngGuide = new RNG(seed, 'net-guidance');
     this.blockedEdges = new Set(net.edgesForLinks(cfg.blocked.links));
-    this.barrierEdges = new Set(net.edgesForLinks(cfg.barriers));
-    this.closed = closedEdges(net, cfg.blocked.links, cfg.barriers);
+    this.barrierEdges = new Set(net.edgesForLinks(hardPanelIds(cfg)));
+    this.closed = closedEdges(net, cfg.blocked.links, hardPanelIds(cfg));
     const nA = net.arcs.length;
     this.queues = net.arcs.map(() => []);
     this.tokens = new Float64Array(nA).fill(1);
@@ -284,8 +287,9 @@ export class NetworkSimulation {
     const posts = order.filter((p) => !C.unavailable.includes(p.id));
     const act = allPosts.map(() => this.rngGuide.lognormalMedian(C.activationMedian, C.activationSigma));
     const custom = placementPosts(geo, C.placement);
+    while (act.length < (custom?.length ?? 0)) act.push(this.rngGuide.lognormalMedian(C.activationMedian,C.activationSigma));
     const chosen = custom
-      ? custom.slice(0, nCM).map((p, i) => ({ p, t: act[i % act.length] }))
+      ? custom.map((p, i) => ({ p, t: act[i] })).filter(x=>!C.unavailable.includes(x.p.id)).slice(0,nCM)
       : posts.slice(0, Math.min(nCM, posts.length)).map((p) => ({ p, t: act[allPosts.indexOf(p)] }));
     const doorLinks = new Set(geo.links.filter((L) => L.kind === 'door').map((L) => L.id));
     this.isDoorEdge = Uint8Array.from(net.edges, (E) => (E.kind === 'door' || E.exterior || E.links.some((id) => doorLinks.has(id)) ? 1 : 0));
@@ -317,7 +321,7 @@ export class NetworkSimulation {
         const uReach = rng.random();
         const uComply = rng.random();
         if (a.wheelchair || uReach >= PA.reachProb) continue;
-        const gi = planExitIndex(PA.plan, geo, a.seat);
+        const gi = planExitIndex(PA.plan, geo, guidanceSeat(cfg, this.agents, this.groups, a));
         a.knownExits |= 1 << gi;
         if (uComply < PA.complianceProb) a.assignGroup = gi;
       }
@@ -639,6 +643,7 @@ export class NetworkSimulation {
         if (n.a.wheelchair && !E.accessible) continue;
         if (noReentry && A.dir < 0 && this.outwardOnly[A.edge] && !n.a.separated) continue; // as in Model A
         let c = this.arcTime(n, ai);
+        c += E.links.reduce((s, id) => s + ropeCost(this.cfg, id), 0);
         let delay = 0;
         let seen = 0;
         if (allVis || (vis && vis.has(ai) && roomOk(ai))) {
@@ -1038,7 +1043,7 @@ export class NetworkSimulation {
 
   // ------------------------------------------------------------------ guidance
   private recommend(n: NetAgent, knows: boolean, dynamic: boolean, plan: Record<string, string>, cm: (typeof this.cmTimes)[number] | null = null): number {
-    let gi = planExitIndex(plan, this.geo, n.a.seat);
+    let gi = planExitIndex(plan, this.geo, guidanceSeat(this.cfg, this.agents, this.groups, n.a));
     if (cm && cm.redirect.has(gi)) gi = cm.redirect.get(gi)!;
     if (knows && dynamic && this.closed.size) {
       // staff know the true state: nearest open exit group if the planned one is cut off
@@ -1166,11 +1171,15 @@ export class NetworkSimulation {
     const a = n.a;
     const L = this.cfg.led;
     if (!L.enabled || !this.ledActive || a.ledSeen || a.wheelchair) return;
+    this.signs ??= new SignVisibility(this.geo, L.spatial, this.cfg);
+    const [x, y, floor] = this.position(n);
+    const sign = L.spatial ? this.signs.nearest(x, y, floor === 2 ? 2 : 1) : undefined;
+    if (L.spatial && !sign) return;
     a.ledSeen = true;
     const pSee = L.perceiveProb * (1 - 0.5 * Math.min(1, this.cfg.environment.smoke));
     if (a.uLEDsee >= pSee) return;
-    let gi = planExitIndex(L.plan, this.geo, a.seat);
-    if (L.dynamic && this.blockedEdges.size) {
+    let gi = sign ? EXIT_GROUPS.indexOf(sign.exit) : planExitIndex(L.plan, this.geo, guidanceSeat(this.cfg, this.agents, this.groups, a));
+    if (L.dynamic && !L.spatial && this.blockedEdges.size) {
       for (const e of this.blockedEdges) this.learn(n, e);
       gi = this.recommend(n, true, true, L.plan);
     }
@@ -1199,6 +1208,8 @@ export class NetworkSimulation {
     this.guideAcc += this.opt.dt;
     if (this.guideAcc < 1 - 1e-9) return;
     this.guideAcc = 0;
+    if (L.spatial && this.ledActive)
+      for (const n of this.na) if (!n.a.ledSeen && (n.phase === PH.ROW || n.phase === PH.QUEUE || n.phase === PH.TRANSIT)) this.ledPerceive(n);
     if (this.groups.length) this.groupTimeouts();
     const C = this.cfg.crowdManagers;
     const pHear = 1 - Math.exp(-C.hearRate);
@@ -1292,7 +1303,7 @@ export class NetworkSimulation {
       for (let m = 0; m < nCM; m++)
         if (z >= 0 && this.zoneMask[m][z]) {
           Rc[m]++;
-          const p = planExitIndex(plan, this.geo, a.seat);
+          const p = planExitIndex(plan, this.geo, guidanceSeat(this.cfg, this.agents, this.groups, a));
           planned[m].set(p, (planned[m].get(p) ?? 0) + 1);
         }
       if (a.cmSource >= 0 && a.cmGroup >= 0 && n.exitGroup === a.cmGroup) Ic[a.cmSource]++;
@@ -1309,7 +1320,7 @@ export class NetworkSimulation {
           if (n.phase === PH.OUT || n.phase === PH.STUCK || !this.inVoiceRange(cm, i, R)) continue;
           if (adaptive && !this.topoOk(cm, i, R)) continue;
           H++;
-          const pp = planExitIndex(plan, this.geo, n.a.seat);
+          const pp = planExitIndex(plan, this.geo, guidanceSeat(this.cfg, this.agents, this.groups, n.a));
           reachP.set(pp, (reachP.get(pp) ?? 0) + 1);
           const k = i * nCM + m;
           if (!this.reachedEver[k]) {
@@ -1591,7 +1602,8 @@ export class NetworkSimulation {
         const x = Math.max(0, (pi - fis.threshold) / (1 - fis.threshold));
         cap *= (1 + fis.gain * u) * (1 - fis.drop * x * x);
       }
-      this.tokens[ai] = Math.min(1, this.tokens[ai] + cap * dt);
+      const credit = this.tokens[ai] + cap * dt;
+      this.tokens[ai] = this.cfg.numerics?.conserveService ? credit : Math.min(1, credit);
       if (q.length > this.queueMax[ai]) this.queueMax[ai] = q.length;
       const headNode = A.to;
       const storageOk = (n: NetAgent) =>
@@ -1635,6 +1647,7 @@ export class NetworkSimulation {
           }
         }
       }
+      if (this.cfg.numerics?.conserveService) this.tokens[ai] = Math.min(1, this.tokens[ai]);
       for (const id of q) {
         const m = this.na[id];
         if (this.t - m.queueSince > 1.5) m.a.state = m.a.state === ST.REROUTING && this.t - m.queueSince < 3 ? ST.REROUTING : ST.QUEUING;

@@ -13,6 +13,17 @@
  */
 import type { ExitGroupId, GeometryData } from '../geometry/types';
 import { EXIT_GROUPS } from '../geometry/types';
+import type { SimConfig } from './Params';
+import type { Agent } from './Agent';
+
+/** Give a social group a consistent planned destination without making anyone comply. */
+export function guidanceSeat(cfg: SimConfig, agents: Agent[], groups: number[][], a: Agent): number {
+  if (cfg.crowdManagers.groupPlan && !cfg.population.groupMeetOutside && a.group >= 0) {
+    const leader = agents[groups[a.group]?.[0]];
+    if (leader) return leader.seat;
+  }
+  return a.seat;
+}
 
 interface BlockIndex {
   /** keys per seat, most specific first */

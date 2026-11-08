@@ -1,5 +1,36 @@
 # Bail(ey)ing Out: agent-based evacuation simulator for Bailey Hall
 
+This checkout continues Mateus's **8 November, 04:20:42 EST** commit `3e4bcf0`.
+The professional technical documents are [the mathematical model guide](docs/research-180/MODEL_GUIDE.pdf),
+[the A-Lite specification and experimental audit](docs/research-180/SIMPLIFICATION_AUDIT.pdf), and
+[the earlier intervention results](docs/research-180/RESULTS_AND_CHANGES.pdf).
+Editable LaTeX sources are in [docs/research-180/latex](docs/research-180/latex/README.md).
+
+The separate **A-Lite** engine retains the original spatial graph, uses lane FIFO travel/service and strict storage,
+and simplifies group movement. Forty independent audiences give **191.4 s [188.3, 194.6]** with the selected
+no-barrier, eighteen-staff policy; the same policy gives **259.0 s in A** and **166.4 s in B**.
+The finer 0.025 s Lite step gives **188.7 s [186.2, 191.2]**. Neither A nor Lite establishes the mean 180 s target.
+Original A is preserved; numerical corrections and structural sensitivities are optional.
+The previous 231.2 s A result used hard panels and is retained as historical evidence, not an installation recommendation.
+
+```bash
+npm run lite -- --config results/lite-study/best-config.json --seed 1294506412 --out results/lite-study/reproduced.json
+npm run lite:study -- --cases results/lite-study/confirmation-cases.json --out results/lite-study/reproduced-confirmation.json --seed 20261109 --runs 40 --workers 3
+python3 scripts/build-latex-docs.py --compile
+python3 scripts/check-research-pdfs.py
+```
+
+Use the app's **180-second study** tab to inspect the original intervention study and open the technical PDFs.
+A-Lite currently runs through the reproducible CLI above. Its configs, raw data, failures, source snapshots and
+selection record are in [results/lite-study](results/lite-study/README.md).
+Large raw evidence is stored as verified `.json.gz`/`.jsonl.gz` files. Restore original paths for analysis with
+`python3 scripts/restore-research-data.py`; runnable configuration files remain readable JSON.
+Exact source snapshots are deduplicated under `results/source-snapshots/`.
+
+From this directory, run `npm run dev -- --port 5180 --strictPort` to keep this
+04:20 continuation separate from other checkouts. The confirmation batch is reproduced with
+`node --import tsx scripts/research-study.ts --mode evaluate --cases results/research-180/confirmation-cases.json --runs 40 --seed 20261108 --out results/research-180/confirmation.json`.
+
 An interactive, research-grade simulator for the CMCM 2026 problem *"Bail(ey)ing Out"*
 (evacuating Bailey Hall, Cornell University). Every one of the 1,329 occupants is an
 individual agent with its own reaction time, walking speed, behavioural type, knowledge,
@@ -25,7 +56,7 @@ random seeds.
 ```bash
 npm install
 npm run dev          # interactive app at http://localhost:5173
-npm run test         # 95 automated tests (vitest)
+npm run test         # regression and model-invariant tests (vitest)
 npm run build        # type-check + production build into dist/
 ```
 
@@ -198,7 +229,7 @@ Full specification: [docs/MODEL.md](docs/MODEL.md). Parameters and provenance:
 
 ## Validation and tests
 
-`npm run test` runs 74 tests. The 38 Model A tests cover:
+`npm run test` now includes 145 tests. The original 38 Model A tests cover:
 
 - **Occupancy and seating:** occupancy equals the selected value, capacities are respected
   per floor, and each seat is used once.
@@ -230,7 +261,7 @@ The 36 network and comparison tests (`tests/network-flow.test.ts`, `tests/networ
 - **Framework:** ordering of the C benchmarks, shared-clock synchronisation of the two live
   engines, door-width sensitivity direction, paired statistics and report assembly.
 
-`tests/improvements.test.ts` (21 tests) covers the first improvement round, and `tests/adaptive.test.ts` (29 tests) covers dynamic behaviour, adaptive managers, scope, placements and density over time; see [docs/ADAPTIVE.md](docs/ADAPTIVE.md) §7. The suite has **124 tests**. `npx tsx scripts/legacy-reference.ts` checks that the fixed model is unchanged, and `node scripts/ui-check-dynamics.mjs <url>` checks the new tabs in headless Chrome.
+`tests/improvements.test.ts` (21 tests) covers the first improvement round, and `tests/adaptive.test.ts` (29 tests) covers dynamic behaviour, adaptive managers, scope, placements and density over time; see [docs/ADAPTIVE.md](docs/ADAPTIVE.md) §7. The 04:20 base had **124 tests**; the continuation has **145**, including A-Lite and numerical regressions. `npx tsx scripts/legacy-reference.ts` checks that the fixed model is unchanged, and `node scripts/ui-check-dynamics.mjs <url>` checks the new tabs in headless Chrome.
 
 The development log with the problems found and fixed is in [docs/PROGRESS.md](docs/PROGRESS.md).
 
@@ -246,7 +277,7 @@ Headline after the 2026-11-07 improvements (40 paired seeds, full house, docs/IM
 
 - **Concert emergency:** Model A T = 264 s [260, 268].
 - **180 s operations package:** 227 s in A and 195 s in B (5% of B runs ≤ 180 s).
-- **Ideal flow (Model C):** 143–163 s, so 180 s is physically feasible.
+- **Ideal flow (Model C):** 143–163 s in that earlier experiment; an idealized flow benchmark does not establish heterogeneous full-house feasibility.
 - **Largest audience meeting 180 s with ≥ 95% probability:** about 560 today and about 750 (A) to 930 (B) with the package.
 
 Earlier headline, before the improvements (kept for reference): concert emergency with 6 Crowd
@@ -283,6 +314,6 @@ results/         CLI and experiment outputs (CSV / JSON)
 The geometry comes from scans: about ±6% scale, door widths estimated, backstage routes
 schematic. Behaviour is not calibrated to Bailey Hall. The 1D lane model does not represent
 contact forces or crush. Smoke, darkness, winter and falls are simplified stress tests.
-Assisted evacuation of wheelchair users is not modelled; they are reported as awaiting
-assistance, never as safe. The ground level and service spaces are ignored, as the problem
+A and A-Lite include the inherited assistance timing model; B does not supply a finite all-person
+assisted street-safety endpoint. Building departure is reported separately from street safety. The ground level and service spaces are ignored, as the problem
 instructs. Read results comparatively, as strategy A versus B under the same assumptions.

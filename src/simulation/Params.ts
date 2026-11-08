@@ -39,6 +39,11 @@ export interface RouteWeights {
 
 export type Occupancy = { orchestra: number; mezzanine: number; balcony: number; pattern: 'random' | 'frontFirst' | 'backFirst' };
 
+export interface GuidanceSign {
+  id: string; x: number; y: number; floor: number;
+  facingDegrees: number; exit: ExitGroupId;
+}
+
 export interface SimConfig {
   label: string;
   scenarioId: string;
@@ -178,6 +183,12 @@ export interface SimConfig {
      * 'decision' | 'bottleneck' | 'hybrid222' | 'robust' = alternative six-manager layouts
      */
     placement: PlacementId;
+    /** Model A research sensitivity: accepted staff guidance may use fully vacated seatways.
+     * Uses existing row links and speeds; not enabled in the primary 04:20-model comparison. */
+    vacatedRowGuidance?: boolean;
+    /** Pre-agreed group instruction uses the original leader's seat block for every member.
+     * Does not change hearing, acceptance, group waiting or movement. */
+    groupPlan?: boolean;
   };
   /** exits announced before the emergency (pre-show announcement / seat cards), see Guidance.ts */
   preassign: {
@@ -209,6 +220,8 @@ export interface SimConfig {
     conflictDelay: number;
     /** LEDs mark blocked exits as closed (dynamic signage) */
     dynamic: boolean;
+    /** Optional 2-D visibility catchment. Each sign has ONE message, independent of seat origin. */
+    spatial?: { range: number; halfAngleDegrees: number; occlusion: boolean; signs: GuidanceSign[] };
   };
   alarm: {
     recognitionExtra: number;
@@ -221,6 +234,27 @@ export interface SimConfig {
   };
   blocked: { links: string[]; knowledge: 'immediate' | 'announced' | 'discovery'; announceDelay: number; discoveryRange: number };
   barriers: string[];
+  /** Optional interventions. Unspecified barriers retain Mateus's hard-closure meaning. */
+  barrierTypes?: Record<string, 'hard-panel' | 'soft-rope'>;
+  /** Perceived crossing time, not physical delay/capacity; uncalibrated sensitivity. */
+  ropePenalty?: number;
+  /** Conservative time integration. Off/absent preserves the 04:20 reference exactly. */
+  numerics?: {
+    conserveService: boolean;
+    /** A only: count distance carried across an admitted boundary in the step velocity. */
+    preserveTransitVelocity?: boolean;
+    /** A only: evaluate following speed from positions at the start of the step. */
+    synchronousHeadway?: boolean;
+    /** Invalidate a route missing the current node before applying route inertia. */
+    replanMissingPath?: boolean;
+  };
+  /** Explicit structural ablations; absent keeps the original microscopic model. */
+  simplification?: {
+    instantAcceleration?: boolean;
+    clearRows?: boolean;
+    fifoMerges?: boolean;
+    groupPaceOnly?: boolean;
+  };
   environment: {
     darkness: boolean;
     smoke: number;
@@ -245,13 +279,15 @@ export interface SimConfig {
   tMax: number;
 }
 
-export type PlacementId = 'existing' | 'decision' | 'bottleneck' | 'hybrid222' | 'robust';
+export type PlacementId = 'existing' | 'decision' | 'bottleneck' | 'hybrid222' | 'robust' | 'coverage' | 'coverage10' | 'coverage12' | 'coverage18';
 
 export interface AdaptiveConfig {
   /** dynamic individual behaviour: beliefs, confidence, urgency, trust, event-triggered rerouting */
   agents: boolean;
   /** adaptive Crowd Managers: local observation, radio, coordinated instruction policy, topological reach */
   managers: boolean;
+  /** Keep seat-block instructions fixed except for known closures; retain acoustic/radio reach. */
+  staticPlan?: boolean;
   // ---- individuals ----
   /** memory time constant (s) of information about an exit's congestion (belief and confidence decay) */
   memoryTau: number;
@@ -288,6 +324,12 @@ export interface AdaptiveConfig {
   redirectMode: 'zone' | 'partial';
   /** partial mode: a person is moved only if they finish at least this much earlier (s) */
   redirectMargin: number;
+  /** Operational guard: do not add redirected people to narrow stage routes. Existing use remains. */
+  redirectNoNewStage?: boolean;
+  /** Earliest controller review; zero/absent preserves Mateus's policy. */
+  redirectMinTime?: number;
+  /** Partial-controller guard: anticipated opposing path demand within this many seconds. */
+  redirectForecastSeconds?: number;
   /** partial mode: an alternative may be at most this much longer on foot (s); no U-turns */
   redirectMaxDetour: number;
   /** partial mode: a route with an opposing stream denser than this (persons/m2) on a link is not offered */
@@ -584,8 +626,8 @@ export const PARAM_INFO: ParamInfo[] = [
   { path: 'population.luggageFlowFactor', label: 'Luggage cuts bottleneck flow (39-47% for 100% suitcases)', unit: '-', status: 'PUBLISHED', source: 'Deng et al., Transportmetrica A (suitcases; backpacks/coats assumed much smaller)', uncertainty: 'high' },
   { path: 'routing.weights', label: 'Multinomial-logit weights by behaviour type', unit: '-', status: 'ASSUMPTION', source: 'qualitative: habit ~71% (arXiv 2110.11577), Kinateder & Warren 2017/2021', uncertainty: 'high' },
   { path: 'routing.noticeProb', label: 'Only 38% perceive conventional exit signs', unit: '-', status: 'PUBLISHED', source: 'Galea et al. 2016', uncertainty: 're-check' },
-  { path: 'led.perceiveProb', label: 'Flashing LED exit signs detected up to 77%', unit: '-', status: 'PUBLISHED', source: 'Filippidis et al. 2021 (floor strips assumed more visible: 0.9)', uncertainty: 'sweep' },
-  { path: 'led.complianceProb', label: 'Dynamic signage redirected 66% (base case 0.6-0.7)', unit: '-', status: 'PUBLISHED', source: 'Galea et al., improved ADSS trials (not a Bailey Hall value)', uncertainty: 'sweep 0.3-0.9' },
+  { path: 'led.perceiveProb', label: 'LED detection probability (Bailey assumption)', unit: '-', status: 'ASSUMPTION', source: 'Filippidis et al. 2021 (floor strips assumed more visible: 0.9)', uncertainty: 'sweep' },
+  { path: 'led.complianceProb', label: 'LED acceptance probability (Bailey assumption)', unit: '-', status: 'ASSUMPTION', source: 'Galea et al., improved ADSS trials (not a Bailey Hall value)', uncertainty: 'sweep 0.3-0.9' },
   { path: 'crowdManagers.complianceProb', label: 'Compliance with Crowd Manager instructions', unit: '-', status: 'ASSUMPTION', source: 'calibration data: theatre drills, Fire Technology 2018 (not extracted)', uncertainty: 'sweep 0.5-0.95' },
   { path: 'crowdManagers.radius', label: 'Voice range of a Crowd Manager', unit: 'm', status: 'ASSUMPTION', source: '-', uncertainty: '8-15 m' },
   { path: 'population.groupFraction', label: 'Share of attendees in social groups', unit: '-', status: 'ASSUMPTION', source: 'groups start later (Bode et al. 2015)', uncertainty: 'sweep' },

@@ -19,7 +19,8 @@
  * A change is accepted only if it improves the objective by more than --min-gain seconds
  * (default 1 s). Output: <out>.json with the plan, the objective trace and a summary.
  */
-import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { appendFileSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { assertScope, hashTree } from './research-study';
 import { dirname } from 'node:path';
 import { BAILEY_HALL } from '../src/geometry/BaileyHall';
 import type { ExitGroupId } from '../src/geometry/types';
@@ -62,7 +63,7 @@ async function main() {
   const out = arg('out', `results/plans/opt-${model}-${objective}`)!;
   const def = SCENARIOS.find((s) => s.id === baseId) ?? STRATEGIES.find((s) => s.id === baseId);
   if (!def) throw new Error(`unknown base ${baseId}`);
-  const base: SimConfig = def.build(BAILEY_HALL);
+  const base: SimConfig = arg('config') ? JSON.parse(readFileSync(arg('config')!, 'utf8')) : def.build(BAILEY_HALL);
   for (let i = 0; i < process.argv.length; i++) if (process.argv[i] === '--set') {
     const [k, v] = process.argv[i + 1].split('=');
     setPath(base, k, v);
@@ -72,7 +73,10 @@ async function main() {
   const blocks = planBlocks(geo);
   let plan: Record<string, ExitGroupId> = arg('start') ? JSON.parse(readFileSync(arg('start')!, 'utf8')).plan : expandPlan(base.crowdManagers.plan, geo);
   const seeds = batchSeeds(Number(arg('seed', '9001')), K);
-  const pool = new SimPool();
+  if (flag('strict-scope')) assertScope(base);
+  mkdirSync(dirname(out), { recursive: true });
+  const sourceHash = hashTree('src');
+  const pool = new SimPool(Number(arg('workers', '3')));
   const usePre = flag('preassign');
   const cfgFor = (p: Record<string, ExitGroupId>): SimConfig => {
     const c: SimConfig = structuredClone(base);
@@ -90,6 +94,7 @@ async function main() {
       r = await pool.run(cfgFor(p), seeds, model);
       cache.set(key, r);
       evals++;
+      appendFileSync(`${out}-trials.jsonl`, JSON.stringify({ evaluation:evals, sourceHash, cfg:cfgFor(p), seeds, model, runs:r })+'\n');
     }
     return r;
   };
@@ -127,6 +132,7 @@ async function main() {
         cur = best.runs;
         curJ = J(cur);
         changes++;
+        writeFileSync(`${out}-checkpoint.json`, JSON.stringify({sourceHash, base, model, seeds, evaluations:evals, plan, trace, runs:cur},null,1));
       }
     }
     console.log(`sweep ${sw}: ${changes} changes, J = ${curJ.toFixed(1)} s`);
@@ -143,7 +149,7 @@ async function main() {
     usage: Object.fromEntries(Object.keys(cur[0].exitGroupUsage).map((g) => [g, mean((r) => r.exitGroupUsage[g] ?? 0)])),
   };
   mkdirSync(dirname(out), { recursive: true });
-  writeFileSync(`${out}.json`, JSON.stringify({ base: baseId, model, objective, preassign: usePre, seeds, K, evaluations: evals, wallSeconds: (Date.now() - t0) / 1000, plan, summary, trace }, null, 1));
+  writeFileSync(`${out}.json`, JSON.stringify({ base: baseId, sourceHash, config:cfgFor(plan), model, objective, preassign: usePre, seeds, K, evaluations: evals, wallSeconds: (Date.now() - t0) / 1000, plan, summary, trace, runs:cur }, null, 1));
   console.log(`done: J = ${curJ.toFixed(1)} s, P(T<=180) = ${(summary.pMeet180 * 100).toFixed(0)}%, ${evals} evaluations in ${((Date.now() - t0) / 1000).toFixed(0)} s -> ${out}.json`);
 }
 

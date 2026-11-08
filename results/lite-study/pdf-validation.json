@@ -1,0 +1,35 @@
+[
+  {
+    "document": "MODEL_GUIDE",
+    "pages": 21,
+    "links": 80,
+    "bookmarks": 20,
+    "embeddedFonts": 23,
+    "equationsChecked": 27,
+    "producer": "xdvipdfmx (0.1)",
+    "sha256": "43577bef29ecb38fe8e7440835f1107094db8b50a667be713447539e03c4fcd6",
+    "checks": "native LaTeX; embedded fonts; no missing glyphs, overfull boxes or unresolved references; all text within page bounds"
+  },
+  {
+    "document": "RESULTS_AND_CHANGES",
+    "pages": 13,
+    "links": 26,
+    "bookmarks": 14,
+    "embeddedFonts": 8,
+    "equationsChecked": 0,
+    "producer": "xdvipdfmx (0.1)",
+    "sha256": "4f15237a47b69e132b603de13ac98ce621a0417ccd6aba132e8cfbc3320eda03",
+    "checks": "native LaTeX; embedded fonts; no missing glyphs, overfull boxes or unresolved references; all text within page bounds"
+  },
+  {
+    "document": "SIMPLIFICATION_AUDIT",
+    "pages": 17,
+    "links": 57,
+    "bookmarks": 16,
+    "embeddedFonts": 14,
+    "equationsChecked": 6,
+    "producer": "xdvipdfmx (0.1)",
+    "sha256": "9045fd2c9cee832a4cf79ad1fe1d0ae7f68ca159924341fb2a6c8c84e203b80d",
+    "checks": "native LaTeX; embedded fonts; no missing glyphs, overfull boxes or unresolved references; all text within page bounds"
+  }
+]

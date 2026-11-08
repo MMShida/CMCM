@@ -78,7 +78,7 @@ manager:  est(g) = walk + known waits + announced/own load / capacity(g);
       <ul>
         <li>Geometry is reconstructed from scanned plans (~6% scale uncertainty); door and stair widths are estimates; backstage stage-escape routes are schematic.</li>
         <li>Behavioural parameters are not calibrated to Bailey Hall; results are comparative (strategy A vs B under the same assumptions), not predictions of real evacuation times.</li>
-        <li>Smoke, darkness and falls are simplified stress tests, not validated physical models. Wheelchair users are not counted as safe: the assisted-evacuation procedure is unknown.</li>
+        <li>Smoke, darkness and falls are simplified stress tests, not validated physical models. Wheelchair users at an outside assistance point are not yet safe at street level. Assisted descent is modeled separately with assumed staff and descent times.</li>
         <li>Ground level, performer areas and service spaces are ignored, as instructed by the problem statement.</li>
       </ul>
     </div>

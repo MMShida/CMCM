@@ -98,15 +98,16 @@ export function runModelB(geo: GeometryData, cfg: SimConfig, seed: number) {
   return { run, starts: sim.agents.map((a) => a.tStartMove), sim };
 }
 
-/** Model C benchmark for given departure times (NaN starts = never departed: excluded). */
+/** Model C conditional flow benchmark. Unknown starts make full-house bounds unresolved. */
 export function benchmark(geo: GeometryData, cfg: SimConfig, seed: number, starts: 'imm' | 'pre' | number[], dt = 1) {
   const net = networkFor(geo, cfg);
   const people = benchmarkPeople(geo, cfg, seed, starts);
   const ok = people.filter((p) => Number.isFinite(p.tDepart));
   const flow = timeExpandedFlow(net, cfg, releasesFromPopulation(net, cfg, ok), { dt });
-  const ind = individualBound(net, cfg, ok);
+  const ind = individualBound(net, cfg, people);
   // the tighter of the two lower bounds: capacity (flow at the representative speed) or the slowest individual
-  return { ...flow, tInd: ind.tInd, tBound: Math.max(Number.isFinite(flow.tStar) ? flow.tStar : Infinity, ind.tInd) };
+  return { ...flow, unknownStarts: people.length-ok.length, populationN:people.length,
+    tInd: ind.tInd, tBound: Math.max(Number.isFinite(flow.tStar) ? flow.tStar : Infinity, ind.tInd) };
 }
 
 /** people entering the Model C benchmarks (departure times + individual attributes) */

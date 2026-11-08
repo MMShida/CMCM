@@ -473,7 +473,7 @@ export class ManagerPolicy {
       if (!Number.isFinite(est[cur]) && Number.isFinite(est[best])) {
         to = best;
         why = 'instructed exit closed / unreachable';
-      } else if (held >= A.minHold - 1e-9 && best !== cur && est[cur] - est[best] > A.switchThreshold) {
+      } else if (!A.staticPlan && held >= A.minHold - 1e-9 && best !== cur && est[cur] - est[best] > A.switchThreshold) {
         to = best;
         why = `${EXIT_GROUPS[best]} better by ${Math.round(est[cur] - est[best])} s`;
       } else if (held >= A.minHold - 1e-9 && cur !== p && Number.isFinite(est[p]) && est[p] <= est[cur]) {

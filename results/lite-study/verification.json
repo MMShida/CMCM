@@ -1,0 +1,23 @@
+{
+  "geometryUnchangedFrom0420": true,
+  "geometrySha256": "589ec717bcd756e68d99b1e1f344b2886e90f32bf293d73637a335677b49066f",
+  "baseCommit": "3e4bcf08e258e5db41b0035e307415bf129bc011",
+  "fullSuite": {
+    "tests": 144,
+    "files": 11,
+    "log": "../mechanism-audit/full-tests.log"
+  },
+  "finalFocusedLog": "../mechanism-audit/final-focused-tests.log",
+  "buildLog": "../mechanism-audit/final-build.log",
+  "finalSourceHash": "a945f06a00d1b2a3ca29b37e4600e002433f75ee5a1cc366e0847ad55019ca82",
+  "confirmationSourceHash": "15ae8c41ef195a754a8226ced23155f2bd5e80eb2ce8431dbdca8fe5a9d26097",
+  "finalFocused": {
+    "tests": 50,
+    "files": 3,
+    "passed": true
+  },
+  "totalDefinedTests": 145,
+  "legacyReferenceExact": true,
+  "productionBuildPassed": true,
+  "sourceNote": "After simulation confirmation, source changes only update the research-view document links and result summary. Each simulation dataset retains the exact source snapshot used."
+}

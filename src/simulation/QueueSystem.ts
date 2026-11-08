@@ -87,8 +87,16 @@ export class GateSystem {
       const qn = this.queueNow[i];
       const meanImp = qn > 0 ? this.impatienceSum[i] / qn : 0;
       this.cap[i] = this.baseCap[i] * this.urgencyFactor(meanImp) * (respOn && this.responder[i] ? R.capacityFactor : 1);
-      this.tokens[i] = Math.min(1, this.tokens[i] + this.cap[i] * dt);
+      const credit = this.tokens[i] + this.cap[i] * dt;
+      this.tokens[i] = this.cfg.numerics?.conserveService ? credit : Math.min(1, credit);
     }
+  }
+
+  /** Preserve fractional service and bound idle credit after movement admissions. */
+  finishStep() {
+    // Bound idle credit only AFTER admissions, preserving fractional service under saturation.
+    if (this.cfg.numerics?.conserveService)
+      for (let i = 0; i < this.tokens.length; i++) this.tokens[i] = Math.min(1, this.tokens[i]);
   }
 
   /** gates used by responders entering against the flow (stress.responders) */

@@ -1,0 +1,68 @@
+{
+  "tests": 133,
+  "testFiles": 10,
+  "testLog": "validation-logs/final-clean-tests.log",
+  "buildLog": "validation-logs/build-final.log",
+  "modelPdf": {
+    "pages": 19,
+    "links": 25,
+    "overflow": false,
+    "visuallyCheckedPages": [
+      6,
+      10,
+      12,
+      17,
+      19
+    ]
+  },
+  "summary": "The clean full suite passed 132 tests in 10 files. Updated layouts, the additional staffing test, all nine research tests and exact legacy A/B reproduction subsequently passed (133 tests covered). TypeScript checking and the production build passed. Both PDFs passed overflow checks and visual review. Browser checks confirmed all 16 result rows, both PDF links, exact configuration loading and A/B advancement to 60 s, with no console errors.",
+  "fullSuiteTests": 132,
+  "subsequentChecks": "Updated placement tests, additional staffing regression, all nine new research tests, and the exact legacy A/B reproduction passed after the final staff extension.",
+  "geometryIdenticalToBase": true,
+  "geometryHash": "589ec717bcd756e68d99b1e1f344b2886e90f32bf293d73637a335677b49066f",
+  "resultsPdf": {
+    "pages": 14,
+    "links": 13,
+    "overflow": false,
+    "visuallyCheckedPages": [
+      2,
+      7,
+      10,
+      11,
+      12
+    ]
+  },
+  "browser": {
+    "date": "2026-11-08T19:08:23.148Z",
+    "url": "http://localhost:5180/",
+    "checks": [
+      "All confirmed results rendered",
+      "MODEL_GUIDE served as PDF",
+      "RESULTS_AND_CHANGES served as PDF",
+      "Selected A: exact configuration loaded, simulation advanced and canvas rendered",
+      "Selected B: exact configuration loaded, simulation advanced and canvas rendered"
+    ],
+    "errors": []
+  },
+  "dataAudit": {
+    "caseModelRows": 16,
+    "audiencesPerRow": 40,
+    "allRunsFullHouseAndResolved": true,
+    "confirmationSeedsDisjointFromTraining": true,
+    "coreSourceIdenticalToBothConfirmationSnapshots": true
+  },
+  "calibrationAudit": {
+    "additionalRuns": 264,
+    "audiencesPerCase": 12,
+    "primaryConfigurationChanged": false,
+    "records": "calibration.json; network-audit-refined-A.json; network-audit-visible-B.json"
+  },
+  "pdfPaginationTextCheck": "Passed scripts/check-research-pdfs.py on the final 19-page guide and 14-page report",
+  "congestionAudit": {
+    "additionalRuns": 72,
+    "audiencesPerCase": 12,
+    "allRunsFullHouseAndResolved": true,
+    "primaryConfigurationChanged": false
+  },
+  "recordedReplications": 6052
+}

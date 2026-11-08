@@ -4,6 +4,7 @@ import { ExperimentComparison } from './components/ExperimentComparison';
 import { GeometryEditor } from './components/GeometryEditor';
 import { LiveView } from './components/LiveView';
 import { ModelDocs } from './components/ModelDocs';
+import { ResearchStudyView } from './components/ResearchStudyView';
 import { MonteCarloPanel } from './components/MonteCarloPanel';
 import { SensitivityPanel } from './components/SensitivityPanel';
 import { CompareView } from './components/compare/CompareView';
@@ -18,9 +19,10 @@ import type { SimConfig } from './simulation/Params';
 import { cloneConfig, defaultConfig, mergeConfig } from './simulation/Params';
 import { scenarioById } from './simulation/Scenarios';
 
-type Tab = 'live' | 'mc' | 'density' | 'cms' | 'exp' | 'sens' | 'net' | 'cmp' | 'cmpx' | 'dash' | 'geo' | 'model';
+type Tab = 'live' | 'mc' | 'density' | 'cms' | 'exp' | 'sens' | 'net' | 'cmp' | 'cmpx' | 'dash' | 'geo' | 'model' | 'research';
 const TABS: [Tab, string][] = [
   ['live', 'Live simulation (A)'],
+  ['research', '180-second study'],
   ['mc', 'Monte Carlo'],
   ['density', 'Density over time'],
   ['cms', 'Crowd Managers'],
@@ -90,7 +92,7 @@ export default function App() {
     setCfg(c);
   };
   const bundled = geo === BAILEY_HALL;
-  const showControls = tab !== 'geo' && tab !== 'model' && tab !== 'dash';
+  const showControls = tab !== 'geo' && tab !== 'model' && tab !== 'dash' && tab !== 'research';
 
   return (
     <div className="app">
@@ -125,6 +127,7 @@ export default function App() {
           {tab === 'dash' && <ResultsDashboard />}
           {tab === 'geo' && <GeometryEditor geo={geo} setGeo={setGeo} dark={dark} />}
           {tab === 'model' && <ModelDocs />}
+          {tab === 'research' && <ResearchStudyView apply={(c,model)=>{setGeo(BAILEY_HALL);setCfg(cloneConfig(c));setScenarioId(c.scenarioId);setTab(model==='A'?'live':'net');}} />}
         </main>
       </div>
     </div>

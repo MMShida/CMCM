@@ -1,0 +1,84 @@
+
+> bailey-hall-evacuation@1.0.0 test
+> vitest run --maxWorkers=2 --minWorkers=1
+
+
+ RUN  v2.1.4 /Users/luisvitalmalufcunhavianna/CMCM/mateus-0420
+
+ ✓ tests/adaptive.test.ts  (30 tests) 154000ms
+   ✓ legacy behaviour is preserved > adaptive switches off reproduce the stored pre-change results exactly (Model A and B) 17591ms
+   ✓ dynamic individual behaviour > information changes after observation: beliefs are learned with a time stamp and confidence 5365ms
+   ✓ dynamic individual behaviour > route preferences update when congestion information makes the chosen exit worse 2268ms
+   ✓ dynamic individual behaviour > the commitment interval blocks a routine switch but not a new instruction 2187ms
+   ✓ dynamic individual behaviour > no unrealistic continuous switching (A and B) 8814ms
+   ✓ dynamic individual behaviour > rerouting after a blocked exit: nobody passes the closed door and people learn of it 7908ms
+   ✓ dynamic individual behaviour > no invalid routes: closed links are never entered and outward-only doors are never used inwards 6636ms
+   ✓ dynamic individual behaviour > same seed gives identical adaptive runs (A and B) 19372ms
+   ✓ dynamic individual behaviour > adaptation does not automatically improve results: a paired case where adaptive managers are worse 2875ms
+   ✓ Crowd Manager scope: responsibility, reach and influence > reach changes as people move: people enter and leave a manager’s reach 1886ms
+   ✓ Crowd Manager scope: responsibility, reach and influence > walls block the voice: nobody in the corridor or foyer is in reach of a manager inside the auditorium 2741ms
+   ✓ Crowd Manager scope: responsibility, reach and influence > multiple managers: a contradictory instruction is counted, costs hesitation and the newer one is adopted 826ms
+   ✓ Crowd Manager scope: responsibility, reach and influence > responsibility and influence counts follow their definitions 2696ms
+   ✓ placements > every placement has its declared staffing on walkable posts and assigns every zone exactly once 526ms
+   ✓ density over time > density = occupancy / area, recorded through time, conserving people (Model A) 6410ms
+   ✓ density over time > Model B reports the same regions and areas, with occupancy over time 9513ms
+   ✓ density over time > capacity constraints still hold with adaptive behaviour (gate passes per second) 11418ms
+   ✓ partial redirection by managers who see everything (Model A only) > in the simulation: people are redirected, nobody twice, every exit is valid, runs are reproducible, default unchanged 44924ms
+ ✓ tests/improvements.test.ts  (20 tests) 262748ms
+   ✓ routing: the exterior door is the goal (as in Models B and C) > front-of-house portico doors P1/P4 are used once the outdoor walk is not counted in full 35568ms
+   ✓ time-step independence > halving dt does not change the mean evacuation time beyond noise 98090ms
+   ✓ Crowd Managers: posts and queue rebalancing > rebalancing redirects zones when the planned exit has a long queue (A and B) 14434ms
+   ✓ alarm: declaration delay and voice message > the declaration delay is added to recognition; a voice message scales recognition and response 540ms
+   ✓ groups agree to meet outside > members leave as soon as they are individually ready (earlier starts) 40387ms
+   ✓ Model B: counterflow shares capacity > runs with separated groups walking back still complete and never exceed capacity 2442ms
+   ✓ Model C: individual bound and pre-movement budget > wheelchair users are not part of the flow benchmark 1365ms
+   ✓ Model C: individual bound and pre-movement budget > the pre-movement budget is monotone in the target time 34085ms
+   ✓ tail metrics > are consistent with the evacuation time and the time series 16327ms
+   ✓ route consistency: persistent taste and no re-entry > every person has one persistent taste per exit, identical in Models A and B 309ms
+   ✓ route consistency: persistent taste and no re-entry > nobody walks back into the hall, the corridor or the orchestra (D doors, FC doors, access stairs) 18312ms
+ ✓ tests/network-sim.test.ts  (15 tests) 34476ms
+   ✓ paired population (common random numbers across models) > Model B simulates exactly the same people as Model A for a seed 734ms
+   ✓ Model B invariants (full house, concert emergency) > no arc ever exceeds its capacity in any 10 s window (token bucket, burst 1) 675ms
+   ✓ Model B invariants (full house, concert emergency) > no simulated run beats the ideal time-expanded bound (fastest walkers, immediate start) 1132ms
+   ✓ Model B: reproducibility, closures and reporting > same seed gives identical results; different seeds vary 11639ms
+   ✓ Model B: reproducibility, closures and reporting > a blocked exit and corridor barriers never discharge anybody 11631ms
+   ✓ Model B: reproducibility, closures and reporting > an unfinished run is reported as unfinished; missing accessible routes as trapped 4053ms
+   ✓ Model B: reproducibility, closures and reporting > guidance compliance changes route choices 4083ms
+ ✓ tests/network-flow.test.ts  (12 tests) 8909ms
+   ✓ Bailey Hall network flows > static max flow equals the min-cut capacity and is reported in persons/s 330ms
+   ✓ Bailey Hall network flows > time-expanded benchmark: T* >= N / F*, blocked edges carry no flow, curve reaches N 8067ms
+ ✓ tests/movement-audit.test.ts  (10 tests) 21094ms
+   ✓ synchronous headway reproduces paced-lane flow at three time steps and prevents overlap 1245ms
+   ✓ an exhausted exterior-door path immediately replans to the street only when the fix is enabled 659ms
+   ✓ A-Lite fully preserves audience draws, wheelchair routes, storage and outside states 18533ms
+   ✓ A-Lite doors and stairs enforce physical gate capacities under sustained demand 377ms
+ ✓ tests/compare.test.ts  (9 tests) 18576ms
+   ✓ paired comparison runs > runs are reproducible 3841ms
+   ✓ shared simulated clock > both live engines show their state at the same simulated time 8145ms
+   ✓ physical analysis and door-width sensitivity > wider doors never reduce, narrower doors never increase the maximum flow 346ms
+   ✓ physical analysis and door-width sensitivity > the quickest evacuation respects the static rate bound (T* >= N / F*) and 180 s needs 7.38 p/s 6099ms
+ ✓ tests/research180.test.ts  (9 tests) 2257ms
+   ✓ interventions retain the problem > a rope is traversable in both engines, a panel closes the same physical link 1089ms
+   ✓ interventions retain the problem > guidance, barriers and service integration leave all sampled people identical 381ms
+   ✓ extended staffing uses real posts, distinct activation draws and honors absent staff in both engines 442ms
+ ✓ tests/geometry.test.ts  (7 tests) 597ms
+ ✓ tests/montecarlo.test.ts  (7 tests) 67ms
+ ✓ tests/engine.test.ts  (21 tests) 222556ms
+   ✓ population > same seed -> same audience; different seed -> different audience 533ms
+   ✓ assisted evacuation switched off > wheelchair users are not reported as safe: they wait at the assistance point 9088ms
+   ✓ reproducibility and variation > same seed and configuration give identical results 20451ms
+   ✓ reproducibility and variation > different seeds produce plausible variation 56088ms
+   ✓ reproducibility and variation > batched and individually run simulations agree for the same seeds 11152ms
+   ✓ interventions and obstructions > a blocked exit never discharges anybody 33025ms
+   ✓ interventions and obstructions > corridor barriers are never crossed 11756ms
+   ✓ interventions and obstructions > guidance compliance changes behaviour probabilistically 41920ms
+   ✓ failed or unresolved runs are reported explicitly > a run stopped before completion is not counted as completed 4507ms
+   ✓ failed or unresolved runs are reported explicitly > wheelchair users without an accessible route are reported as trapped, not evacuated 33117ms
+ ✓ tests/queuemodel.test.ts  (4 tests) 25580ms
+   ✓ network-flow cross-check > the agent model never discharges faster than the max-flow bound (30 s windows) 16099ms
+   ✓ network-flow cross-check > nobody climbs a storey-height stair during the evacuation 9475ms
+
+ Test Files  11 passed (11)
+      Tests  144 passed (144)
+   Start at  15:10:20
+   Duration  420.51s (transform 4.96s, setup 0ms, collect 34.83s, tests 750.86s, environment 3ms, prepare 2.48s)

@@ -23,7 +23,25 @@ import type { PlacementId } from './Params';
 
 type P = [id: string, x: number, y: number, floor: 1 | 2, label: string];
 
+// Candidate staff posts beside existing aisles; staff footprint is not simulated (inherited).
+const COVERAGE: P[] = [
+  ['CV1', -5.1, -3.2, 1, 'West orchestra aisle, early seat coverage'],
+  ['CV2', 5.1, -3.2, 1, 'East orchestra aisle, early seat coverage'],
+  ['CV3', -4.9, 12.4, 1, 'West mezzanine radial aisle'],
+  ['CV4', 4.9, 12.4, 1, 'East mezzanine radial aisle'],
+  ['CV5', -18.4, 2.85, 2, 'West balcony decision area'],
+  ['CV6', 18.4, 2.85, 2, 'East balcony decision area'],
+];
+const COVERAGE10: P[] = [...COVERAGE, ['CV7', -12.8, -4.8, 1, 'West loge'], ['CV8', 12.8, -4.8, 1, 'East loge'], ['CV9', 0, 17.6, 1, 'Foyer approach'], ['CV10', 0, 12.2, 1, 'Rear cross-aisle']];
+const COVERAGE12: P[] = [...COVERAGE10,['CV11',-4.8,-7.2,1,'West front cross-aisle'],['CV12',4.8,-7.2,1,'East front cross-aisle']];
 const LAYOUTS: Record<Exclude<PlacementId, 'existing'>, P[]> = {
+  coverage: COVERAGE,
+  coverage10: COVERAGE10,
+  coverage12: COVERAGE12,
+  coverage18: [...COVERAGE12,
+    ['CV13',-5.4,5.8,1,'West rear orchestra aisle'],['CV14',5.4,5.8,1,'East rear orchestra aisle'],
+    ['CV15',-11.6,13.8,2,'West balcony south junction'],['CV16',11.6,13.8,2,'East balcony south junction'],
+    ['CV17',0,15.2,2,'Central balcony aisle'],['CV18',0,18.1,2,'Central balcony rear walkway']],
   decision: [
     ['DP1', 0, -7.0, 1, 'Orchestra front cross-aisle (stage exits vs. aisles)'],
     ['DP2', 0, 12.0, 1, 'Mezzanine centre aisle above the orchestra (D4 / D5 / D6)'],
@@ -59,6 +77,10 @@ const LAYOUTS: Record<Exclude<PlacementId, 'existing'>, P[]> = {
 };
 
 export const PLACEMENT_LABEL: Record<PlacementId, string> = {
+  coverage12: 'H. Extended coverage (12 staff)',
+  coverage18: 'I. Extended coverage (18 staff)',
+  coverage: 'F. Seat coverage (6 staff)',
+  coverage10: 'G. Seat coverage (10 staff)',
   existing: 'A. Existing posts (CM1-CM6)',
   decision: 'B. Decision points',
   bottleneck: 'C. Bottleneck-oriented',

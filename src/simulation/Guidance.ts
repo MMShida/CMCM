@@ -51,12 +51,13 @@ import type { Agent } from './Agent';
 import { ST } from './Agent';
 import type { ManagerState, PolicyEnv } from './ManagerPolicy';
 import { ManagerPolicy, newManager, plannedGroups, reassign, workloadIndex } from './ManagerPolicy';
-import { planExitIndex } from './Plan';
+import { guidanceSeat, planExitIndex } from './Plan';
 import { placementPosts } from './Placements';
 import type { PlanRoute, RedirectCandidate } from './PartialRedirect';
 import { balanceRedirects, buildLoad } from './PartialRedirect';
 import { OUTWARD_ONLY } from './Routing';
 import { RNG } from './Random';
+import { SignVisibility } from './SignVisibility';
 import type { SimulationEngine } from './SimulationEngine';
 
 export interface CrowdManagerRT extends ManagerState {
@@ -73,6 +74,7 @@ export class GuidanceSystem {
   private acc = 0;
   private readonly sim: SimulationEngine;
   private readonly rng: RNG;
+  private readonly signs: SignVisibility;
   private heardVersion: Int32Array;
   /** adaptive: version heard per (agent, manager) */
   private heardBy: Int32Array;
@@ -116,6 +118,7 @@ export class GuidanceSystem {
 
   constructor(sim: SimulationEngine) {
     this.sim = sim;
+    this.signs = new SignVisibility(sim.geo, sim.cfg.led.spatial, sim.cfg);
     this.rng = new RNG(sim.seed, 'guidance');
     const C = sim.cfg.crowdManagers;
     this.adaptive = !!sim.cfg.adaptive?.managers;
@@ -126,8 +129,9 @@ export class GuidanceSystem {
     const custom = placementPosts(sim.geo, C.placement);
     // draw activation times for all geometry posts (CRN); custom layouts use the i-th draw
     const act = all.map(() => this.rng.lognormalMedian(C.activationMedian, C.activationSigma));
+    while (act.length < (custom?.length ?? 0)) act.push(this.rng.lognormalMedian(C.activationMedian,C.activationSigma));
     let chosen: { post: CrowdManagerPost; t: number }[];
-    if (custom) chosen = custom.slice(0, n).map((p, i) => ({ post: p, t: act[i % act.length] }));
+    if (custom) chosen = custom.map((p, i) => ({ post: p, t: act[i] })).filter(x=>!C.unavailable.includes(x.post.id)).slice(0,n);
     else {
       // explicit post list (in priority order) or the geometry's default order
       const order = C.posts && C.posts.length ? C.posts.map((id) => all.find((p) => p.id === id)).filter((p): p is CrowdManagerPost => !!p) : all;
@@ -319,7 +323,7 @@ export class GuidanceSystem {
       const uReach = rng.random();
       const uComply = rng.random();
       if (a.wheelchair || uReach >= P.reachProb) continue;
-      const gi = planExitIndex(P.plan, sim.geo, a.seat);
+      const gi = planExitIndex(P.plan, sim.geo, guidanceSeat(sim.cfg, sim.agents, sim.groups, a));
       a.knownExits |= 1 << gi;
       if (uComply < P.complianceProb) a.assignGroup = gi;
     }
@@ -328,7 +332,7 @@ export class GuidanceSystem {
   /** Exit group a Crowd Manager recommends for an agent (seat block plan, redirections, blocked exits). */
   recommend(a: Agent, knowsBlocked: boolean, dynamic: boolean, plan: Record<string, ExitGroupId>, cm: CrowdManagerRT | null = null): number {
     const sim = this.sim;
-    let gi = planExitIndex(plan, sim.geo, a.seat);
+    let gi = planExitIndex(plan, sim.geo, guidanceSeat(sim.cfg, sim.agents, sim.groups, a));
     if (cm && cm.redirect.has(gi)) gi = cm.redirect.get(gi)!;
     // a personal assignment (partial mode) is known to every manager and replaces the plan
     if (cm && this.partial && this.assigned[a.id] >= 0 && !sim.staffPlanBlocked(this.assigned[a.id])) return this.assigned[a.id];
@@ -373,6 +377,8 @@ export class GuidanceSystem {
     this.acc += dt;
     if (this.acc < 1 - 1e-9) return;
     this.acc = 0;
+    if (L.spatial && this.ledActive)
+      for (const a of sim.agents) if (!a.ledSeen && a.state >= ST.MOVING && a.state <= ST.REUNITING) this.ledPerceive(a);
     const C = sim.cfg.crowdManagers;
     const pHear = 1 - Math.exp(-C.hearRate);
     const R = C.radius * (sim.cfg.environment.smoke > 0.5 ? 0.7 : 1);
@@ -416,6 +422,7 @@ export class GuidanceSystem {
     const g = sim.graph;
     const C = sim.cfg.crowdManagers;
     const A = sim.cfg.adaptive;
+    if (t < (A.redirectMinTime ?? 0)) return;
     const nG = EXIT_GROUPS.length;
     if (!this.resOf) this.setupResources();
     const resOf = this.resOf!;
@@ -444,6 +451,23 @@ export class GuidanceSystem {
       sV[d] += a.v;
     }
     const cfMax = A.redirectCounterflow;
+    // Optional conservative forecast from the intended paths already visible to this
+    // global-information controller. This changes offered messages, never movement.
+    const future = new Float64Array(2*nL);
+    const horizon = A.redirectForecastSeconds ?? 0;
+    if (horizon > 0) for (const a of sim.agents) {
+      if (!a.inside || a.done || !a.pathValid) continue;
+      let arrival = a.link < 0 ? Math.max(0,a.tRecognition+a.tResponse+a.tPrepare-t)
+        : Math.max(0,g.links[a.link].len-a.sDir)/Math.max(.3,a.v0);
+      const seen = new Set<number>();
+      for(let k=a.pathPos;k<a.pathNodes.length && arrival<=horizon;k++) {
+        const e=g.adj[a.pathNodes[k]]?.[a.pathAdj[k]];if(!e)break;
+        const index=2*e.link+(e.dir>0?0:1);
+        if(!seen.has(index)){future[index]++;seen.add(index);}
+        arrival+=g.links[e.link].len/Math.max(.3,a.v0);
+        if(g.links[e.link].exterior)break;
+      }
+    }
     // people on link li who are in the way of somebody walking in direction d whose next gate is `next`
     const obstacles = (li: number, d: number, next: number) => {
       const own = next >= 0 ? (standingFor.get(li)?.get(next) ?? 0) : 0;
@@ -504,13 +528,15 @@ export class GuidanceSystem {
         const next = i + 1 < sh.links.length && resOf[sh.links[i + 1]] >= 0 ? sh.links[i + 1] : -1;
         const L = g.links[li];
         if (!L.isRow && L.len > 0.5 && obstacles(li, sh.dirs[i], next) / (L.len * Math.max(0.5, L.width)) > cfMax && sDes[2 * li + sh.dirs[i]] === 0) blocked = true;
+        if (horizon>0 && walk<=horizon && !L.isRow && L.len>.5 &&
+            future[2*li+(1-sh.dirs[i])]/(L.len*Math.max(.5,L.width))>cfMax) blocked=true;
         const dt = sh.dt[i] * ts;
         acc += dt * (this.isWalkRes[li] ? 1 : slowDir(li, sh.dirs[i], next));
         walk += dt;
       }
       return { to: gi, stops, tail: acc, blocked, walk, first: sh.links[0] ?? -1 };
     };
-    const headingFor = (a: Agent) => (a.targetGroup >= 0 ? a.targetGroup : a.cmGroup >= 0 ? a.cmGroup : planExitIndex(C.plan, sim.geo, a.seat));
+    const headingFor = (a: Agent) => (a.targetGroup >= 0 ? a.targetGroup : a.cmGroup >= 0 ? a.cmGroup : planExitIndex(C.plan, sim.geo, guidanceSeat(sim.cfg, sim.agents, sim.groups, a)));
     // expected time until a seated person starts walking (the managers know the typical response)
     const startDelay = (a: Agent) => {
       if (a.state >= ST.MOVING) return 0;
@@ -576,6 +602,7 @@ export class GuidanceSystem {
         const alt: PlanRoute[] = [];
         for (let gi = 0; gi < nG; gi++) {
           if (gi === gh || !open[gi]) continue;
+          if (A.redirectNoNewStage && EXIT_GROUPS[gi].startsWith('STAGE_')) continue;
           const r = plan(a, gi);
           if (!r || r.blocked) continue;
           // no long detour and no U-turn on the link being walked
@@ -772,7 +799,7 @@ export class GuidanceSystem {
     // a coordinated re-assignment (partial mode) is an update all managers agree on, not a contradiction
     if (!coordinated && a.cmGroup >= 0 && a.cmSource >= 0 && a.cmSource !== cm.idx) {
       if (a.cmGroup !== gi && t - a.cmTime < 60) {
-        if (this.conflictLog.length < 500) this.conflictLog.push({ t, agent: a.id, from: a.cmSource, to: cm.idx, had: a.cmGroup, now: gi, planned: planExitIndex(C.plan, sim.geo, a.seat) });
+        if (this.conflictLog.length < 500) this.conflictLog.push({ t, agent: a.id, from: a.cmSource, to: cm.idx, had: a.cmGroup, now: gi, planned: planExitIndex(C.plan, sim.geo, guidanceSeat(sim.cfg, sim.agents, sim.groups, a)) });
         a.conflicts++;
         cm.conflicts++;
         this.cms[a.cmSource].conflicts++;
@@ -831,7 +858,7 @@ export class GuidanceSystem {
       for (let m = 0; m < nCM; m++)
         if (z >= 0 && this.zoneMask[m][z]) {
           Rc[m]++;
-          const p = planExitIndex(plan, sim.geo, a.seat);
+          const p = planExitIndex(plan, sim.geo, guidanceSeat(sim.cfg, sim.agents, sim.groups, a));
           planned[m].set(p, (planned[m].get(p) ?? 0) + 1);
         }
       if (a.cmSource >= 0 && a.cmGroup >= 0 && a.targetGroup === a.cmGroup) Ic[a.cmSource]++;
@@ -846,7 +873,7 @@ export class GuidanceSystem {
           if (a.done || !a.inside) return;
           if (this.adaptive && !this.topoOk(cm, a, R)) return;
           H++;
-          const pp = planExitIndex(plan, sim.geo, a.seat);
+          const pp = planExitIndex(plan, sim.geo, guidanceSeat(sim.cfg, sim.agents, sim.groups, a));
           reachP.set(pp, (reachP.get(pp) ?? 0) + 1);
           const k = a.id * nCM + m;
           if (!this.reachedEver[k]) {
@@ -943,11 +970,13 @@ export class GuidanceSystem {
     const sim = this.sim;
     const L = sim.cfg.led;
     if (!L.enabled || !this.ledActive || a.ledSeen || a.wheelchair) return;
+    const sign = L.spatial ? this.signs.nearest(a.x, a.y, a.floor === 2 ? 2 : 1) : undefined;
+    if (L.spatial && !sign) return;
     a.ledSeen = true;
     const pSee = L.perceiveProb * (1 - 0.5 * Math.min(1, sim.cfg.environment.smoke));
     if (a.uLEDsee >= pSee) return;
-    let gi = planExitIndex(L.plan, sim.geo, a.seat);
-    if (L.dynamic && sim.blockedLinks.length) {
+    let gi = sign ? EXIT_GROUPS.indexOf(sign.exit) : planExitIndex(L.plan, sim.geo, guidanceSeat(sim.cfg, sim.agents, sim.groups, a));
+    if (L.dynamic && !L.spatial && sim.blockedLinks.length) {
       // dynamic signage marks closed exits and points to the nearest open one
       for (const li of sim.blockedLinks) sim.routing.learnBlocked(a, li);
       gi = this.recommend(a, true, true, L.plan, null);

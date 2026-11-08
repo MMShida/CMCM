@@ -1,0 +1,7 @@
+# Keep generated research records available without overwhelming code review.
+results/** linguist-generated=true
+results/**/README.md linguist-generated=false
+docs/research-180/latex/** linguist-generated=true
+docs/research-180/figures/*.svg linguist-generated=true
+public/docs/** linguist-generated=true
+*.csv text eol=lf

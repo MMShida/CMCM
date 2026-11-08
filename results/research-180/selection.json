@@ -1,0 +1,188 @@
+{
+  "rule": "Minimum full-house training mean; occluding spatial signs selected separately; no confirmation outcomes used",
+  "chosen": [
+    {
+      "id": "selected-A",
+      "source": "followup-bestA-existing-managers",
+      "training": {
+        "n": 12,
+        "failures": 0,
+        "mean": 228.61666666666667,
+        "ciLow": 222.44837808512258,
+        "ciHigh": 234.78495524821076,
+        "conditionalCompletionMean": 228.61666666666667,
+        "sd": 9.717166939665768,
+        "p95": 242.195,
+        "max": 242.8,
+        "p180": {
+          "p": 0,
+          "lo": 0,
+          "hi": 0.2424940095530979
+        },
+        "inside180": 211.33333333333334,
+        "exposure": 4894,
+        "usage": {
+          "FOYER": 653.1666666666666,
+          "PORTICO_W": 256.5,
+          "PORTICO_E": 243.16666666666666,
+          "STAGE_W": 45.25,
+          "STAGE_E": 45.166666666666664,
+          "BAL_NW": 43.083333333333336,
+          "BAL_NE": 42.666666666666664
+        },
+        "lastZones": {
+          "BAL_E_N": 12,
+          "BAL_E_S": 13,
+          "BAL_C_E": 2,
+          "ORCH_FRONT_W": 20,
+          "ORCH_C_BACK": 36,
+          "ORCH_C_FRONT": 89,
+          "ORCH_SIDE_W": 19,
+          "ORCH_SIDE_E": 21,
+          "LOGE_W_S": 1,
+          "MEZZ_W": 3,
+          "BAL_W_N": 9,
+          "ORCH_FRONT_E": 9,
+          "BAL_W_S": 4,
+          "MEZZ_E": 2
+        }
+      }
+    },
+    {
+      "id": "visible-A",
+      "source": "visible-A",
+      "training": {
+        "n": 12,
+        "failures": 0,
+        "mean": 232.10833333333335,
+        "ciLow": 226.71268398607577,
+        "ciHigh": 237.50398268059092,
+        "conditionalCompletionMean": 232.10833333333335,
+        "sd": 8.499995543670842,
+        "p95": 245.68,
+        "max": 251.4,
+        "p180": {
+          "p": 0,
+          "lo": 0,
+          "hi": 0.2424940095530979
+        },
+        "inside180": 219.5,
+        "exposure": 5378.333333333333,
+        "usage": {
+          "FOYER": 660.5833333333334,
+          "PORTICO_W": 248.41666666666666,
+          "PORTICO_E": 237.58333333333334,
+          "STAGE_W": 48.583333333333336,
+          "STAGE_E": 47.5,
+          "BAL_NW": 42.666666666666664,
+          "BAL_NE": 43.666666666666664
+        },
+        "lastZones": {
+          "ORCH_C_FRONT": 104,
+          "ORCH_FRONT_E": 28,
+          "BAL_E_N": 3,
+          "ORCH_C_BACK": 24,
+          "BAL_E_S": 15,
+          "BAL_C_E": 9,
+          "ORCH_SIDE_E": 15,
+          "ORCH_SIDE_W": 18,
+          "BAL_W_N": 2,
+          "ORCH_FRONT_W": 16,
+          "MEZZ_E": 1,
+          "BAL_W_S": 4,
+          "BAL_C_W": 1
+        }
+      }
+    },
+    {
+      "id": "selected-B",
+      "source": "followup-bestB-signs24-clear",
+      "training": {
+        "n": 12,
+        "failures": 0,
+        "mean": 162.1875,
+        "ciLow": 157.4174421649747,
+        "ciHigh": 166.9575578350253,
+        "conditionalCompletionMean": 162.1875,
+        "sd": 7.514474668628177,
+        "p95": 173.46249999999998,
+        "max": 180.75,
+        "p180": {
+          "p": 0.9166666666666666,
+          "lo": 0.6461200862787544,
+          "hi": 0.9851349057603305
+        },
+        "inside180": 0.08333333333333333,
+        "exposure": 8455.916666666666,
+        "usage": {
+          "FOYER": 577.4166666666666,
+          "PORTICO_W": 281.75,
+          "PORTICO_E": 270.5833333333333,
+          "STAGE_W": 54.75,
+          "STAGE_E": 54.083333333333336,
+          "BAL_NW": 45.833333333333336,
+          "BAL_NE": 44.583333333333336
+        },
+        "lastZones": {
+          "ORCH_FRONT_W": 34,
+          "BAL_C_W": 5,
+          "ORCH_C_BACK": 15,
+          "BAL_C_E": 22,
+          "ORCH_SIDE_W": 12,
+          "BAL_E_S": 24,
+          "BAL_E_N": 14,
+          "ORCH_FRONT_E": 23,
+          "BAL_W_S": 25,
+          "ORCH_C_FRONT": 42,
+          "BAL_W_N": 22,
+          "ORCH_SIDE_E": 2
+        }
+      }
+    },
+    {
+      "id": "visible-B",
+      "source": "visible-B",
+      "training": {
+        "n": 12,
+        "failures": 0,
+        "mean": 169.39583333333334,
+        "ciLow": 165.8110494098846,
+        "ciHigh": 172.9806172567821,
+        "conditionalCompletionMean": 169.39583333333334,
+        "sd": 5.647262342914217,
+        "p95": 176.5375,
+        "max": 177.5,
+        "p180": {
+          "p": 1,
+          "lo": 0.7575059904469021,
+          "hi": 1
+        },
+        "inside180": 0,
+        "exposure": 10249.583333333334,
+        "usage": {
+          "FOYER": 622.6666666666666,
+          "PORTICO_W": 268.1666666666667,
+          "PORTICO_E": 257.75,
+          "STAGE_W": 55.916666666666664,
+          "STAGE_E": 55.916666666666664,
+          "BAL_NW": 34.583333333333336,
+          "BAL_NE": 34
+        },
+        "lastZones": {
+          "ORCH_SIDE_W": 9,
+          "BAL_E_N": 31,
+          "ORCH_C_BACK": 11,
+          "ORCH_C_FRONT": 25,
+          "BAL_C_W": 12,
+          "ORCH_FRONT_E": 10,
+          "BAL_E_S": 27,
+          "BAL_C_E": 25,
+          "BAL_W_S": 38,
+          "BAL_W_N": 33,
+          "ORCH_FRONT_W": 17,
+          "ORCH_SIDE_E": 2
+        }
+      }
+    }
+  ]
+}

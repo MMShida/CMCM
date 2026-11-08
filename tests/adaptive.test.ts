@@ -187,6 +187,16 @@ describe('adaptive Crowd Manager policy (unit)', () => {
     expect(m.history[1].t).toBeGreaterThanOrEqual(22);
   });
 
+  it('a fixed plan retains acoustic observation but redirects for a known closure', () => {
+    const cfg = defaultConfig();cfg.adaptive.managers = true;cfg.adaptive.staticPlan = true;
+    const closed = new Set<number>();const m = newManager(0, post('M',0),0,0,[0],false);m.obsGates=[0,1];
+    const pol = new ManagerPolicy(cfg,[m],mkEnv([100,0,0,0,0,0,0],closed),1,'static-test');
+    for(let t=0;t<=10;t++)pol.step(t);
+    expect(m.redirect.size).toBe(0);closed.add(0);
+    for(let t=11;t<=16;t++)pol.step(t);
+    expect(m.knowsBlocked).toBe(true);expect(m.redirect.get(0)).not.toBeUndefined();
+  });
+
   it('managers only know what they observe: an unwatched queue changes nothing', () => {
     const cfg = defaultConfig();
     cfg.adaptive.managers = true;
@@ -333,19 +343,21 @@ describe('Crowd Manager scope: responsibility, reach and influence', () => {
 });
 
 describe('placements', () => {
-  it('every placement has six managers on walkable posts and assigns every zone exactly once', () => {
+  it('every placement has its declared staffing on walkable posts and assigns every zone exactly once', () => {
     const zones = new Set(geo.seats.map((s) => s.zone));
     for (const id of Object.keys(PLACEMENT_LABEL) as (keyof typeof PLACEMENT_LABEL)[]) {
       if (id === 'existing') continue;
       const posts = placementPosts(geo, id)!;
-      expect(posts.length).toBe(6);
+      const count=id==='coverage18'?18:id==='coverage12'?12:id==='coverage10'?10:6;
+      expect(posts.length).toBe(count);
       const assigned = posts.flatMap((p) => p.zones);
       expect(new Set(assigned).size).toBe(assigned.length);
       expect(new Set(assigned)).toEqual(zones);
       const cfg = adaptive();
       cfg.crowdManagers.placement = id;
+      cfg.crowdManagers.count = count;
       const sim = new SimulationEngine(geo, cfg, 1);
-      expect(sim.guidance.cms.length).toBe(6);
+      expect(sim.guidance.cms.length).toBe(count);
       for (const cm of sim.guidance.cms) {
         const n = sim.graph.nodes[cm.node];
         expect(Math.hypot(n.x - cm.post.x, n.y - cm.post.y)).toBeLessThan(3);

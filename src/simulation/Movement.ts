@@ -41,6 +41,7 @@ export class MovementSystem {
   private nodeReq: number[][];
   private reqNodes: number[] = [];
   private overshoot: Float64Array;
+  private startPosition: Float64Array;
   private tmp = new Float64Array(2);
 
   constructor(sim: SimulationEngine) {
@@ -56,6 +57,7 @@ export class MovementSystem {
     this.occCap = Int32Array.from(g.links.map((L) => (L.isRow ? 1000 : Math.max(L.lanes, Math.floor(L.len * L.geomScale * L.width * cap)))));
     this.nodeReq = g.nodes.map(() => []);
     this.overshoot = new Float64Array(sim.agents.length);
+    this.startPosition = new Float64Array(sim.agents.length);
     // seat occupancy along rows
     const seatsByLink: Map<number, { s: number; agent: number }[]> = new Map();
     for (const a of sim.agents) {
@@ -85,13 +87,13 @@ export class MovementSystem {
   }
 
   /** Insert agent at the tail (entrance) of a lane. */
-  private pushTail(li: number, dirIdx: number, lane: number, id: number) {
+  protected pushTail(li: number, dirIdx: number, lane: number, id: number) {
     this.lanes[li][dirIdx][lane].push(id);
     this.linkCount[li]++;
     this.dirCount[2 * li + dirIdx]++;
   }
 
-  private removeFromLane(a: Agent) {
+  protected removeFromLane(a: Agent) {
     const arr = this.lanes[a.link][a.dir > 0 ? 0 : 1][a.lane];
     const k = arr.indexOf(a.id);
     if (k >= 0) arr.splice(k, 1);
@@ -154,8 +156,8 @@ export class MovementSystem {
       const b = sim.agents[arr[k]];
       const need = a.radius + b.radius;
       const ds = b.sDir - sDirSeat;
-      if (ds >= 0 && ds < need) return false; // someone right in front of the seat
-      if (ds < 0 && -ds < need + yieldGap) return false; // someone coming: let them pass
+      if (ds >= 0 && ds < need) { sim.movementObserver?.block(a.id,'row-insertion-gap',sim.cfg.movement.dt,li); return false; } // someone right in front of the seat
+      if (ds < 0 && -ds < need + yieldGap) { sim.movementObserver?.block(a.id,'row-insertion-yield',sim.cfg.movement.dt,li); return false; } // someone coming: let them pass
       if (ds < 0 && pos === arr.length) pos = k;
     }
     arr.splice(pos, 0, a.id);
@@ -198,8 +200,10 @@ export class MovementSystem {
     const dens = sim.density;
     const gates = sim.gates;
     const env = sim.envSpeed;
-    const relax = Math.min(1, dt / M.tau);
+    const relax = cfg.simplification?.instantAcceleration ? 1 : Math.min(1, dt / M.tau);
     const useWeidmann = M.speedModel === 'weidmann';
+    const synchronousHeadway = !!cfg.numerics?.synchronousHeadway;
+    if (synchronousHeadway) for (const a of A) this.startPosition[a.id] = a.sDir;
 
     // ---- 1. density bins --------------------------------------------------
     dens.clearList(this.prevActive);
@@ -256,12 +260,14 @@ export class MovementSystem {
               vd *= terrain;
             }
             if (isRow) {
+              sim.movementObserver?.limit(a.id,'row-cap',vd,Math.min(vd,M.rowSpeed),dt,li);
               vd = Math.min(vd, M.rowSpeed);
               const look = 0.38;
               const s0 = dirSign > 0 ? sAbs + 0.05 : sAbs - look;
               const s1 = dirSign > 0 ? sAbs + look : sAbs - 0.05;
               const blk = this.seatedBlocker(li, s0, s1, a.id);
-              if (blk >= 0) {
+              if (blk >= 0 && !cfg.simplification?.clearRows) {
+                sim.movementObserver?.limit(a.id,'seated-squeeze',vd,Math.min(vd,M.squeezeSpeed),dt,li);
                 vd = Math.min(vd, M.squeezeSpeed);
                 sim.cueByPassing(blk);
               }
@@ -274,15 +280,16 @@ export class MovementSystem {
               const rho = dens.densityAhead(li, sAbs, dirSign, 1);
               a.densityHere = rho;
               const opp = dens.densityAhead(li, sAbs, dirSign, 1) - dens.densityAhead(li, sAbs, dirSign, 0);
-              if (opp > 0) vd /= 1 + M.counterflowFriction * opp;
+              if (opp > 0) { sim.movementObserver?.limit(a.id,'counterflow',vd,vd/(1+M.counterflowFriction*opp),dt,li); vd /= 1 + M.counterflowFriction * opp; }
             }
             // group cohesion (cap refreshed every 0.5 s)
             if (a.group >= 0) {
               if (sim.cohesionTick) a.groupCap = sim.groupSpeedCap(a);
-              if (a.groupCap < vd) vd = a.groupCap;
+              if (a.groupCap < vd) { sim.movementObserver?.limit(a.id,a.groupCap<=0.300001?'group-cohesion':'group-pace',vd,a.groupCap,dt,li); vd = a.groupCap; }
             }
             if (a.hesitate > 0) {
               a.hesitate -= dt;
+              sim.movementObserver?.limit(a.id,'hesitation',vd,Math.min(vd,0.15),dt,li);
               vd = Math.min(vd, 0.15);
             }
             if (a.state < ST.MOVING) vd = 0; // standing on a link but not yet started (separated members)
@@ -291,8 +298,10 @@ export class MovementSystem {
             // following model: v <= (h - d_min) / T  (h = distance to the leader in the lane)
             if (leader && !useWeidmann) {
               const dmin = a.radius + leader.radius;
-              const vh = (leader.sDir - a.sDir - dmin) / M.timeHeadway;
+              const leaderS = synchronousHeadway ? this.startPosition[leader.id] : leader.sDir;
+              const vh = (leaderS - a.sDir - dmin) / M.timeHeadway;
               if (vh < vd) {
+                sim.movementObserver?.limit(a.id,'following-headway',vd,Math.max(0,vh),dt,li);
                 vd = Math.max(0, vh);
                 if (vd < 0.3 * vFree) blockedBy = leader.id;
               }
@@ -301,6 +310,7 @@ export class MovementSystem {
             let v = a.v + (vd - a.v) * relax;
             if (v > vd) v = vd; // braking is immediate (no overlap)
             if (v < 0) v = 0;
+            sim.movementObserver?.limit(a.id,'acceleration',vd,v,dt,li);
             let sNew = a.sDir + v * dt;
             if (leader) {
               const maxS = leader.sDir - (a.radius + leader.radius);
@@ -361,7 +371,9 @@ export class MovementSystem {
           return sim.rngDyn.random() * 0.6 + (a.link !== last ? 0.4 : 0) + urg * a.impatience * 0.3 - (a.typeCode === 4 ? 0.15 : 0);
         });
         const order = req.map((_, k) => k).sort((x, y) => pri[y] - pri[x]);
-        const sorted = order.map((k) => req[k]);
+        const sorted = cfg.simplification?.fifoMerges
+          ? [...req].sort((x,y)=>A[y].blockedTime-A[x].blockedTime || x-y)
+          : order.map((k) => req[k]);
         for (const id of sorted) this.attempt(A[id], n, dt);
       } else if (req.length === 1) this.attempt(A[req[0]], n, dt);
       req.length = 0;
@@ -506,12 +518,14 @@ export class MovementSystem {
     }
     if (a.holdAtNode) {
       a.waitTarget = -1;
+      sim.movementObserver?.block(a.id,'group-hold',dt,cur);
       return false;
     }
     let k = a.pendingNext;
     for (let attempt = 0; attempt < 4; attempt++) {
       if (k < 0) k = sim.routing.nextLink(a, n, cur);
       if (k < 0) {
+        sim.movementObserver?.block(a.id,'no-route',dt,cur);
         sim.noRoute(a, n, dt);
         a.pendingNext = -1;
         return false;
@@ -532,6 +546,7 @@ export class MovementSystem {
     const e = g.adj[n][k];
     const NL = g.links[e.link];
     if (NL.gate && !sim.gates.canPass(e.link)) {
+      sim.movementObserver?.block(a.id,'gate-service',dt,e.link);
       a.waitTarget = e.link;
       sim.reconsiderWhileWaiting(a, n);
       return false;
@@ -539,6 +554,7 @@ export class MovementSystem {
     const dirIdx = e.dir > 0 ? 0 : 1;
     const { lane, gap } = this.pickLane(e.link, dirIdx, a);
     if (lane < 0) {
+      sim.movementObserver?.block(a.id,this.linkCount[e.link]>=this.occCap[e.link]?'storage':'lane-entry-gap',dt,e.link);
       a.waitTarget = NL.gate ? e.link : this.tailWaitTarget(e.link, dirIdx);
       sim.reconsiderWhileWaiting(a, n);
       return false;
@@ -550,12 +566,20 @@ export class MovementSystem {
     a.link = e.link;
     a.dir = e.dir;
     a.sDir = Math.max(0, Math.min(this.overshoot[a.id], gap));
+    if (sim.cfg.numerics?.preserveTransitVelocity) {
+      // Movement on the new link belongs to this same step. The legacy code
+      // retained only the old-link displacement, causing a spurious deceleration.
+      // Short links retain at most their length; another admission needs a new step.
+      a.sDir = Math.min(a.sDir, NL.len);
+      a.v += a.sDir / dt;
+    }
     a.lane = lane;
     this.pushTail(e.link, dirIdx, lane, a.id);
     a.pendingNext = -1;
     a.waitTarget = -1;
     this.lastServed[n] = cur;
     if (NL.exterior) a.exitLink = e.link;
+    sim.movementObserver?.transition(a.id,cur,e.link,a.v,a.sDir,dt);
     sim.recordTraversal(a, cur, e.link);
     sim.progress();
     void curL;

@@ -5,6 +5,7 @@
 import type { NavGraph } from '../geometry/NavigationGraph';
 import type { Floor, GeometryData, MapOverlay } from '../geometry/types';
 import { STATE_COLOR } from '../simulation/Agent';
+import type { GuidanceSign } from '../simulation/Params';
 import { densityColor } from './util';
 
 export interface View {
@@ -26,6 +27,7 @@ export interface Dyn {
   queue?: Int32Array; // per link
   closed?: Uint8Array; // per link (blocked exits and barriers)
   barrier?: Uint8Array;
+  rope?: Uint8Array;
   passes?: Int32Array;
   cms?: { x: number; y: number; floor: number; active: boolean; id: string }[];
   /** heat grids indexed by floor - 1 */
@@ -34,6 +36,7 @@ export interface Dyn {
   selectedPath?: [number, number, number][]; // x, y, floor
   ledOn?: boolean;
   ledLinks?: { pts: [number, number][]; floor: number }[];
+  signs?: GuidanceSign[];
 }
 
 export interface DrawOpts {
@@ -232,6 +235,22 @@ export function drawScene(ctx: CanvasRenderingContext2D, w: number, h: number, v
     }
   }
 
+  // Ropes discourage a crossing but remain physically traversable.
+  if (dyn.rope) for (const L of graph.links) {
+    if (!dyn.rope[L.idx] || !L.drawFloors.includes(o.floor)) continue;
+    const x=tx((L.xs[0]+L.xs[L.xs.length-1])/2),y=ty((L.ys[0]+L.ys[L.ys.length-1])/2);
+    const dx=L.xs[L.xs.length-1]-L.xs[0],dy=L.ys[L.ys.length-1]-L.ys[0],n=Math.hypot(dx,dy)||1,r=Math.max(6,(L.width/2+0.3)*S);
+    ctx.strokeStyle='#eda100';ctx.lineWidth=2;ctx.setLineDash([3,3]);ctx.beginPath();
+    ctx.moveTo(x-dy/n*r,y+dx/n*r);ctx.lineTo(x+dy/n*r,y-dx/n*r);ctx.stroke();ctx.setLineDash([]);
+  }
+  // Fixed sign location and facing direction; does not imply universal visibility.
+  if (dyn.ledOn && dyn.signs) for (const sign of dyn.signs) {
+    if(sign.floor!==o.floor)continue;
+    const x=tx(sign.x),y=ty(sign.y),a=sign.facingDegrees*Math.PI/180;
+    ctx.fillStyle='#139d70';ctx.fillRect(x-4,y-4,8,8);ctx.strokeStyle='#139d70';ctx.lineWidth=2;
+    ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(x+12*Math.cos(a),y+12*Math.sin(a));ctx.stroke();
+    if(o.showLabels){ctx.font='10px sans-serif';ctx.fillText(sign.exit,x+6,y-6);}
+  }
   // ---- LED strips ---------------------------------------------------------------------
   if (dyn.ledOn && dyn.ledLinks) {
     ctx.strokeStyle = 'rgba(27,175,122,0.85)';

@@ -24,6 +24,7 @@
  * free speed, no behaviour beyond the supplied release times.
  */
 import type { SimConfig } from '../simulation/Params';
+import { hardPanelIds } from '../simulation/Barriers';
 import { FlowNetwork } from './MaxFlow';
 import type { BuildingNetwork } from './NetworkGraph';
 import { closedEdges } from './StaticFlow';
@@ -88,7 +89,7 @@ export function timeExpandedFlow(net: BuildingNetwork, cfg: SimConfig, releases:
   const Hmax = Math.ceil((opt.maxHorizon ?? 1200) / dt);
   const speed = opt.speed ?? net.rates.vRep;
   const stairRatio = cfg.population.stairRatio;
-  const closed = closedEdges(net, opt.closed ?? cfg.blocked.links, opt.barriers ?? cfg.barriers);
+  const closed = closedEdges(net, opt.closed ?? cfg.blocked.links, opt.barriers ?? hardPanelIds(cfg));
   const mult = opt.urgency === false ? 1 : net.rates.urgencyMult;
   const useStorage = opt.storage !== false;
   const nV = net.nodes.length;
@@ -285,7 +286,7 @@ export interface IndividualPerson {
  * Complements the flow benchmark, which uses one representative speed for everybody.
  */
 export function individualBound(net: BuildingNetwork, cfg: SimConfig, people: IndividualPerson[], closedLinks?: string[], barriers?: string[]): { tInd: number; who: number; times: number[] } {
-  const closed = closedEdges(net, closedLinks ?? cfg.blocked.links, barriers ?? cfg.barriers);
+  const closed = closedEdges(net, closedLinks ?? cfg.blocked.links, barriers ?? hardPanelIds(cfg));
   const nV = net.nodes.length;
   const fieldCache = new Map<string, Float64Array>();
   const field = (ratio: number, accessible: boolean) => {
@@ -313,7 +314,8 @@ export function individualBound(net: BuildingNetwork, cfg: SimConfig, people: In
     return d;
   };
   const times = people.map((p) => {
-    if (!Number.isFinite(p.tDepart)) return NaN;
+    // An unknown departure cannot certify full-house clearance; do not drop that person.
+    if (!Number.isFinite(p.tDepart)) return Infinity;
     const d = field(p.wheelchair ? 1 : p.stairRatio, !!p.wheelchair);
     let best = Infinity;
     for (const e of seatExits(net, p.seat)) {
@@ -325,7 +327,7 @@ export function individualBound(net: BuildingNetwork, cfg: SimConfig, people: In
   let tInd = 0;
   let who = -1;
   times.forEach((t, i) => {
-    if (Number.isFinite(t) && t > tInd) {
+    if (t > tInd) {
       tInd = t;
       who = i;
     }

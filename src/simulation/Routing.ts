@@ -50,6 +50,7 @@ import { EXIT_GROUPS } from '../geometry/types';
 import type { Agent } from './Agent';
 import { REASON, ST } from './Agent';
 import type { SimulationEngine } from './SimulationEngine';
+import { ropeCost } from './Barriers';
 
 /** persons per second through one walking lane at the reference speed (time-headway model, T = 0.7 s) */
 const LANE_CAPACITY = 0.94;
@@ -305,7 +306,15 @@ export class RouteSystem {
       for (let k = 0; k < adj.length; k++) {
         const e = adj[k];
         const L = g.links[e.link];
-        if (L.isRow) continue;
+        if (L.isRow) {
+          // Imanishi & Sano (2019): seatway use was observed in theatre drills. This is an
+          // optional Model A sensitivity, not a change to widths, speeds or seated blockers.
+          if (!cfg.crowdManagers.vacatedRowGuidance || a.cmGroup < 0 || a.wheelchair) continue;
+          if (g.nodes[L.a].kind === 'deadEnd' || g.nodes[L.b].kind === 'deadEnd') continue;
+          if (mv.rowSeatAgent[e.link].some(id => id >= 0)) continue;
+          if (mv.dirCount[2 * e.link + (e.dir > 0 ? 1 : 0)] > 0) continue;
+          if (Math.hypot(nu.x-a.x, nu.y-a.y) > vis || (space && space[u] !== mySpace)) continue;
+        }
         if (u === uturnNode && e.link === noUturn) continue; // no spontaneous U-turn
         if (a.meetNode < 0 && g.climbs(e.link, e.dir)) continue; // evacuees do not climb a storey
         if (noReentry && a.meetNode < 0 && e.dir < 0 && this.outwardOnly[e.link]) continue; // no going back into the hall / orchestra
@@ -314,6 +323,8 @@ export class RouteSystem {
         const v = e.other;
         if (settled[v]) continue;
         let c = g.nominalCost(e.link, e.dir, false) * ts;
+        if (L.isRow) c = L.len / Math.max(0.05, Math.min(cfg.movement.rowSpeed, a.v0));
+        c += ropeCost(cfg, L.id);
         let seen = 0;
         let delay = 0;
         if (L.gate) {
@@ -389,6 +400,7 @@ export class RouteSystem {
       const e = g.adj[a.pathNodes[i]][a.pathAdj[i]];
       if (a.knownBlocked.includes(e.link)) return Infinity;
       c += g.nominalCost(e.link, e.dir, false) * ts;
+      c += ropeCost(sim.cfg, g.links[e.link].id);
       if (g.links[e.link].gate) {
         const q = sim.gates.queueNow[e.link];
         if (q > 0) c += q / Math.max(0.2, sim.gates.cap[e.link]);
@@ -651,6 +663,9 @@ export class RouteSystem {
             return k;
           }
         }
+        // A completed indoor route has no continuation to street level. Its zero
+        // remaining cost must not defeat replanning through the inertia threshold.
+        if (i < 0 && this.sim.cfg.numerics?.replanMissingPath) a.pathValid = false;
       }
       // off-path or invalid: re-plan from this node (as a routine decision: no U-turn)
       this.chooseExit(a, a.pathValid ? 'node' : 'info', node);

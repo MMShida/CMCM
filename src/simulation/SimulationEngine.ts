@@ -26,7 +26,9 @@ import { GuidanceSystem } from './Guidance';
 import { MetricsRecorder, buildResult } from './Metrics';
 import type { RunResult } from './Metrics';
 import { MovementSystem } from './Movement';
+import type { MovementObserver } from './MovementObserver';
 import type { SimConfig } from './Params';
+import { hardPanelIds } from './Barriers';
 import { createPopulation } from './Population';
 import { GateSystem, effectiveSpeedFactor } from './QueueSystem';
 import { RNG } from './Random';
@@ -83,6 +85,7 @@ export class SimulationEngine {
   finished = false;
   lastProgress = 0;
   traceHook: ((e: TraversalEvent) => void) | null = null;
+  movementObserver: MovementObserver | null = null;
   /** true on steps where slowly varying quantities (group cohesion) are refreshed */
   cohesionTick = true;
   private densAcc = 0;
@@ -111,7 +114,7 @@ export class SimulationEngine {
   private gridNext: Int32Array;
   private wallStart = 0;
 
-  constructor(geo: GeometryData, cfg: SimConfig, seed?: number) {
+  constructor(geo: GeometryData, cfg: SimConfig, seed?: number, movementFactory?: (sim: SimulationEngine) => MovementSystem) {
     this.geo = geo;
     this.cfg = cfg;
     this.seed = seed ?? cfg.seed;
@@ -133,7 +136,7 @@ export class SimulationEngine {
     const resp = cfg.stress.responders?.links ?? [];
     if (resp.length) this.gates.setResponderLinks(resp.map((id) => g.linkByIdOrThrow(id)));
     this.density = new DensityField(g);
-    this.movement = new MovementSystem(this);
+    this.movement = movementFactory ? movementFactory(this) : new MovementSystem(this);
     this.routing = new RouteSystem(this);
     this.metrics = new MetricsRecorder(this);
     this.heat = [new HeatGrid(-30, -26, 1, 60, 70), new HeatGrid(-30, -26, 1, 60, 50)];
@@ -142,7 +145,7 @@ export class SimulationEngine {
 
     // physical closures
     this.blockedLinks = cfg.blocked.links.map((id) => g.linkByIdOrThrow(id));
-    this.barrierLinks = cfg.barriers.map((id) => g.linkByIdOrThrow(id));
+    this.barrierLinks = hardPanelIds(cfg).map((id) => g.linkByIdOrThrow(id));
     for (const li of [...this.blockedLinks, ...this.barrierLinks]) this.movement.closed[li] = 1;
     this.staffAffected = this.computeStaffAffected();
     // density regions (geometry links -> regions) and the recorder (no effect on behaviour)
@@ -259,6 +262,7 @@ export class SimulationEngine {
     this.cohesionTick = this.cohesionAcc >= 0.5 - 1e-9 || this.steps === 1;
     if (this.cohesionTick) this.cohesionAcc = 0;
     this.movement.step(dt);
+    this.gates.finishStep();
     for (const a of this.agents) if (a.rerouteFlash > 0) a.rerouteFlash -= dt;
     const G = this.gates;
     for (let i = 0; i < G.queueNow.length; i++) if (G.queueNow[i] > G.queueMax[i]) G.queueMax[i] = G.queueNow[i];
@@ -433,6 +437,8 @@ export class SimulationEngine {
   groupSpeedCap(a: Agent): number {
     const gid = a.group;
     if (gid < 0 || this.groupBroken[gid] || a.separated || this.cfg.population.groupMeetOutside) return Infinity;
+    if (this.cfg.simplification?.groupPaceOnly)
+      return Math.min(...this.groups[gid].filter(id => this.agents[id].inside).map(id => this.agents[id].v0 * this.envSpeed));
     const M = this.cfg.movement;
     let cap = Infinity;
     for (const m of this.groups[gid]) {

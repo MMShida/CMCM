@@ -17,6 +17,7 @@
 import type { GeometryData } from '../geometry/types';
 import { EXIT_GROUPS } from '../geometry/types';
 import type { SimConfig } from '../simulation/Params';
+import { hardPanelIds } from '../simulation/Barriers';
 import { FlowNetwork } from './MaxFlow';
 import type { BuildingNetwork } from './NetworkGraph';
 import { networkFor } from './NetworkGraph';
@@ -62,7 +63,7 @@ export function closedEdges(net: BuildingNetwork, closed: string[] = [], barrier
 }
 
 export function staticMaxFlow(net: BuildingNetwork, cfg: SimConfig, N: number, opt: StaticFlowOptions = {}): StaticFlowResult {
-  const closed = closedEdges(net, opt.closed ?? cfg.blocked.links, opt.barriers ?? cfg.barriers);
+  const closed = closedEdges(net, opt.closed ?? cfg.blocked.links, opt.barriers ?? hardPanelIds(cfg));
   const nV = net.nodes.length;
   const F = new FlowNetwork(nV + 2, 2 * (net.arcs.length + nV + 40));
   F.addNodes(nV + 2);
@@ -119,10 +120,10 @@ export interface BlockingEffect {
 
 /** Effect of closing each door / access point / stair entry on the maximum flow. */
 export function blockingEffects(net: BuildingNetwork, cfg: SimConfig, N: number, ids?: string[]): { base: number; effects: BlockingEffect[] } {
-  const base = staticMaxFlow(net, cfg, N, { closed: [], barriers: cfg.barriers }).maxFlow;
+  const base = staticMaxFlow(net, cfg, N, { closed: [], barriers: hardPanelIds(cfg) }).maxFlow;
   const cand = ids ?? net.edges.filter((e) => e.feature && !e.barrierSlot && (e.isGate || e.exterior)).map((e) => e.id);
   const effects = cand.map((id) => {
-    const r = staticMaxFlow(net, cfg, N, { closed: [id], barriers: cfg.barriers });
+    const r = staticMaxFlow(net, cfg, N, { closed: [id], barriers: hardPanelIds(cfg) });
     return { id, label: net.edgeById(id).label, maxFlow: r.maxFlow, delta: r.maxFlow - base };
   });
   effects.sort((a, b) => a.delta - b.delta);

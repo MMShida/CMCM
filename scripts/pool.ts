@@ -10,7 +10,7 @@ import { Worker } from 'node:worker_threads';
 import type { RunSummary } from '../src/simulation/MonteCarlo';
 import type { SimConfig } from '../src/simulation/Params';
 
-export type ModelId = 'A' | 'B';
+export type ModelId = 'A' | 'B' | 'Lite';
 /** geometry variant: link id -> overrides */
 export type GeoPatch = Record<string, { width?: number; lanes?: number }>;
 

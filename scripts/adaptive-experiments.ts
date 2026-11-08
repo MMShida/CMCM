@@ -9,6 +9,7 @@
  * Nothing older is overwritten (results/adaptive/ is new).
  */
 import { mkdirSync, writeFileSync } from 'node:fs';
+import { dirname } from 'node:path';
 import { batchSeeds, quantileSorted, summarize, wilson } from '../src/simulation/MonteCarlo';
 import type { RunSummary } from '../src/simulation/MonteCarlo';
 import type { PlacementId, SimConfig } from '../src/simulation/Params';
@@ -208,7 +209,9 @@ function paired(a: RunSummary[], b: RunSummary[]) {
 }
 
 async function main() {
-  const pool = new SimPool();
+  const pool = new SimPool(Number(arg('workers', '6')));
+  const output = arg('out', 'results/adaptive/experiments.json');
+  mkdirSync(dirname(output), { recursive: true });
   const runsBy = new Map<string, RunSummary[]>();
   const out: Record<string, unknown> = {};
   const t0 = Date.now();
@@ -226,7 +229,9 @@ async function main() {
       runsBy.set(`${model}|${e.key}`, runs);
       const st = stats(runs);
       const pr = e.ref ? paired(runsBy.get(`${model}|${e.ref}`)!, runs) : null;
-      out[`${model}|${e.key}`] = { model, key: e.key, group: e.group, label: e.label, ref: e.ref ?? null, ...st, pairedVsRef: pr };
+      out[`${model}|${e.key}`] = { model, key: e.key, group: e.group, label: e.label, ref: e.ref ?? null, config: e.build(), runs, ...st, pairedVsRef: pr };
+      // Checkpoint complete cases, including raw paired runs; do not lose a long study on interruption.
+      writeFileSync(output, JSON.stringify({ baseCommit: '3e4bcf08e258e5db41b0035e307415bf129bc011', date: new Date().toISOString(), runs: RUNS, seeds: SEEDS, models: MODELS, results: out }, null, 1));
       console.log(
         `${model} ${e.key.padEnd(22)} T ${st.T.mean.toFixed(1)} [${st.T.ciLow.toFixed(1)}, ${st.T.ciHigh.toFixed(1)}] p95 ${st.T.p95.toFixed(0)} P180 ${(st.p180.p * 100).toFixed(0)}%` +
           `  CA peak ${st.regions.orchCentralAisles.peak.toFixed(2)} foyer ${st.regions.foyer.peak.toFixed(2)} expo ${st.exposure.mean.toFixed(1)} sw ${st.behaviour.exitSwitches.toFixed(0)} mgrSw ${st.behaviour.managerSwitches.toFixed(1)}` +
@@ -235,11 +240,10 @@ async function main() {
       );
     }
   await pool.close();
-  mkdirSync('results/adaptive', { recursive: true });
-  const file = ONLY ? `results/adaptive/experiments-${ONLY.replace(/[^a-z0-9,-]/gi, '').slice(0, 40)}.json` : 'results/adaptive/experiments.json';
+  const file = output;
   writeFileSync(file, JSON.stringify({ date: new Date().toISOString(), runs: RUNS, seeds: SEEDS, models: MODELS, results: out }, null, 1));
   console.log('written', file);
-  if (!ONLY) writeFileSync('docs/ADAPTIVE_RESULTS.md', markdown(out));
+  if (!ONLY) writeFileSync(arg('doc', 'docs/ADAPTIVE_RESULTS.md'), markdown(out));
 }
 
 function markdown(out: Record<string, any>): string {

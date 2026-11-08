@@ -7,6 +7,7 @@
 import type { GeometryData } from '../geometry/types';
 import { ST } from '../simulation/Agent';
 import type { SimConfig } from '../simulation/Params';
+import { planExitIndex, seatPlanKeys } from '../simulation/Plan';
 import { SimulationEngine } from '../simulation/SimulationEngine';
 import { computeField } from '../geometry/NavigationGraph';
 import { EXIT_GROUPS } from '../geometry/types';
@@ -65,21 +66,23 @@ export class LiveController {
     this.running = false;
     this.takeSnapshot();
     this.writeFrame(1);
-    this.ledLinks = cfg.led.enabled ? this.computeLedLinks() : [];
+    this.ledLinks = cfg.led.enabled && !cfg.led.spatial ? this.computeLedLinks() : [];
     this.version++;
   }
 
-  /** guided path of every zone (zone seat -> planned exit group) along the static shortest route */
+  /** Representative planned routes for each block (display only). */
   private computeLedLinks() {
     const sim = this.sim;
     const g = sim.graph;
     const closed = new Set([...sim.blockedLinks, ...sim.barrierLinks]);
     const fields = g.safeByGroup.map((t) => computeField(g, t, (li) => g.links[li].prohibited || (this.cfg.led.dynamic && closed.has(li)) || sim.barrierLinks.includes(li)));
     const used = new Set<number>();
-    for (const z of this.geo.zones) {
-      const gi = EXIT_GROUPS.indexOf(this.cfg.led.plan[z.id] ?? z.defaultExit);
-      const seat = this.geo.seats.find((s) => s.zone === z.id);
-      if (!seat || gi < 0) continue;
+    const seen = new Set<string>();
+    for (let si=0;si<this.geo.seats.length;si++) {
+      const key=seatPlanKeys(this.geo,si)[0];if(seen.has(key))continue;seen.add(key);
+      const gi = planExitIndex(this.cfg.led.plan,this.geo,si);
+      const seat = this.geo.seats[si];
+      if (gi < 0) continue;
       const L = g.links[g.linkByIdOrThrow(seat.link)];
       const f = fields[gi];
       let node = [L.a, L.b].filter((n) => g.nodes[n].kind !== 'deadEnd').sort((x, y) => f.dist[x] - f.dist[y])[0];
@@ -226,12 +229,14 @@ export class LiveController {
         for (const li of sim.barrierLinks) b[li] = 1;
         return b;
       })(),
+      rope: Uint8Array.from(sim.graph.links,L=>this.cfg.barriers.includes(L.id)&&this.cfg.barrierTypes?.[L.id]==='soft-rope'?1:0),
       queue: showQueues && this.replay === null ? sim.gates.queueNow : undefined,
       passes: this.replay === null ? sim.gates.passes : this.passHistory[this.replay],
       cms: sim.guidance.cms.map((c) => ({ x: c.post.x, y: c.post.y, floor: c.post.floor, active: sim.t >= c.tActive, id: c.post.id })),
       selected,
       ledOn: this.cfg.led.enabled && sim.guidance.ledActive,
       ledLinks: this.ledLinks,
+      signs: this.cfg.led.spatial?.signs,
     };
     if (this.heatMode === 'peak') {
       dyn.heats = sim.heat.map((h) => ({ x0: h.x0, y0: h.y0, cell: h.cell, nx: h.nx, ny: h.ny, data: h.maxD }));

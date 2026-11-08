@@ -213,6 +213,9 @@ export class NetworkLiveController {
     return {
       closed,
       barrier,
+      rope: Uint8Array.from(net.detailed.links,L=>this.cfg.barriers.includes(L.id)&&this.cfg.barrierTypes?.[L.id]==='soft-rope'?1:0),
+      ledOn: this.cfg.led.enabled&&sim.t>=this.cfg.led.activationTime,
+      signs: this.cfg.led.spatial?.signs,
       queue: showQueues ? (snap ? snap.queue : this.perLink(sim.queues.map((q) => q.length))) : undefined,
       passes: snap ? snap.passes : this.perLink(sim.passes),
       cms: this.cfg.crowdManagers.count === 0 ? [] : this.cmMarkers(),
@@ -221,12 +224,7 @@ export class NetworkLiveController {
   }
 
   private cmMarkers() {
-    const C = this.cfg.crowdManagers;
-    const n = C.count < 0 ? Math.ceil(this.sim.agents.length / 250) : C.count;
-    return this.geo.crowdManagerPosts
-      .filter((p) => !C.unavailable.includes(p.id))
-      .slice(0, n)
-      .map((p) => ({ x: p.x, y: p.y, floor: p.floor, active: true, id: p.id }));
+    return this.sim.cmTimes.map(p=>({x:p.x,y:p.y,floor:p.floor,active:this.sim.t>=p.tActive,id:p.id}));
   }
 
   findAgentAt(x: number, y: number, floor: number, maxDist = 0.8): number {

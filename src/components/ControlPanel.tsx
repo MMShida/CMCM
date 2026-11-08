@@ -7,6 +7,7 @@ import { BEHAVIOR_LABEL, BEHAVIOR_TYPES, DEFAULT_PLAN } from '../simulation/Para
 import { SCENARIOS } from '../simulation/Scenarios';
 import { NumberField, Section, Select, Slider, Toggle } from './Controls';
 import { GROUP_SHORT } from './util';
+import { placementPosts } from '../simulation/Placements';
 
 interface Props {
   cfg: SimConfig;
@@ -19,9 +20,15 @@ interface Props {
 
 export function ControlPanel({ cfg, geo, scenarioId, onScenario, update, replace }: Props) {
   const scen = SCENARIOS.find((s) => s.id === scenarioId);
+  const modifiedPreset=useMemo(()=>{
+    if(!scen)return true;
+    const original=scen.build(geo);original.seed=cfg.seed;
+    return JSON.stringify(original)!==JSON.stringify(cfg);
+  },[scen,geo,cfg]);
   const slots = useMemo(() => barrierSlots(geo), [geo]);
   const blockable = useMemo(() => blockableLinks(geo), [geo]);
   const zones = geo.zones;
+  const staffPosts=placementPosts(geo,cfg.crowdManagers.placement)??geo.crowdManagerPosts;
   const [json, setJson] = useState<string | null>(null);
   const N = Math.round(cfg.occupancy.orchestra * 527) + Math.round(cfg.occupancy.mezzanine * 486) + Math.round(cfg.occupancy.balcony * 316);
   const shares = cfg.population.typeShares;
@@ -37,7 +44,7 @@ export function ControlPanel({ cfg, geo, scenarioId, onScenario, update, replace
           options={SCENARIOS.map((s) => ({ value: s.id, label: `${s.name}${s.approximate ? ' *' : ''}` }))}
           onChange={onScenario}
         />
-        {scen && <p className="desc">{scen.description}</p>}
+        {scen && <p className="desc">{modifiedPreset?'Custom configuration loaded. The controls below show the active settings; selecting a preset replaces them.':scen.description}</p>}
         {scen?.approximate && <p className="warn-note">* Simplified stress test, not a validated physical model.</p>}
         <div className="row">
           <NumberField label="Random seed" value={cfg.seed} onChange={(v) => update((c) => (c.seed = Math.max(0, Math.floor(v))))} tip="Same seed + same configuration = identical simulation" />
@@ -152,11 +159,11 @@ export function ControlPanel({ cfg, geo, scenarioId, onScenario, update, replace
         <Select
           label="Number on duty"
           value={String(cfg.crowdManagers.count)}
-          options={[{ value: '-1', label: 'Automatic (1 per 250, NY law)' }, ...Array.from({ length: 11 }, (_, i) => ({ value: String(i), label: String(i) }))]}
+          options={[{ value: '-1', label: 'Automatic (1 per 250, inherited rule)' }, ...Array.from({ length: Math.max(staffPosts.length,cfg.crowdManagers.count)+1 }, (_, i) => ({ value: String(i), label: String(i) }))]}
           onChange={(v) => update((c) => (c.crowdManagers.count = Number(v)))}
         />
         <div className="chips">
-          {geo.crowdManagerPosts.map((p) => (
+          {staffPosts.map((p) => (
             <Toggle
               key={p.id}
               label={`${p.id} ${p.label}`}
@@ -180,7 +187,7 @@ export function ControlPanel({ cfg, geo, scenarioId, onScenario, update, replace
             <Slider label="Rebalance interval" value={cfg.crowdManagers.rebalance.interval} min={1} max={30} step={1} unit="s" onChange={(v) => update((c) => (c.crowdManagers.rebalance.interval = v))} />
           </>
         )}
-        <p className="muted small">Staffed posts in order: {(cfg.crowdManagers.posts?.length ? cfg.crowdManagers.posts : geo.crowdManagerPosts.map((p) => p.id)).join(', ')} (set crowdManagers.posts in the JSON section).</p>
+        <p className="muted small">Available posts: {staffPosts.map(p=>p.id).join(', ')}. Active staff are limited to available posts and the selected count.</p>
       </Section>
 
       <Section title="Dynamic behaviour & adaptive Crowd Managers" badge={cfg.adaptive?.agents || cfg.adaptive?.managers ? 'on' : undefined}>
@@ -188,7 +195,7 @@ export function ControlPanel({ cfg, geo, scenarioId, onScenario, update, replace
         <Toggle label="Dynamic individuals (beliefs, confidence, urgency, trust, event-triggered rerouting)" value={!!cfg.adaptive?.agents} onChange={(v) => update((c) => (c.adaptive.agents = v))} />
         <Toggle label="Adaptive Crowd Managers (local observation, radio, coordinated instructions, walls block the voice)" value={!!cfg.adaptive?.managers} onChange={(v) => update((c) => (c.adaptive.managers = v))} />
         <Select
-          label="Manager placement (6 posts)"
+          label="Manager placement"
           value={cfg.crowdManagers.placement ?? 'existing'}
           options={[
             { value: 'existing', label: 'A. Existing posts (CM1-CM6)' },
@@ -196,6 +203,10 @@ export function ControlPanel({ cfg, geo, scenarioId, onScenario, update, replace
             { value: 'bottleneck', label: 'C. Bottleneck-oriented' },
             { value: 'hybrid222', label: 'D. Hybrid 2-2-2' },
             { value: 'robust', label: 'E. Robust (one per exit group)' },
+            { value: 'coverage', label: 'F. Seat coverage (6 posts)' },
+            { value: 'coverage10', label: 'G. Seat coverage (10 posts)' },
+            { value: 'coverage12', label: 'H. Extended coverage (12 posts)' },
+            { value: 'coverage18', label: 'I. Extended coverage (18 posts)' },
           ]}
           onChange={(v) => update((c) => (c.crowdManagers.placement = v as any))}
         />
@@ -252,6 +263,7 @@ export function ControlPanel({ cfg, geo, scenarioId, onScenario, update, replace
       </Section>
 
       <Section title="Pre-assigned exits (pre-show announcement)">
+        <Toggle label="Agree on one planned exit per social group" value={!!cfg.crowdManagers.groupPlan} onChange={(v)=>update(c=>{c.crowdManagers.groupPlan=v;})} />
         <Toggle label="Announce each seat block's exit before the show" value={!!cfg.preassign?.enabled} onChange={(v) => update((c) => (c.preassign = { ...c.preassign, enabled: v, plan: { ...c.crowdManagers.plan } }))} />
         {cfg.preassign?.enabled && (
           <>
@@ -265,10 +277,11 @@ export function ControlPanel({ cfg, geo, scenarioId, onScenario, update, replace
       </Section>
 
       <Section title="Directional LED guidance">
+        {cfg.led.spatial&&<p className="muted small">Spatial signs: {cfg.led.spatial.signs.length} fixed messages, {cfg.led.spatial.range} m range, wall occlusion {cfg.led.spatial.occlusion?'on':'off'}. These replace abstract seat-specific LED instructions.</p>}
         <Toggle label="LED strips enabled" value={cfg.led.enabled} onChange={(v) => update((c) => (c.led.enabled = v))} />
         <Slider label="Activation time" value={cfg.led.activationTime} min={0} max={120} step={1} unit="s" onChange={(v) => update((c) => (c.led.activationTime = v))} />
-        <Slider label="Perception probability" value={cfg.led.perceiveProb} min={0} max={1} step={0.01} format={pctFmt} tip="flashing LED signs detected up to 77% (Filippidis et al. 2021); floor strips assumed 90%" onChange={(v) => update((c) => (c.led.perceiveProb = v))} />
-        <Slider label="Compliance" value={cfg.led.complianceProb} min={0} max={1} step={0.01} format={pctFmt} tip="base case 0.6-0.7 (Galea et al. ADSS trials: 66% redirected) - not a Bailey Hall value" onChange={(v) => update((c) => (c.led.complianceProb = v))} />
+        <Slider label="Perception probability" value={cfg.led.perceiveProb} min={0} max={1} step={0.01} format={pctFmt} tip="Assumed detection probability; not measured in Bailey Hall. Visibility and accepting a message are separate." onChange={(v) => update((c) => (c.led.perceiveProb = v))} />
+        <Slider label="Compliance" value={cfg.led.complianceProb} min={0} max={1} step={0.01} format={pctFmt} tip="Assumed acceptance probability. The cited 66% trial outcome was final redirection with coordinated signage and voice, not this probability alone." onChange={(v) => update((c) => (c.led.complianceProb = v))} />
         <Slider label="Conflict hesitation" value={cfg.led.conflictDelay} min={0} max={20} step={1} unit="s" onChange={(v) => update((c) => (c.led.conflictDelay = v))} />
         <Toggle label="Dynamic signage (marks blocked exits)" value={cfg.led.dynamic} onChange={(v) => update((c) => (c.led.dynamic = v))} />
       </Section>
@@ -346,12 +359,19 @@ export function ControlPanel({ cfg, geo, scenarioId, onScenario, update, replace
       </Section>
 
       <Section title="Corridor barriers" badge={cfg.barriers.length ? String(cfg.barriers.length) : undefined}>
-        <p className="muted small">Removable barriers in the semicircular corridor (they remove the corridor link from the network). W0/E0: between D1/P1 and D2; W1/E1: between P2 and D3; W2/E2: between D3 and D4.</p>
+        <p className="muted small">Hard panels close a corridor link. Low ropes discourage crossing but remain traversable. W0/E0: between D1/P1 and D2; W1/E1: between P2 and D3; W2/E2: between D3 and D4.</p>
         <div className="chips">
           {slots.map((s) => (
             <Toggle key={s.id} label={`Slot ${s.label}`} value={cfg.barriers.includes(s.id)} onChange={(v) => update((c) => (c.barriers = v ? [...c.barriers, s.id] : c.barriers.filter((x) => x !== s.id)))} />
           ))}
         </div>
+        {slots.filter(s=>cfg.barriers.includes(s.id)).map(s=><Select key={s.id} label={`Type at ${s.label}`} value={cfg.barrierTypes?.[s.id]??'hard-panel'} options={[{value:'hard-panel',label:'Hard panel (closed)'},{value:'soft-rope',label:'Low rope (deterrent)'}]} onChange={v=>update(c=>{c.barrierTypes={...c.barrierTypes,[s.id]:v as 'hard-panel'|'soft-rope'};})} />)}
+        {cfg.barriers.some(id=>cfg.barrierTypes?.[id]==='soft-rope')&&<Slider label="Rope deterrence (assumed perceived seconds)" value={cfg.ropePenalty??15} min={0} max={60} step={5} unit="s" onChange={v=>update(c=>{c.ropePenalty=v;})} />}
+      </Section>
+
+      <Section title="Numerical integration">
+        <Toggle label="Preserve fractional service credit (A and B)" value={!!cfg.numerics?.conserveService} onChange={v=>update(c=>{c.numerics={conserveService:v};})} />
+        <p className="muted small">Same capacities; retain unused fractions after admissions. Off reproduces the 04:20 integration.</p>
       </Section>
 
       <Section title="Environment & stress tests">

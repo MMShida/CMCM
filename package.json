@@ -16,7 +16,11 @@
     "experiments": "tsx scripts/run-experiments.ts",
     "compare": "tsx scripts/compare-experiments.ts",
     "flow": "tsx scripts/flow-network.ts",
-    "network-batch": "tsx scripts/network-batch.ts"
+    "network-batch": "tsx scripts/network-batch.ts",
+    "lite": "node --import tsx scripts/run-lite.ts",
+    "lite:study": "node --import tsx scripts/lite-study.ts",
+    "docs:pdf": "python3 scripts/build-latex-docs.py --compile",
+    "docs:check": "python3 scripts/check-research-pdfs.py"
   },
   "dependencies": {
     "react": "^18.3.1",
