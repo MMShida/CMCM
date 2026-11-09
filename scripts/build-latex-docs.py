@@ -219,19 +219,16 @@ Scope & Research model; assumptions and calibration limits stated explicitly
     print(stem,'LaTeX source generated;',len(keys),'bibliographic entries')
 
 if __name__=='__main__':
-    p=argparse.ArgumentParser();p.add_argument('--compile',action='store_true');p.add_argument('--stem',choices=list(META));args=p.parse_args()
-    stems=[args.stem] if args.stem else list(META)
+    available=[*META,'IMPLEMENTATION_PROMPT']
+    p=argparse.ArgumentParser();p.add_argument('--compile',action='store_true');p.add_argument('--stem',choices=available);args=p.parse_args()
+    stems=[args.stem] if args.stem else available
     for stem in stems:
-        build(stem)
+        if stem in META:build(stem)
         if args.compile and (TEX/(stem+'.tex')).exists():
             subprocess.run(['tectonic','--keep-logs','--keep-intermediates','--outdir',str(TEX),str(TEX/(stem+'.tex'))],cwd=TEX,check=True)
             shutil.copyfile(TEX/(stem+'.pdf'),D/(stem+'.pdf'))
             dest=ROOT/'public/docs/research-180';dest.mkdir(parents=True,exist_ok=True);shutil.copyfile(D/(stem+'.pdf'),dest/(stem+'.pdf'))
 
-    if args.compile and not args.stem and (TEX/'IMPLEMENTATION_PROMPT.tex').exists():
-        subprocess.run(['tectonic','--keep-logs','--outdir',str(TEX),str(TEX/'IMPLEMENTATION_PROMPT.tex')],cwd=TEX,check=True)
-        shutil.copyfile(TEX/'IMPLEMENTATION_PROMPT.pdf',D/'IMPLEMENTATION_PROMPT.pdf')
-        shutil.copyfile(TEX/'IMPLEMENTATION_PROMPT.pdf',ROOT/'public/docs/research-180/IMPLEMENTATION_PROMPT.pdf')
     if args.compile:
         bundle=D/'BAILEY_LATEX_SOURCES.zip'
         with zipfile.ZipFile(bundle,'w',zipfile.ZIP_DEFLATED) as archive:
