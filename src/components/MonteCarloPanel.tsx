@@ -61,9 +61,9 @@ export function StatsTable({ s }: { s: BatchStats }) {
   );
 }
 
-export interface StudyReplay { model:'A'|'B'|'Lite'; seeds:number[]; label:string; expectedMean:number|null; cfg:SimConfig }
+export interface StudyReplay { model:'A'|'B'|'Lite'|'Plus'; seeds:number[]; label:string; expectedMean:number|null; cfg:SimConfig }
 export function MonteCarloPanel({ geo, cfg, bundled, replay, clearReplay }: { geo: GeometryData; cfg: SimConfig; bundled: boolean; replay?:StudyReplay|null; clearReplay?:()=>void }) {
-  const [model,setModel] = useState<'A'|'B'|'Lite'>(replay?.model ?? 'A');
+  const [model,setModel] = useState<'A'|'B'|'Lite'|'Plus'>(replay?.model ?? (cfg.plus?'Plus':'A'));
   const [runs, setRuns] = useState(replay?.seeds.length ?? 100);
   const [baseSeed, setBaseSeed] = useState(2026);
   const [progress, setProgress] = useState<{ done: number; total: number } | null>(null);
@@ -73,7 +73,9 @@ export function MonteCarloPanel({ geo, cfg, bundled, replay, clearReplay }: { ge
   const handle = useRef<BatchHandle | null>(null);
   const t0 = useRef(0);
 
+  const incompatible=model==='Plus'?!cfg.plus:!!cfg.plus;
   const start = () => {
+    if(incompatible)return;
     const seeds = replay ? replay.seeds : batchSeeds(baseSeed, runs);
     setResults(null);
     setErr(null);
@@ -112,8 +114,9 @@ export function MonteCarloPanel({ geo, cfg, bundled, replay, clearReplay }: { ge
         Configuration: <b>{cfg.label}</b> (edit it in the left panel). Each replication re-samples the audience, reaction times, behaviour types and all stochastic decisions; scenario parameters stay fixed.
         Runs execute in {workerCount()} Web Workers (headless, no rendering), so the interface stays responsive.
       </p>
+      {incompatible&&<p role="alert" className="card">Load an A-Lite+ configuration from its primary tab for the Plus engine, or load a legacy preset/study for A, B or Lite. Physical installations and accepted-instruction rules must match the engine.</p>}
       <div className="row">
-        {replay ? <button className="btn small" onClick={clearReplay} disabled={!!progress}>Leave exact replay</button> : <label>Model <select value={model} onChange={e=>setModel(e.target.value as typeof model)} disabled={!!progress}><option>A</option><option>B</option><option value="Lite">A-Lite</option></select></label>}
+        {replay ? <button className="btn small" onClick={clearReplay} disabled={!!progress}>Leave exact replay</button> : <label>Model <select value={model} onChange={e=>setModel(e.target.value as typeof model)} disabled={!!progress}><option value="Plus">A-Lite+</option><option>A</option><option>B</option><option value="Lite">A-Lite</option></select></label>}
         {!replay && <><span className="seg">
           {[1, 10, 100, 500].map((n) => (
             <button key={n} className={`btn small ${runs === n ? 'on' : ''}`} onClick={() => setRuns(n)}>
@@ -131,7 +134,7 @@ export function MonteCarloPanel({ geo, cfg, bundled, replay, clearReplay }: { ge
         </label>
         </>}
         {!progress ? (
-          <button id="mc-start" className="btn primary" onClick={start}>
+          <button id="mc-start" className="btn primary" disabled={incompatible} onClick={start}>
             Run {runs} simulations
           </button>
         ) : (

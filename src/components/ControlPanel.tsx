@@ -10,6 +10,7 @@ import { GROUP_SHORT } from './util';
 import { placementPosts } from '../simulation/Placements';
 
 interface Props {
+  plus?:boolean;
   cfg: SimConfig;
   geo: GeometryData;
   scenarioId: string;
@@ -18,7 +19,7 @@ interface Props {
   replace: (c: SimConfig) => void;
 }
 
-export function ControlPanel({ cfg, geo, scenarioId, onScenario, update, replace }: Props) {
+export function ControlPanel({ plus=false, cfg, geo, scenarioId, onScenario, update, replace }: Props) {
   const scen = SCENARIOS.find((s) => s.id === scenarioId);
   const modifiedPreset=useMemo(()=>{
     if(!scen)return true;
@@ -111,12 +112,14 @@ export function ControlPanel({ cfg, geo, scenarioId, onScenario, update, replace
       </Section>
 
       <Section title="Walking & physical movement">
-        <Slider label="Mean walking speed" value={cfg.population.speedMean} min={0.6} max={1.8} step={0.01} unit="m/s" onChange={(v) => update((c) => (c.population.speedMean = v))} />
+        <Slider label="Free-speed mean before age adjustment" value={cfg.population.speedMean} min={0.6} max={1.8} step={0.01} unit="m/s" onChange={(v) => update((c) => (c.population.speedMean = v))} />
+        {plus&&<Select label="Speed distribution (sensitivity)" value={cfg.population.speedDistribution??'normal'} options={[{value:'normal',label:'Original clipped normal'},{value:'lognormal',label:'Right-skewed lognormal; same mean/SD'}]} onChange={v=>update(c=>{c.population.speedDistribution=v as 'normal'|'lognormal';})}/>}
+        {plus&&<p className="muted small">Speed settings are calibration sensitivities. The concert reference is 1.2 m/s before age adjustment; 1.35 is the inherited student preset. Faster means also affect headway-derived passage service. Rows, door rates and wheelchair speed remain separate.</p>}
         <Slider label="Speed std. dev." value={cfg.population.speedSd} min={0} max={0.5} step={0.01} unit="m/s" onChange={(v) => update((c) => (c.population.speedSd = v))} />
         <Slider label="Share over 65" value={cfg.population.elderlyFraction} min={0} max={1} step={0.05} format={pctFmt} tip="20-25% slower walking (Thompson citing Ando et al. 1988)" onChange={(v) => update((c) => (c.population.elderlyFraction = v))} />
         <Slider label="Seat-row speed" value={cfg.movement.rowSpeed} min={0.2} max={1} step={0.01} unit="m/s" tip="0.45 m/s along seat rows (Predtechenskii & Milinskii)" onChange={(v) => update((c) => (c.movement.rowSpeed = v))} />
         <Slider label="Time headway T" value={cfg.movement.timeHeadway} min={0.3} max={1.5} step={0.05} unit="s" tip="Following model v = (h - d_min)/T" onChange={(v) => update((c) => (c.movement.timeHeadway = v))} />
-        <Select
+        {!plus && <Select
           label="Speed model"
           value={cfg.movement.speedModel}
           options={[
@@ -124,7 +127,8 @@ export function ControlPanel({ cfg, geo, scenarioId, onScenario, update, replace
             { value: 'weidmann', label: 'Weidmann area density' },
           ]}
           onChange={(v) => update((c) => (c.movement.speedModel = v))}
-        />
+        />}
+        {plus && <p className="muted small">A-Lite+ uses finite queues and headway-derived discharge. It does not apply a second density speed multiplier.</p>}
       </Section>
 
       <Section title="Door & stair capacities">
@@ -150,7 +154,7 @@ export function ControlPanel({ cfg, geo, scenarioId, onScenario, update, replace
         {EXIT_GROUPS.filter((g) => g !== 'FOYER').map((g) => (
           <Slider key={g} label={`Prior knowledge: ${GROUP_SHORT[g]}`} value={cfg.population.exitKnowledge[g]} min={0} max={1} step={0.05} format={pctFmt} onChange={(v) => update((c) => (c.population.exitKnowledge[g] = v))} />
         ))}
-        <Slider label="Exit-sign notice probability" value={cfg.routing.noticeProb} min={0} max={1} step={0.01} format={pctFmt} tip="38% perceive conventional signs (Galea et al. 2016)" onChange={(v) => update((c) => (c.routing.noticeProb = v))} />
+        {!plus && <Slider label="Exit-sign notice probability" value={cfg.routing.noticeProb} min={0} max={1} step={0.01} format={pctFmt} tip="38% perceive conventional signs (Galea et al. 2016)" onChange={(v) => update((c) => (c.routing.noticeProb = v))} />}
         <Slider label="Visibility range" value={cfg.routing.visibilityRange} min={3} max={40} step={1} unit="m" onChange={(v) => update((c) => (c.routing.visibilityRange = v))} />
         <Slider label="Social groups" value={cfg.population.groupFraction} min={0} max={0.9} step={0.05} format={pctFmt} onChange={(v) => update((c) => (c.population.groupFraction = v))} />
       </Section>
@@ -190,7 +194,7 @@ export function ControlPanel({ cfg, geo, scenarioId, onScenario, update, replace
         <p className="muted small">Available posts: {staffPosts.map(p=>p.id).join(', ')}. Active staff are limited to available posts and the selected count.</p>
       </Section>
 
-      <Section title="Dynamic behaviour & adaptive Crowd Managers" badge={cfg.adaptive?.agents || cfg.adaptive?.managers ? 'on' : undefined}>
+      {!plus&&<Section title="Dynamic behaviour & adaptive Crowd Managers" badge={cfg.adaptive?.agents || cfg.adaptive?.managers ? 'on' : undefined}>
         <p className="muted small">Both off = the previous fixed-behaviour model (reproduced exactly). See docs/ADAPTIVE.md.</p>
         <Toggle label="Dynamic individuals (beliefs, confidence, urgency, trust, event-triggered rerouting)" value={!!cfg.adaptive?.agents} onChange={(v) => update((c) => (c.adaptive.agents = v))} />
         <Toggle label="Adaptive Crowd Managers (local observation, radio, coordinated instructions, walls block the voice)" value={!!cfg.adaptive?.managers} onChange={(v) => update((c) => (c.adaptive.managers = v))} />
@@ -260,7 +264,7 @@ export function ControlPanel({ cfg, geo, scenarioId, onScenario, update, replace
           </>
         )}
         <Slider label="Reference density for exposure (analysis only)" value={cfg.analysis?.densityRef ?? 2} min={0.5} max={5} step={0.25} unit="p/m²" onChange={(v) => update((c) => (c.analysis.densityRef = v))} />
-      </Section>
+      </Section>}
 
       <Section title="Pre-assigned exits (pre-show announcement)">
         <Toggle label="Agree on one planned exit per social group" value={!!cfg.crowdManagers.groupPlan} onChange={(v)=>update(c=>{c.crowdManagers.groupPlan=v;})} />
@@ -276,7 +280,7 @@ export function ControlPanel({ cfg, geo, scenarioId, onScenario, update, replace
         )}
       </Section>
 
-      <Section title="Directional LED guidance">
+      {!plus&&<Section title="Directional LED guidance">
         {cfg.led.spatial&&<p className="muted small">Spatial signs: {cfg.led.spatial.signs.length} fixed messages, {cfg.led.spatial.range} m range, wall occlusion {cfg.led.spatial.occlusion?'on':'off'}. These replace abstract seat-specific LED instructions.</p>}
         <Toggle label="LED strips enabled" value={cfg.led.enabled} onChange={(v) => update((c) => (c.led.enabled = v))} />
         <Slider label="Activation time" value={cfg.led.activationTime} min={0} max={120} step={1} unit="s" onChange={(v) => update((c) => (c.led.activationTime = v))} />
@@ -284,10 +288,10 @@ export function ControlPanel({ cfg, geo, scenarioId, onScenario, update, replace
         <Slider label="Compliance" value={cfg.led.complianceProb} min={0} max={1} step={0.01} format={pctFmt} tip="Assumed acceptance probability. The cited 66% trial outcome was final redirection with coordinated signage and voice, not this probability alone." onChange={(v) => update((c) => (c.led.complianceProb = v))} />
         <Slider label="Conflict hesitation" value={cfg.led.conflictDelay} min={0} max={20} step={1} unit="s" onChange={(v) => update((c) => (c.led.conflictDelay = v))} />
         <Toggle label="Dynamic signage (marks blocked exits)" value={cfg.led.dynamic} onChange={(v) => update((c) => (c.led.dynamic = v))} />
-      </Section>
+      </Section>}
 
       <Section title="Guidance plans (zone → exit)">
-        <p className="muted small">Crowd Manager plan and LED plan. Making them differ simulates contradictory instructions.</p>
+        <p className="muted small">{plus?"Manager zone instructions; physical LED messages are edited on the plan.":"Crowd Manager plan and LED plan. Making them differ simulates contradictory instructions."}</p>
         {Object.keys(cfg.crowdManagers.plan).some((k) => k.includes(':')) && (
           <p className="small">
             The CM plan has {Object.keys(cfg.crowdManagers.plan).filter((k) => k.includes(':')).length} seat-block entries (ZONE:SIDE:BAND, e.g. an optimised plan) that override the zone rows below.{' '}
@@ -297,11 +301,11 @@ export function ControlPanel({ cfg, geo, scenarioId, onScenario, update, replace
           </p>
         )}
         <div className="row">
-          <button className="btn small" onClick={() => update((c) => (c.led.plan = { ...c.crowdManagers.plan }))}>
+          {!plus&&<button className="btn small" onClick={() => update((c) => (c.led.plan = { ...c.crowdManagers.plan }))}>
             LED = CM plan
-          </button>
+          </button>}
           <button className="btn small" onClick={() => update((c) => ((c.crowdManagers.plan = { ...DEFAULT_PLAN }), (c.led.plan = { ...DEFAULT_PLAN })))}>
-            Reset both
+            Reset plan
           </button>
         </div>
         <table className="plan">
@@ -309,14 +313,14 @@ export function ControlPanel({ cfg, geo, scenarioId, onScenario, update, replace
             <tr>
               <th>Zone</th>
               <th>CM</th>
-              <th>LED</th>
+              {!plus&&<th>LED</th>}
             </tr>
           </thead>
           <tbody>
             {zones.map((z) => (
               <tr key={z.id}>
                 <td title={z.label}>{z.id}</td>
-                {(['crowdManagers', 'led'] as const).map((k) => (
+                {(['crowdManagers', 'led'] as const).filter(k=>!plus||k==='crowdManagers').map((k) => (
                   <td key={k}>
                     <select value={cfg[k].plan[z.id] ?? z.defaultExit} onChange={(e) => update((c) => (c[k].plan[z.id] = e.target.value as ExitGroupId))}>
                       {EXIT_GROUPS.map((g) => (
@@ -358,7 +362,7 @@ export function ControlPanel({ cfg, geo, scenarioId, onScenario, update, replace
         </div>
       </Section>
 
-      <Section title="Corridor barriers" badge={cfg.barriers.length ? String(cfg.barriers.length) : undefined}>
+      {!plus&&<Section title="Corridor barriers" badge={cfg.barriers.length ? String(cfg.barriers.length) : undefined}>
         <p className="muted small">Hard panels close a corridor link. Low ropes discourage crossing but remain traversable. W0/E0: between D1/P1 and D2; W1/E1: between P2 and D3; W2/E2: between D3 and D4.</p>
         <div className="chips">
           {slots.map((s) => (
@@ -367,19 +371,19 @@ export function ControlPanel({ cfg, geo, scenarioId, onScenario, update, replace
         </div>
         {slots.filter(s=>cfg.barriers.includes(s.id)).map(s=><Select key={s.id} label={`Type at ${s.label}`} value={cfg.barrierTypes?.[s.id]??'hard-panel'} options={[{value:'hard-panel',label:'Hard panel (closed)'},{value:'soft-rope',label:'Low rope (deterrent)'}]} onChange={v=>update(c=>{c.barrierTypes={...c.barrierTypes,[s.id]:v as 'hard-panel'|'soft-rope'};})} />)}
         {cfg.barriers.some(id=>cfg.barrierTypes?.[id]==='soft-rope')&&<Slider label="Rope deterrence (assumed perceived seconds)" value={cfg.ropePenalty??15} min={0} max={60} step={5} unit="s" onChange={v=>update(c=>{c.ropePenalty=v;})} />}
-      </Section>
+      </Section>}
 
-      <Section title="Numerical integration">
+      {!plus && <Section title="Numerical integration">
         <Toggle label="Preserve fractional service credit (A and B)" value={!!cfg.numerics?.conserveService} onChange={v=>update(c=>{c.numerics={conserveService:v};})} />
         <p className="muted small">Same capacities; retain unused fractions after admissions. Off reproduces the 04:20 integration.</p>
-      </Section>
+      </Section>}
 
       <Section title="Environment & stress tests">
         <Toggle label="Power failure / darkness (simplified)" value={cfg.environment.darkness} onChange={(v) => update((c) => (c.environment.darkness = v))} />
         <Slider label="Smoke level (simplified)" value={cfg.environment.smoke} min={0} max={1} step={0.05} onChange={(v) => update((c) => (c.environment.smoke = v))} />
         <Slider label="Outdoor stair factor (ice)" value={cfg.environment.outdoorStairFactor} min={0.3} max={1} step={0.05} onChange={(v) => update((c) => (c.environment.outdoorStairFactor = v))} />
-        <Toggle label="Falls on stairs (stress test)" value={cfg.stress.falls} onChange={(v) => update((c) => (c.stress.falls = v))} />
-        <Slider label="Separated group members" value={cfg.stress.separatedGroups} min={0} max={1} step={0.05} format={pctFmt} tip="share of groups with one member starting in the foyer/corridor (counterflow)" onChange={(v) => update((c) => (c.stress.separatedGroups = v))} />
+        {!plus && <Toggle label="Falls on stairs (stress test)" value={cfg.stress.falls} onChange={(v) => update((c) => (c.stress.falls = v))} />}
+        {!plus && <Slider label="Separated group members" value={cfg.stress.separatedGroups} min={0} max={1} step={0.05} format={pctFmt} tip="share of groups with one member starting in the foyer/corridor (counterflow)" onChange={(v) => update((c) => (c.stress.separatedGroups = v))} />}
         <Slider label="Maximum simulated time" value={cfg.tMax} min={120} max={3600} step={60} unit="s" onChange={(v) => update((c) => (c.tMax = v))} />
       </Section>
 

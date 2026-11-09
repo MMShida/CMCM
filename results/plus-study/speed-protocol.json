@@ -1,0 +1,44 @@
+{
+  "frozenAt": "2026-11-08T22:58:14.826Z",
+  "conditions": [
+    {
+      "mean": 1.2,
+      "family": "normal"
+    },
+    {
+      "mean": 1.35,
+      "family": "normal"
+    },
+    {
+      "mean": 1.4,
+      "family": "normal"
+    },
+    {
+      "mean": 1.5,
+      "family": "normal"
+    },
+    {
+      "mean": 1.2,
+      "family": "lognormal"
+    },
+    {
+      "mean": 1.4,
+      "family": "lognormal"
+    }
+  ],
+  "confirmation": {
+    "mean": 1.4,
+    "family": "normal",
+    "runs": 100,
+    "base": 73101
+  },
+  "pilot": {
+    "runs": 20,
+    "base": 73301
+  },
+  "note": "The 1.4 m/s clipped-normal alternative is declared before any speed-study outcome, motivated by controlled free corridor measurements. It is not chosen as the fastest sensitivity. Original age fraction/factor, SD .25, wheelchair speed, rows, headway, gates, response and geometry remain. This is an externally bounded alternative calibration, not empirical Bailey validation. The original 1.2 primary freeze and all results remain. Same frozen operational policy; no policy search on confirmation audiences.",
+  "references": [
+    "https://arxiv.org/abs/1811.10883",
+    "https://pmc.ncbi.nlm.nih.gov/articles/PMC3873946/"
+  ]
+}

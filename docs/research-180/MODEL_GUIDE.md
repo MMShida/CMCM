@@ -2,17 +2,19 @@
 
 **From flow arithmetic to spatial people, adaptive guidance and reproducible comparisons**
 
-Research continuation of Mateus's **8 November 2026, 04:20:42 EST commit `3e4bcf0`**. This guide describes that model and the limited, optional extensions in `CMCM/mateus-0420`. It does not describe the older, dirty checkout in the parent folder or the later decision-model branch.
+Technical specification continuing Mateus's **8 November 2026, 04:20:42 EST commit `3e4bcf0`**, implemented in `CMCM/mateus-0420`. The original A/B/C models, the A-Lite transport approximation and the final A-Lite+ guidance extension are distinguished throughout.
 
-The problem remains a full house of **1,329 people**, including three wheelchair users. Geometry, physical capacities, speed distributions, intrinsic response times and group movement are preserved in the primary intervention study. The target is the mean time for the **last person to leave the building**, below 180 seconds.
+The problem remains a full house of **1,329 people**, including three wheelchair users. Within each compared model, the base geometry, discharge parameters, speed distributions, intrinsic response times and movement rules are preserved in the primary intervention study. Physical barriers may reduce usable width or close an existing passage as explicitly modelled. A-Lite’s separate group-motion abstraction is stated in Section 19; A-Lite+ changes local group pace, perception and instruction execution as specified in Section 24, then freezes them before operational comparisons. The target is the mean time for the **last person to leave the building**, below 180 seconds.
 
-The companion **RESULTS_AND_CHANGES.pdf** contains the completed experiment tables, selected configurations, uncertainty, rejected alternatives and changes from the 04:20 commit. The equations here explain the implementation; a cited mechanism does not make its numerical parameters measured Bailey data.
+The companion **RESULTS_AND_CHANGES.pdf** contains the completed experiment tables, selected configurations, uncertainty, rejected alternatives and changes from the 04:20 commit. The equations here explain the implementation; a cited mechanism does not make its numerical parameters measured Bailey data. **A-Lite+ is the primary model for the final comparative planning study (Section 24)**, subject to the scope and calibration limits in Sections 22–24. It retains the detailed walkway graph and individual behavior while representing movement by finite queues. A and B remain checks on sensitivity to model structure, and C is a capacity benchmark.
 
-![The inherited three-model architecture shares one audience and building; A-Lite adds the spatial queue representation described later.](figures/architecture.svg)
+![A-Lite+ is the primary detailed-network queue model; A, B and original Lite provide structural comparisons, while C is an ideal flow benchmark.](figures/architecture.svg)
+
+**Finalization scope (8 November 2026).** The user requested closure using completed work. The companion report contains 2,430 completed experiment replications. The retuned twelve-manager policy at 1.4 m/s and a 0.0125 s step averages **184.45 s** over 100 audiences (95% CI **182.39–186.51**); the sub-180 mean is not demonstrated. Supplemental ablations, device-isolation tests, Q1/Q3 scenario batches, parameter uncertainty, two other 100-run fine-step replays and the 0.00625 s diagnostic were not completed. Obstruction tests are partial. Later sections describe both the implemented model and declared experimental designs; a declared test is not a completed result.
 
 ## Notation and reading order
 
-Read the flow and queue sections first, then the shared population and choice rules, then spatial Model A and interventions. The final sections introduce numerical verification and A-Lite. The equations are definitions of the simulation, not fitted laws for Bailey. Numbered citations identify the evidence supporting a mechanism; a numerical coefficient remains an assumption unless stated otherwise.
+Read the flow and queue sections first, then the shared population and choice rules, then spatial Model A and interventions. The final sections introduce numerical verification, A-Lite and the targeted A-Lite+ extension. Read Section 24 after the shared foundations to see exactly which inherited rules it changes. The equations are definitions of the simulation, not fitted laws for Bailey. Numbered citations identify the evidence supporting a mechanism; a numerical coefficient remains an assumption unless stated otherwise.
 
 | Symbol | Meaning | Units |
 |---|---|---|
@@ -597,3 +599,305 @@ The study tab now offers both a known individual replay and an exact batch repla
 A separate replay audit checks all published main confirmation runs against the current engine, and browser checks exercise the actual live controls and worker pool. The generic Monte Carlo report now suppresses a finite full-house mean if any audience is unresolved. Verification establishes agreement with the implemented equations and archived records; empirical accuracy still requires suitable Bailey observations.
 
 **[R20]** Bernardini, G., Lovreglio, R., Quagliarini, E. & D'Orazio, M. (2023). *Can active and passive wayfinding systems support fire evacuation in buildings? Insights from a virtual reality-based experiment.* Journal of Building Engineering 74:106778. [Primary article](https://doi.org/10.1016/j.jobe.2023.106778). Isolated-user VR comparison; does not identify Bailey dense-crowd detection, acceptance or clearance time.
+
+## 22. Earlier A-Lite recommendation and question scope
+
+The earlier study selected **A-Lite**, with exactly six managers for the concert, as its comparative planning model. The final A-Lite+ extension in Section 24 supersedes that recommendation; the earlier comparison remains documented here. It retains all 268 nodes and 384 original links, heterogeneous people, response phases, group readiness and pace, bounded storage, capacity-limited doors/stairs, imperfect information, blocked-route discovery, accessible paths and actual staff/sign locations. Its finite queues make conservation and service explicit. Choosing it is a decision about the required mechanisms, not evidence that its shorter prediction is more accurate than A. Freeze that choice before inspecting a new confirmation sample.
+
+The modeled path begins along the narrow **seatway in front of a person's own seats**. This is necessary to reach an aisle; it is not walking across seat backs. Subsequent routing excludes all seat-row links when the optional vacated-row sensitivity is off, as it is in every selected plan. Transitions must share an existing graph node and respect closed links, directions and accessibility. The new passive audit checks actual transitions and every occupied row link during complete simulations, including panels and unexpected closures. It does not merely check the initial shortest path. The geometry's polylines connect exactly at their stored endpoints; whether the reconstruction matches every real obstruction remains a surveying question.
+
+A-Lite moves people using travel clocks and queue admission. Its drawn queue coordinates can move backward along the same link as the queue is arranged. These relocations are **not physical trajectories or permission to cross seats**. They also affect approximate local visibility, an acknowledged limitation. Walkway lines are enabled by default in the A-Lite interface. Animation now interpolates along the actual polyline and through its junctions, rather than drawing a chord across a bend; this display correction does not change the simulator. A resolves longitudinal gaps and acceleration, but neither A nor A-Lite resolves full two-dimensional body contact.
+
+| Original question | A-Lite application | Limits and required inputs |
+|---|---|---|
+| Q1: ordinary concert departure | Existing ordinary-departure preset; delayed preparation, habit and no managers | Preset population and belongings assumptions need observations; no emergency target interpretation |
+| Q2: concert emergency and unexpected blockage | Full 1,329; six managers; unknown blockage learned on approach | Test multiple closures and information delays; no smoke, incapacitation or contact-force prediction |
+| Q3: university lecture | Existing lecture preset has the same occupancy and no managers, with student/familiarity assumptions | Different input hypothesis, not a technique for making the concert pass; lecture response and luggage remain uncertain |
+| Q4: barriers and directional LEDs | Hard/soft corridor-slot semantics, fixed public strip messages, occlusion, imperfect notice and acceptance | No measured rope-crossing resistance, strip photometry, head occlusion or installation feasibility |
+| Q5: optional resource cost comparison | Installation length, barrier count and staff count can be outputs to a cost calculation | Requires actual quotes, labor and training costs; simulation seconds alone cannot establish cost effectiveness |
+
+B supports many of these comparisons but contracts walking space, lacks explicit body gaps and allows storage relief after 30 seconds. It is a useful independent abstraction, not the recommended primary model for testing device locations. A-Lite removes that overflow and keeps the original links, but omits seated-person squeezing, detailed merge negotiation, spatial group reunion, falls and injury. It explicitly rejects its unsupported falls and separated-group scenarios. Those are model limits, not mechanisms silently assumed harmless. No single current model can certify safe real-world clearance or answer a cost question without cost inputs.
+
+The **decision engine** is a sequence: become ready; learn exits and closures; estimate travel and observed queues on eligible routes using Dijkstra; score known exits using time, familiarity, social influence, accepted guidance and inertia; add the person's persistent Gumbel taste; choose a reachable exit and follow its path, with occasional revision. Group followers normally follow their leader. A manager or LED changes knowledge and preference, not physical speed or guaranteed obedience. Static acoustic managers are the main operational comparison; the zone-adaptive and partial FCFS controllers are separately described in Sections 10–11.
+
+These simulations are **network-based individual models**, not solutions that force an optimal network flow. Model C alone uses max flow/min cut and time-expanded flow as optimization benchmarks. Maximizing C's flow does not supply an implementable plan for people with imperfect knowledge and compliance. The operational search changes permitted block instructions, placements and devices, then evaluates those choices with the unchanged behavioral simulator.
+
+To test A-Lite, run the application from `mateus-0420` on port 5180 and open `http://127.0.0.1:5180/?tab=lite`. The **180-second study** tab loads exact configurations, replays known seeds and reproduces complete Monte Carlo batches. A-Lite is also available in the Monte Carlo model selector. Use `npm run lite -- --seed 1466857514 --out /tmp/bailey-lite.json` for a single command-line run with the validation-selected overall plan. Add `--config results/route-study/selected-config.json` for the combined LED-and-barrier plan. These are two prespecified selection roles, not a choice based on confirmation results. The seed identifies an audience, not a promised clearance time. A JSON export includes its complete configuration.
+
+## 23. What defensible calibration would establish
+
+**None of A, B, A-Lite or A-Lite+ is currently empirically calibrated to Bailey Hall.** The problem specifies occupancy, floors, exits and constraints; the reconstruction supplies approximate metric geometry. Fifty-one of its 384 links are explicitly marked approximate, and the absence of that flag does not establish a surveyed dimension. The public Cornell technical page supplies venue dimensions and equipment, not an evacuation validation dataset [R15]. Its different present seating figure must not replace the assigned full-house problem.
+
+Verification asks whether the implementation obeys its equations. Calibration fits parameters to observations. Validation tests predictions against independent observations. NIST [R21] recommends examining response, movement/navigation, exit use, route availability and flow constraints; ISO 20414 [R22] organizes checks according to the model's represented mechanisms. Our conservation, path, rate, time-step and replay tests are verification evidence. They do not constitute complete ISO testing or empirical venue validation.
+
+| Evidence needed at Bailey | Parameters or assumptions it can identify |
+|---|---|
+| Measured clear widths, seatway lengths, stair geometry and available door leaves | Geometry, effective capacity and accessible connectivity |
+| Anonymized start times by seat block and alarm/message timing | Recognition, preparation, social response and staff effect |
+| Seatway/aisle/stair trajectories and saturated gate counts | Row speed, spacing, free speed, stair factors and flow rates |
+| Time-stamped cumulative exits at each door | Queue growth, route allocation and the full clearance curve |
+| Sign visibility/notice, staff audibility and actual route choices | Information eligibility, adoption and choice weights |
+| Group separation and wheelchair assistance observations | Group delays, cohesion approximation and distinct assistance endpoint |
+
+Fit several independent observables, not just the final evacuation time. For example, let y_j be an observed quantity, m_j(theta) the model's corresponding mean and s_j a prespecified uncertainty scale in the same units. A possible calibration objective is:
+
+$$
+\begin{aligned}
+\widehat{\theta}&=\underset{\theta\in\Theta}{\operatorname{argmin}}\;
+\sum_{j=1}^{M} w_j\left(\frac{m_j(\theta)-y_j}{s_j}\right)^2,\qquad w_j\ge 0,\ s_j>0.
+\end{aligned}
+\tag{26}
+$$
+
+Here theta contains only identifiable uncertain parameters, Theta contains evidence-based admissible ranges, and the weights are fixed before fitting. Repeated time samples are correlated, so weighting each second as an independent measurement would overstate information. Retain independent events or held-out observations for validation and propagate parameter uncertainty through the intervention comparison. Equation (26) is a proposed calibration design, **not a fit performed in this study**. No observed Bailey dataset has been substituted with synthetic simulation output.
+
+The 180-second requirement belongs to the subsequent evaluation of a fixed operational plan; it is not a calibration observation. Lowering headway or response solely until the output passes would change the assumed audience or flow capacity. Research-supported alternatives can be tested as labeled sensitivities, but selecting the fastest alternative does not establish its truth. The report therefore states the actual confirmed mean, its uncertainty, failures and device ablations even when the requirement remains unmet.
+
+**[R21]** Ronchi, E., Kuligowski, E.D., Reneke, P.A., Peacock, R.D. & Nilsson, D. (2013). *The Process of Verification and Validation of Building Fire Evacuation Models.* NIST Technical Note 1822. [Primary report](https://doi.org/10.6028/NIST.TN.1822). Component testing and uncertainty; not validation of this implementation.
+
+**[R22]** ISO (2020). *ISO 20414: Fire safety engineering — Verification and validation protocol for building fire evacuation models.* [Official scope](https://www.iso.org/standard/78348.html). Cited for the distinction and organization of component testing; no certification or complete conformity claim is made here.
+
+## 24. A-Lite+: the primary model and its implementation boundary
+
+A-Lite+ is the primary model for the final competition study. It extends the existing A-Lite transport and shared population/decision code through optional factories. A, B, C and the original Lite remain reproducible. Sections 1–21 derive their common foundations; Sections 22–23 describe the earlier Lite recommendation and its calibration limitations. This section specifies the changes that distinguish the final primary model. The companion results report identifies its completed experiments separately from earlier Lite results.
+
+The original building graph, 1,329 audience members, three wheelchair users, readiness waiting, heterogeneous speeds and response distributions remain. No person can use another seating row as a through-route: only their own seatway leads into the connected aisle/corridor/stair graph. A temporary barrier may narrow or close an approved corridor slot and displace its bypass centreline; it does not reconstruct the building. The endpoint is still equation (1), not the mean person time or assisted street arrival.
+
+![A-Lite+ separates observation, instruction acceptance, destination commitment and physical execution.](figures/plus-information.svg)
+
+### Movement, conservation and the density question
+
+Each original link has finite storage, parallel FIFO lanes, individual remaining distance and conservative service credit. Let $n_e$ be occupancy, $A_e$ admissions and $D_e$ departures during one step. Let $d$ be mean body diameter, $H$ the inherited headway and $v_e$ representative free speed. The same capacity mechanism as Lite applies:
+
+$$
+\begin{aligned}
+ n_e^{k+1}&=n_e^k+A_e^k-D_e^k, & 0\le n_e^k&\le S_e,\\
+ S_e&=\max\{m_e,\lfloor\rho_{\max}L_e w_e\gamma_e\rfloor\}, & C_e^{\mathrm{walk}}&=\frac{m_e v_e}{d+Hv_e},\\
+ b_e^*&=b_e^k+C_e^k\Delta t, & b_e^{k+1}&=\min\{1,b_e^*-D_e^k\}.
+\end{aligned}\tag{27}
+$$
+
+Here $m_e$ is the lane count and $\gamma_e$ is the inherited geometric area scale (plan length relative to physical link length). The minimum storage of one person per lane can exceed the area-density threshold on a very short link. Both directions share passage storage and service according to their current occupancy; the two ends of a seat row are distinct release resources. The row occupancy limit uses body spacing rather than area density. A downstream admission requires space and, for doors/stairs, original gate credit. Waiting never creates an overflow exemption. A simultaneous opposing-head exchange must conserve occupancy, fit the physical width and consume both required service credits.
+
+A-Lite+ already expresses congestion through finite occupancy, service and FIFO waiting. Applying an additional density-speed curve to the same queued delay would count that constraint twice. It therefore retains free travel plus capacity-constrained waiting, whose aggregate density-flow behavior is bounded by equation (27). It does not claim a measured Bailey fundamental diagram or predict crowd pressure. Density uncertainty is tested through the storage cap and transferred headway values, separately from operational optimization.
+
+For local group pacing, let $\mathcal N_i$ contain the person's unbroken group members on the same link and moving in the same direction within the inherited 4 m cohesion distance. Desired group pace is the minimum free speed in that local set, including the person. Readiness waiting and leader destination following remain. The new rule removes the permanent influence of a remote slow member; it does not add a speed bonus or impose a stop when another member is queued. Bode and colleagues found delayed response and approach among small groups, but no discernible difference immediately before an exit [R23]. Their experiment motivates this distinction; it does not calibrate the 4 m distance.
+
+$$
+\begin{aligned}
+ v_i^{\mathrm{group}}&=\min_{j\in\{i\}\cup\mathcal N_i}v_{0,j},\\
+ \ell_i^{k+1}&=\max\{0,\ell_i^k-v_i^k\Delta t\},\qquad
+ t_i^{\mathrm{ready}}=t_k+\ell_i^k/v_i^k.
+\end{aligned}\tag{28}
+$$
+
+Terrain and row limits still apply. Updating the remaining-distance clock when pace changes prevents an artificial position/time jump caused by using a new speed with an old arrival clock. Queue-display positions remain approximate: they may relocate backward within the same link when a queue forms. Visibility uses those approximate positions, so this remains a spatial queue model, not a collision-resolved trajectory model.
+
+A moving follower may change to an actually empty parallel lane on a non-row, non-gated corridor at least 1.8 m wide, when it would otherwise catch its slower lane leader. It does not pass within a narrow lane, reorder a saturated gate queue, cross a wall or skip a graph link. Width and discharge capacities remain unchanged by passing. The width threshold is a stated geometric modelling rule, not a measured overtaking law.
+
+### Local observation, destination commitment and feasible turns
+
+The existing persistent-Gumbel utility and memory rules in equations (10)–(16) remain for unconstrained choices. During movement, people observe visible nearby gates, learn visible closures and compare reachable alternatives. A sight segment must be on the same floor, within range and clear of drawn walls, columns and opaque devices. Known queues can also be communicated by a nearby manager using the inherited delayed local/radio system. Distant true queues are not substituted for missing information.
+
+Queue length is the number of waiting people currently visible to that observer. Apparent discharge is estimated over a five-second continuously visible observation window while a queue exists, bounded above by the known nominal rate. A gap in visibility resets the observation window. Until such a sample exists, nominal capacity is the prior. This is a deliberately simple perception model: there is no calibrated visual counting error distribution.
+
+$$
+\begin{aligned}
+ \widehat C_{i,e}&=\operatorname{clip}\!\left(
+ \frac{P_e(t)-P_e(t-\Delta_o)}{\Delta_o},\;0.2,\;C_e\right),\quad \Delta_o\ge5\ \mathrm{s},\\
+ \widehat W_{i,e}&=Q^{\mathrm{visible}}_{i,e}/\widehat C_{i,e},\\
+ \text{review}&:\quad \widehat T_{i,g}-\min_h\widehat T_{i,h}
+ >\max\{8\ \mathrm{s},0.15\widehat T_{i,g}\}.
+\end{aligned}\tag{29}
+$$
+
+$P_e$ counts admissions observed at a gate. Walkway and opposing-flow costs retain a coarser observation: when the relevant junction is visible, they use the whole link’s directional occupancy. They do not visibility-test each person along that passage, so a long or curved link can convey more information than an actual observer could count. Gate queues use the separate person-level visibility filter described above. A review retains stable preferences and the existing cooldown; it is not an instruction to choose the shortest route deterministically. A mid-link decision changes the intended destination immediately, but the new path begins at the forward endpoint. The occupied link, longitudinal position and coordinates do not change. The next permitted turn is executed through an adjacent link at a real junction. Logs distinguish a destination change from its physical execution.
+
+Manager hearing, acceptance and action are separate. Hearing still depends on delayed activation, range and the room/open-door acoustic approximation. For each person, the original persistent uniform draw $u_i^{CM}$ determines acceptance. Trust does not alter the primary probability, fixed initially at 0.8:
+
+$$
+\begin{aligned}
+ H_i&\sim\operatorname{Bernoulli}(1-e^{-h\Delta t}),\\
+ A_i^{CM}&=\mathbf1\{u_i^{CM}<0.8\},\qquad u_i^{CM}\sim U(0,1),\\
+ g_i^{\mathrm{committed}}&=g_{CM}\quad\text{if heard, accepted and reachable}.
+\end{aligned}\tag{30}
+$$
+
+An accepted valid instruction commits the destination and an explicit route. It is no longer merely a utility bonus. Agreeing repeats do not draw new compliance or rebuild an unchanged valid path. The commitment persists until an updated instruction or known obstruction requires a new route. If the destination becomes unreachable, the command is released. Accessible routing takes precedence for wheelchair users. An accepted manager commitment has priority over a conflicting LED message; that conflict is logged. The exact compliance value remains an assumption, rather than a finding from signage experiments.
+
+### Physical signs, strips and delayed public messages
+
+Every additional installation has an ID, fixed position, floor, facing angle, exit message, activation time, range, angle limit, detection probability, acceptance probability and static/dynamic mode. Strips instead follow explicit points within one existing non-row walkway; they do not use a wall sign's facing cone. Existing exit signs are represented at the original exterior/escape-door nodes as baseline information. Their mounting positions are inferred, not surveyed.
+
+At first eligible sight of a message version, a persistent person–installation draw tests detection and a separate draw tests acceptance. Repeated checks do not turn low notice probability into eventual certainty. A noticed message teaches an exit even when not accepted. An accepted LED instruction adopts the destination unless an existing accepted manager command conflicts. Knowledge persists across movement. Updated messages may be read again, using the same installation-specific draws.
+
+$$
+\begin{aligned}
+ V_{i,s}(t)&=\mathbf1\{\text{active, same floor, in range/cone, clear sightline}\},\\
+ N_{i,s}&=V_{i,s}\mathbf1\{u^{N}_{i,s}<p_s^{N}\},\qquad
+ A_{i,s}=N_{i,s}\mathbf1\{u^{A}_{i,s}<p_s^{A}\}.
+\end{aligned}\tag{31}
+$$
+
+The nominal additional-sign detection value 0.77 is transferred from individual trials in an unfamiliar building: 53 analysed participants aged 18–70, with observed detection 77% head-on and 72% at an oblique approach, versus 39% and 37% for conventional static signs [R24]. Most noticing participants followed. The primary acceptance 0.8, 8 m range and 70-degree half-angle are modelling assumptions, tested separately. Floor-strip transfer is particularly uncertain. The 2017 combined voice/sign result of 66% is not used as a detection parameter [R8]. Baseline static-sign detection is 0.38. Darkness/smoke reductions remain inherited sensitivities; there is no calibrated photometric or head-occlusion model.
+
+A dynamic sign listens to the nearest active same-floor manager. That manager first receives local observations after the inherited two-second delay and may learn remote information by radio after three seconds with 0.9 reliability. The sign controller receives a snapshot after another configured three seconds. It compares nominal route travel plus the waits in that delivered snapshot, using only learned closures. A change normally requires a 20-second improvement and a 20-second hold. Every viewer sees the same message. A strip reverses its displayed arrow order when the newly indicated route requires the opposite direction. Neither controller reads instantaneous global queues. For a gate within a manager’s visibility catchment, the inherited observation uses its full simulated queue count divided by its configured capacity; it does not test visibility of every waiting person or estimate that capacity from a short observation window. This local counting/rate approximation is more informative than an individual’s limited visible-queue estimate. A previously reported gate wait persists until a newer observation arrives; missing observations are treated as zero wait, not as evidence that a route is clear. The inherited adaptive-manager demand forecast uses simulated remaining zone counts and peer counts without an additional count-report delay; this is stronger information than the delayed gate observations and is an explicit abstraction. The fixed-plan primary policy does not use adaptive destination allocation. Obstruction experiments introduce one closed link at a time: the inherited manager closure flag refers to the entire configured closure set, so simultaneous closures are not independently discovered by staff in the present implementation.
+
+### Low-profile barriers and explicit bypasses
+
+Only designated corridor slots are eligible. A barrier has physical type, enabled state, length $b$ and angle $\theta$ relative to the corridor. Its projected span reduces usable width; the remaining single bypass lies on the other side. The navigation centreline bends around that end, preserving both original junctions and adding the actual modelled detour length. A full-width open rail closes the slot but remains optically transparent. An opaque panel additionally blocks sight; it is retained as a historical comparator.
+
+$$
+\begin{aligned}
+ w_{\mathrm{bypass}}&=\max\{0,w-|b\sin\theta|\},\\
+ m_{\mathrm{bypass}}&=\max\{1,\lfloor w_{\mathrm{bypass}}/w_{\mathrm{lane}}\rfloor\},\\
+ w_{\mathrm{bypass}}&=0\Rightarrow\text{closed link};\qquad
+ 0<w_{\mathrm{bypass}}<1.1\ \mathrm{m}\Rightarrow\text{reject}.
+\end{aligned}\tag{32}
+$$
+
+The 1.1 m threshold is a research screening rule, not a code-compliance finding. Exit/gate/row locations, oversized footprints, duplicate devices and lost seat-to-exit or accessible connectivity are rejected. Every candidate must also be tested under exit obstruction. Belts and open rails do not act as opaque walls, and neither adds a positive throughput multiplier. A-Lite+'s physical barriers have no arbitrary perceived-seconds rope penalty. A low belt may be passed around its end; climbing under or stepping over a closed belt is not modelled. This is a restriction hypothesis, not measured universal obedience.
+
+![A partial low barrier consumes real width and leaves a displaced bypass; a full open rail closes the slot without becoming a wall to vision.](figures/plus-barriers.svg)
+
+The device occupies a short graph slot; its reduced-width representation applies over that link. Actual posts, bases and supports must fit within the assessed footprint and leave the stated clear bypass; these hardware details have not been surveyed or separately resolved. A product belt length alone is therefore insufficient to approve an installation. It does not resolve local body arching or contact forces. Literature demonstrates context-dependent obstacle effects, including slower discharge with lower local density [R11–R12, R17]. A barrier is recommended only if its benefit survives matched uncertainty and obstruction tests. Any physical installation requires review and approval by the University Fire Marshal.
+
+### Calibration freeze, tests and practical use
+
+`src/plus/Calibration.ts` is the compact evidence ledger shown in the UI. The numerical inputs and evidence categories are frozen in `results/plus-study/calibration-freeze.json` before final operational screening. Geometry/occupancy are Bailey problem inputs; quantitative experimental transfers are identified; all remaining coefficients are explicit assumptions. The row-speed, headway, storage, response, group and notice ranges are sensitivity cases, not optimization variables. NIST's stair observations (5,244 journeys, overall mean 0.44 m/s, SD 0.19) measure realized movement including congestion; they must not replace desired free stair speed and then have queue delay added again [R25].
+
+<!-- PLUS_CALIBRATION_START -->
+
+### Frozen evidence ledger
+
+The adopted values below are the primary research configuration, frozen before the placement search. “Bounded” means informed by external evidence and tested over stated alternatives; it does not mean statistically estimated from Bailey observations. Ranges are scenario ranges, not confidence intervals. Other inherited behavioral weights are specified in Sections 6–11 and in the exported configuration.
+
+| Parameter: adopted value and units | Experimental finding and source | Evidence category, uncertainty and transfer limit |
+|---|---|---|
+| **Audience and building**: 1329; 527/486/316; 3 wheelchair users (people) | Assigned competition population and supplied plans; 51 link dimensions flagged approximate. [CMCM 2026 Bail(ey)ing Out, pp. 1–3](/CMCM_2026_Bail(ey)ing_Out.pdf) | Bailey problem specification. Range: Fixed. Reconstruction, not surveyed as-built geometry. |
+| **Free walking speed**: clipped normal, mean 1.2 before age adjustment (m/s) | Single-file experiments relate spacing and speed; they do not identify this mixed audience distribution. [Seyfried et al. (2005)](https://arxiv.org/abs/physics/0506170) | Inherited assumption, research bounded. Range: Mean 1.1–1.3. Elderly share .25 and factor .78 remain assumptions; no Bailey trajectories. |
+| **Net time headway**: 0.70 (s) | Seyfried reports spacing d=0.36+1.06v over 0.1–1.0 m/s; Johansson studies constant net headway. Definitions differ. [Seyfried (2005); Johansson (2009)](https://arxiv.org/abs/0908.3118) | Inherited assumption, research bounded. Range: 0.50–1.06. Body diameter .44 m plus H is not the complete fit from either experiment. |
+| **Seat-row cap**: 0.45 (m/s) | Eight campus lecture-room trials: imposing 0.45 m/s generally overpredicted time; 0.60 was another numerical model, not their measured estimate. [Spearpoint & Xiang (2011)](https://publications.iafss.org/publications/fss/10/599/view) | Inherited conservative assumption. Range: 0.45–0.60. Mostly young familiar lecture users; conservative value retained for concert. |
+| **Stair movement**: individual free speed × inherited stair ratio (m/s) | NIST TN1839 (2015), Table 5: 5244 observed stair journeys, overall mean .44, SD .19 m/s; congested realized speeds must not be substituted for uncongested desired speeds. [Kuligowski et al., NIST TN1839](https://doi.org/10.6028/NIST.TN.1839) | Inherited assumption, externally checked. Range: Ratio ×0.85–1.15. Different stair geometry and occupancy; no Bailey stair calibration. |
+| **Door / stair specific flow**: 1.3 / 1.0; boundary losses 0.15 / 0.09 (people/(m s); m) | Theatre network trials require aisle and exit constraints; obstacle studies do not establish a universal capacity gain. [Spearpoint & Xiang (2011); Wang et al. (2023)](https://arxiv.org/abs/2212.01296) | Inherited engineering assumptions. Range: Rates ×0.9–1.1. No measured Bailey saturated flow. Faster-is-slower and luggage factors retained. |
+| **Density and spillback**: 4.5 maximum; finite shared link storage (people/m²) | Capacity follows J=v/(d+vH); space is reserved for ALL occupants. No timed overflow. No extra density multiplier on the same queue delay. [Seyfried (2005); Guo et al. (2011)](https://doi.org/10.1016/j.trb.2010.09.009) | Assumption with conservation verification. Range: 3.5–4.5. Link averages, not contact forces or precise crowd pressure. |
+| **Recognition / response / preparation**: lognormal medians 6 / 14 / 6; log SD .6 (s) | Unannounced theatre evidence supports response heterogeneity and seat-position dependence. [Hopkin, Galea & Deere (2015/2017)](https://doi.org/10.1002/fam.2424) | Inherited assumptions; supported distribution family. Range: Response median ×0.8–1.2. Exact medians, social acceleration and spatial coefficients not fitted to Bailey. |
+| **Groups**: readiness wait ≤90; local pace within existing 4 m on same link (s; m) | 108 recorded participants in groups of 3 vs individuals; longer response/approach, no discernible difference immediately before exits. [Bode et al. (2015)](https://doi.org/10.1371/journal.pone.0121227) | Research-motivated structural change; distance assumed. Range: Compare permanent slowest pace. Small artificial groups; experiment does not estimate 4 m. No speed bonus at a gate. |
+| **Exit decisions**: persistent random utility; 8 s / 15% improvement; 6 s review cooldown (s) | Route-choice experiments support response to travel and queues with relatively infrequent revisions. [Liao et al. (2017)](https://doi.org/10.1098/rsif.2016.0684) | Inherited choice model / assumptions. Range: Controller hold 20–30. Preferences and thresholds not Bailey measured; perceived cost contains only visible/communicated conditions. |
+| **LED notice / acceptance**: 0.77 / 0.80 per person-installation; range 8 m, cone ±70° (probability; m; degrees) | Controlled unfamiliar-building trials: dynamic-sign detection 77% head-on, 72% oblique versus 39%/37% static; most who noticed followed. [Galea et al. (2014), FSS11:1129–1143](https://doi.org/10.3801/IAFSS.FSS.11-1129) | Transferred detection; acceptance/geometry assumptions. Range: Detection .50–.90; acceptance .60–.90; range 4–12. Not a dense theatre. Floor-strip transfer especially uncertain; 2017 combined voice/sign 66% is not notice probability. |
+| **Existing static sign notice**: 0.38 per person-installation (probability) | Static-sign detection near 38% in an unfamiliar building; not repeated independent lottery every second. [Xie et al. (2012); Galea et al. (2014)](https://doi.org/10.1002/fam.1095) | Transferred experiment. Range: .25–.60. Existing sign positions inferred from exit nodes; exact mounting heights/photometry unavailable. |
+| **Crowd Managers**: 6; fixed .80 acceptance; 12 m acoustic reach; activation lognormal median10 (people; probability; m; s) | Sign/voice trials support consistent messages; no retrieved Bailey experiment identifies manager compliance .80. [Galea et al. (2017)](https://gala.gre.ac.uk/id/eprint/16552/) | Count from problem; behavioral assumptions. Range: Acceptance .60–.90; radius 8–12. Hearing differs from acceptance and execution. Local observations delayed 2 s; radio 3 s, reliability .9. |
+| **Physical temporary barriers**: slot footprint; one bypass ≥1.1 m or alternate-route closure; no gain (m) | Diversion devices can increase or decrease flow; S-shaped rails may lower density while lengthening time. [Wang et al. (2023); Chen et al. (2023)](https://doi.org/10.1016/j.ssci.2022.106020) | Design assumptions and feasibility screening. Range: No device / partial belt / open rail. 1.1 m is a research screening rule, not code certification. Actual installation needs Fire Marshal approval. |
+
+The free-speed distribution has SD 0.25 m/s and is clipped to 0.5–2.0 m/s after the inherited age adjustment. One quarter of the concert audience is classified elderly, with speed factor 0.78. Down/up stair ratios are 0.57 for other ambulant people and 0.51 for elderly people; wheelchair speed is 0.8 m/s. Ambulant body radius has mean 0.22 m and SD 0.02 m, clipped to 0.17–0.30 m; each wheelchair user instead has radius 0.45 m and requires accessible links. Aggregate lane service still uses the representative body diameter, so this is not a separate empirical wheelchair discharge model. These are transferred engineering assumptions, not measurements from the Bailey population. Door flow and stair flow are separate from desired travel speed: a staircase can have a low observed speed because of queues even when its free desired speed is higher.
+The primary intervention study keeps these values fixed while changing manager posts/messages, pre-announcement and physical installations. The supplementary suite varies them one at a time, also in the slower direction. A favorable sensitivity is evidence of model dependence, not grounds to adopt that parameter after seeing the target result.
+<!-- PLUS_CALIBRATION_END -->
+
+Open `http://127.0.0.1:5180/?tab=plus`. Load a catalogue/tested policy, edit signs or strips on the plan, select barrier slots and inspect the resulting bypasses. The engine rejects invalid layouts. A running experiment keeps its existing configuration until reset. The inspector shows known/target exits, visible queues, apparent rates, accepted commands, pending turns and recent decisions. Exported JSON restores exactly the same installations and seeded audience. The comparison panel uses common audiences and reports unresolved runs alongside means and confidence intervals.
+
+Event totals cover the entire run. To bound memory, the general event export retains the first 20,000 entries; each person's inspector separately retains their latest 20 messages and decisions. Accepted messages and the actual destination are displayed separately, since a conflicting sign or an inaccessible instruction need not determine the route ultimately used. Floor-strip validation checks each complete segment inside the union of the walkway's width envelopes, so valid endpoints alone cannot permit cutting across a corridor corner.
+
+Costs are explicitly editable illustrative assumptions, not vendor quotations: capital equals wall-sign units plus strip length plus barrier units plus a dynamic controller if used; staffing is costed per event. Compare total cost across the expected number of events, including local installation and maintenance estimates when available. Additional managers remain a separate resource scenario. Timing, density exposure and closure robustness must be compared before treating two options as operationally equivalent.
+
+Verification covers physical adjacency, conservation, capacity/storage, visibility, instruction execution, public delayed messages, invalid placements, JSON round trips, legacy references and actual browser interactions. Stochastic audience confidence intervals do not absorb uncertainty in transferred parameters or unknown Bailey dimensions. A-Lite+ is research-grounded and verified against its stated rules; without observed Bailey trajectories or evacuation trials it is not empirically validated at this venue [R21–R22]. A sanguine interpretation of a single fast seed is insufficient: reliable choreography depends on clear messages, physical feasibility and legibility.
+
+**[R23]** Bode, N.W.F., Holl, S., Mehner, W. & Seyfried, A. (2015). *Disentangling the Impact of Social Groups on Response Times and Movement Dynamics in Evacuations.* PLOS ONE 10(3):e0121227. [Primary experiment](https://doi.org/10.1371/journal.pone.0121227). 120 participants recruited, 108 recorded; groups of three and individual treatments in repeated small-room experiments.
+
+**[R24]** Galea, E.R., Xie, H. & Lawrence, P.J. (2014). *Experimental and Survey Studies on the Effectiveness of Dynamic Signage Systems.* Fire Safety Science 11, 1129–1143. [Primary paper](https://doi.org/10.3801/IAFSS.FSS.11-1129), [author manuscript](https://gala.gre.ac.uk/id/eprint/14393/1/14393_GALEA_Dynamic_Signage_Systems_2014.pdf). Detection and response in controlled individual wayfinding trials; transfer to a dense theatre is uncertain.
+
+**[R25]** Kuligowski, E.D. and colleagues (2015). *Movement on Stairs During Building Evacuations.* NIST Technical Note 1839, Table 5. [Primary report](https://doi.org/10.6028/NIST.TN.1839). Realized stair movement in multiple buildings; not a measurement of Bailey free stair speed.
+
+
+## 25. Free speed and distribution shape: a separate, declared sensitivity
+
+The concert default is **1.20 m/s before age adjustment**. The inherited lecture scenario uses **1.35 m/s** and a different audience; it must not be confused with the concert. The user-requested follow-up compares concert means 1.20, 1.35, 1.40 and 1.50 m/s without changing its 25% older share, 0.78 older speed factor, 0.25 m/s pre-age standard deviation, 0.8 m/s wheelchair speed, response, headway, row limits or gate capacities.
+
+Controlled corridor experiments reported individual free speeds around 1.40 m/s for young adults and 1.28 m/s for older adults; older collective movement at low density was slower than the individual pretest [R26]. This supports **testing** 1.40, not identifying Bailey's mixed-audience speed. Natural station observations found substantially lower free speeds and showed that transferring a standard literature value can distort predictions [R27]. “Brisk but normal” is therefore a scenario description, not a venue measurement. No evidence here supports treating every spectator as a fast walker.
+
+The 1.40 m/s clipped-normal alternative was declared in `speed-protocol.json` before any speed-study result. It receives 100 confirmation audiences with the same selected six-manager operational plan. The other means and the right-skew option receive 20 paired sensitivity audiences. Neither the fastest sensitivity nor a single successful seed replaces the declared alternative. The original 1.20 study remains reported separately.
+
+### Exactly what is sampled
+
+Let $Z_i\sim N(0,1)$ be the existing person's speed draw, $\mu$ and $\sigma$ the pre-age mean and standard deviation, and $f_i=0.78$ for older ambulant people or 1 otherwise. Define $\operatorname{clip}(x)=\min(2.0,\max(0.5,x))$ in m/s. The original sampler clips extremes; it does not resample a truncated distribution. The optional lognormal reuses the same $Z_i$:
+
+$$
+\begin{aligned}
+ v_{i,N}&=\operatorname{clip}\{f_i(\mu+\sigma Z_i)\},\\
+ s_L^2&=\ln\!\left[1+(\sigma/\mu)^2\right],\\
+ v_{i,L}&=\operatorname{clip}\{f_i\mu\exp(s_LZ_i-s_L^2/2)\}.
+\end{aligned}\tag{33}
+$$
+
+Before clipping, both families have mean $f_i\mu$ and standard deviation $f_i\sigma$. For the lognormal, $E[e^{s_LZ}]=e^{s_L^2/2}$ explains the subtraction in the exponent; its variance is $(f_i\mu)^2(e^{s_L^2}-1)=(f_i\sigma)^2$. Its median is below its mean. Right skew adds a fast tail while shifting more probability below the mean: it is not a rightward shift of everyone. After clipping and age mixing, empirical moments differ slightly and are reported from the sampled audiences. Wheelchair speed remains separately fixed. No new random draw changes seats, groups, response or compliance.
+
+At $\mu=1.40$, the pre-clipping older mean is 1.092 m/s and the mixed ambulant mean is approximately $1.40(0.75+0.25\times0.78)=1.323$ m/s. These are consequences of the retained age assumption, not a fit to the older experiment. The right-skew family is a distributional sensitivity; the cited studies do not establish it as a superior Bailey fit.
+
+### Why a free-speed change may have a limited effect
+
+The change affects uncongested travel and the representative walkway service rate $J=\mu/(0.44+0.70\mu)$. At means 1.20, 1.35, 1.40 and 1.50, this is approximately 0.938, 0.975, 0.986 and 1.007 people/s per lane. Thus 1.20 to 1.40 raises this nominal rate only about 5.2%, despite a 16.7% increase in desired free speed. Door rates, finite storage, row caps, preparation, group waiting and imperfect route allocation remain. Raising free speed cannot remove those bottlenecks. The gate urgency and faster-is-slower settings are also unchanged.
+
+**[R26]** Ren, X., Zhang, J., Song, W. & Cao, S. (2019). *The fundamental diagrams of elderly pedestrian flow in straight corridors under different densities.* Journal of Statistical Mechanics: Theory and Experiment, 023403. [Primary manuscript](https://arxiv.org/abs/1811.10883), [journal DOI](https://doi.org/10.1088/1742-5468/aafa7b). Controlled corridor measurements; free individual tests and collective low-density movement are different estimands.
+
+**[R27]** Davidich, M. & Köster, G. (2013). *Predicting Pedestrian Flow: A Methodology and a Proof of Concept Based on Real-Life Data.* PLOS ONE 8(12):e83355. [Primary article](https://pmc.ncbi.nlm.nih.gov/articles/PMC3873946/), [DOI](https://doi.org/10.1371/journal.pone.0083355). Field calibration illustrates why a transferred speed is not a local validation.
+
+## 26. Reproduce the model in the interface
+
+1. From `mateus-0420`, run `npm run dev -- --host 127.0.0.1 --port 5180`, then open `http://127.0.0.1:5180/?tab=plus`. Use **A-Lite+**, the primary model. Other local servers may be serving a different checkout.
+2. In **Tested/catalogue policy**, load `selected-six` for the original concert study or `speed-alternative-1.4` for the declared speed alternative. The selector loads the complete configuration: six staff posts, block instructions, actual signs/strips, barriers and all physical/behavioral inputs. The two speed cases share the operational plan. The **Load confirmed retuned guidance** button loads the completed twelve-manager, 1.4 m/s, 0.0125 s confirmation. The other two planned 100-run fine-step replays were not completed; their confirmation buttons are not shown.
+3. Confirm the **Loaded** policy name, seed, time step and staff count above the controls. Inspect the installation map and the current speed/shape in the controls. In the live view click **Reset**, then **Start**. The playback multipliers alter wall-clock playback only. The seed identifies one audience; it is not a mean. Read **Evacuation time (last person out)** in Run results. Continued travel to street level may keep the simulation clock running after everyone has left the building.
+4. Open **Compare identical random audiences**, then **Independent confirmation and question results**. **Replay first seed** or the individual-seed menu loads a particular stored audience. Reset and start to compare its displayed clearance time with the recorded value.
+5. To reproduce the reported average, click **Prepare 100-run reproduction** on the desired result. This loads its exact policy, sets the recorded seed base, selects **Current editor** and sets 100 replications. Click **Run matched comparison**. The batch derives the same 100 seeds as the command-line study: base 73101 for the original and speed-alternative confirmation, 73403 for the expanded staffing study, or 73503 for the final guidance refinement. A base is not necessarily an individual trial seed. Compare mean, interval, success fraction and unresolved count. The batch can be cancelled; a partial cancelled result is not published as complete.
+6. To test a new placement, edit the physical map, export the configuration, choose **Current editor** and compare it with a catalogue reference using common seeds. Invalid bypasses or disconnected accessible paths are rejected. A changed parameter or installation is a new experiment, not a reproduction of the published mean.
+
+The UI exposes both current overrides and the original evidence ledger. A legacy engine cannot silently run an A-Lite+ installation configuration: load a legacy scenario explicitly when comparing A, B, C or original Lite. Browser tests and Node replays check the same exported configuration and seed; neither substitutes for an observed Bailey evacuation.
+
+## 27. Additional managers, placement and conservative movement
+
+Staffing is an operational resource, separate from the audience and its physical calibration. The expanded study compares 6, 8, 10, 12 and 18 explicit posts, including seat coverage, decision points, bottleneck areas and hybrid layouts. The original six-manager comparison remains available. A requested count must correspond to instantiated posts: A-Lite+ expands the coverage template when more than six are requested and tests the actual number present. Adding a number to the configuration without adding posts is not a staffing experiment.
+
+For mixed layouts, additional posts are drawn from the existing coverage locations. Seating-zone responsibility is assigned to the nearest same-floor post from the zone's seat centroid. This administrative rule does not grant distant hearing or perfect knowledge. More staff can reach more people earlier, shorten realized response through the existing hearing mechanism and communicate competing directions; extra staff do not multiply a door's capacity or guarantee a benefit.
+
+Research comparing static and moving guides found that guidance mode, speed, relative position and density matter [R28]. The experiment and subsequent subway-platform model do not establish a universal best placement in Bailey. In particular, following a moving leader is different from hearing instructions from a manager who changes post. A-Lite+ tests the latter as a limited operational sensitivity; it does not import a social-force attraction coefficient or a published percentage improvement.
+
+### Explicit patrols on existing corridors
+
+A patrol is a start node, an ordered connected list of existing links, a start time, a walking speed and an endpoint dwell. Its initial post must coincide with the start node: no automatic snapping or teleportation. The search uses 1.0 m/s, starts at 20 or 45 seconds and dwells for 10 seconds at each end. These are declared operational choices, not experimentally estimated Bailey values. Static controls use exactly the same initial posts. Only same-floor, open, non-row, non-gate walkways at least 1.8 m wide are eligible. Stairs and exterior routes are excluded from this patrol comparison.
+
+Candidate construction seeks an eligible node within 4 m of each original coverage post and explicitly relocates the starting post before the run; the matched stationary control uses that same position. No such route exists near the six coverage posts, so those nominal patrol cases remain stationary. The twelve- and eighteen-post layouts each have three actual patrols. This distinction is reported rather than assuming every requested manager can move along a feasible route.
+
+Shared seeds guarantee the same sampled audience, not identical runtime random decisions under every configuration representation. Inherited guidance draws activation times for all available geometry posts before hearing events. An explicit six-post list consumes fewer such draws than the ten-post base geometry, even when its six active positions and activation times match. Its later hearing sequence therefore differs. Compare moving cases with their own explicit stationary controls, and do not interpret that representation-induced sampling difference as a physical placement benefit.
+
+Let $s_m$ be the manager's distance along the current link of model length $L_e$, $n_e$ its audience occupancy, and $t_m^{ready}$ the later of activation, scheduled start and any dwell expiry. The manager's discrete advance is:
+
+$$
+\begin{aligned}
+ \Delta s_m&=\mathbf1\{t\ge t_m^{ready},\ n_e=0,\ e\text{ open}\}
+ \min\{v_m\Delta t,L_e-s_m\},\\
+ s_m'&=s_m+\Delta s_m,\qquad
+ \boldsymbol{x}_m'=\boldsymbol{p}_e(s_m'/L_e).
+\end{aligned}\tag{34}
+$$
+
+The function $\boldsymbol{p}_e$ interpolates the actual walkway polyline. At a junction, only the next connected patrol link can be entered; at either end the manager waits before reversing. If any audience member occupies the link, motion pauses. Movement logs record distance, waiting and arrivals. This is deliberately restrictive: the model does not give a moving manager free passage through a dense queue. It may therefore find little benefit from patrols during peak congestion.
+
+Hearing follows the current manager position. Each second, acoustic distances, local observation sets and peer overlap are refreshed; visible gate information still requires line of sight. Observation, radio and public-sign delivery delays remain. Walking does not refresh a person's persistent acceptance draw, extend voice range or create a new instruction version merely to obtain another compliance opportunity. The live map shows actual moving posts, while the editor and report show starting posts and purple patrol paths.
+
+As in Mateus's fixed-post abstraction, staff bodies are not included in audience queue storage or the 1,329-person clearance endpoint. Consequently this is an information-coverage sensitivity, not a validated simulation of staff–crowd contact or staff evacuation. The empty-link motion restriction reduces the unsupported claim, but does not remove that limitation. A patrol result is compared with its stationary counterpart and cannot certify an installation or staffing plan.
+
+### Selection and uncertainty
+
+The expanded operational search uses the separately declared 1.40 m/s alternative, eight screening audiences (base 73401), then sixteen validation audiences (73402) for four shortlisted policies. The lowest complete validation mean is frozen before 100 new audiences (73403). The same staffing policy at 1.20 m/s and the six-manager 1.40 control use those same confirmation audiences. This separates resource effects from the change in speed calibration. Finer time steps, three closures and a stationary-post comparison use another twenty audiences (73404). Neither physical speed nor a holdout audience is selected to manufacture success. A further protocol, declared before these confirmation results, always repeats both the six-manager 1.40 policy and the expanded-staff 1.40 policy at the finest 0.0125 s step on their respective 100 confirmation audiences. The original step remains reported; the fastest step is never selected.
+
+Costs scale with the actual staff count. At the illustrative \$120 per manager-event, 12 staff cost \$720 more per event than six, and 18 cost \$1,440 more. Training, placement feasibility, conflicts between messages and obstructed-exit performance remain part of the comparison. A faster mean alone is insufficient to recommend the most expensive configuration.
+
+**[R28]** Liu, W., Zhang, J., Ba, R. & Song, W. (2026). *Mode-dependent optimal positioning of evacuation guides: An experimental–modeling study on static and dynamic guidance effect.* Tunnelling and Underground Space Technology 171:107458. [Primary article](https://doi.org/10.1016/j.tust.2026.107458), [author preprint record](https://papers.ssrn.com/sol3/papers.cfm?abstract_id=5532949). Guidance modes and placement dependence; its platform predictions and movement-force calibration are not transferred numerically to Bailey.
+
+### Final operational follow-up
+
+The expanded staffing policies initially inherit messages optimized for six managers. Experiments on queue-sensitive route choice and simulation-based guidance motivate testing allocation [R7, R10]; they do not prescribe the search budget or guarantee an improvement. A final bounded follow-up therefore keeps the selected posts, declared 1.4 m/s calibration, LEDs and barriers fixed, and changes only staff/pre-announcement destinations. Eight training audiences compare four coherent west/east side-zone patterns and the inherited plan, then one sweep over the eight non-side seat blocks most represented in the late tail. An improvement must exceed one simulated second on the common training audiences. Three candidates receive twenty independent validation audiences; the lowest complete mean is frozen before 100 new confirmation audiences and a mandatory 0.0125 s replay of the same audiences. Three unknown closures are tested with and without the barriers. The search stops after this protocol regardless of whether 180 seconds is reached. Its configurations, all evaluated plans, sources and outcomes are archived; the UI labels the result **retuned guidance**. Public signs retain their original spatial messages.
+
+### Numerical accuracy of the frozen policies
+
+For an isolated constant-speed traversal of duration $\tau$, checking arrival only on the time grid gives $\lceil\tau/\Delta t\rceil\Delta t$, with rounding error $0\leq\lceil\tau/\Delta t\rceil\Delta t-\tau<\Delta t$. For an uncongested path of $m$ independently checked passages, these travel-rounding errors sum to less than $m\Delta t$. This is not a bound on the complete interacting evacuation: queue order, hearing and route decisions can also change when event times shift.
+
+The expanded-policy twenty-audience means changed by 2.32 s between steps 0.025 and 0.0125 s. Before opening the 100-run fine-step results, a further numerical diagnostic was declared at 0.00625 s on the first twenty matching confirmation audiences of each frozen policy. Only the integration step changes. The report retains the declared 100-run 0.0125 s results, shows paired changes at the smaller step and discusses remaining numerical uncertainty; it never selects whichever step is fastest.

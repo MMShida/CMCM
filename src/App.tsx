@@ -1,3 +1,5 @@
+import {plusConfig} from './plus/Config';
+import {PlusWorkspace} from './components/PlusWorkspace';
 import { useEffect, useState } from 'react';
 import { ControlPanel } from './components/ControlPanel';
 import { ExperimentComparison } from './components/ExperimentComparison';
@@ -19,8 +21,9 @@ import type { SimConfig } from './simulation/Params';
 import { cloneConfig, defaultConfig, mergeConfig } from './simulation/Params';
 import { scenarioById } from './simulation/Scenarios';
 
-type Tab = 'lite' | 'live' | 'mc' | 'density' | 'cms' | 'exp' | 'sens' | 'net' | 'cmp' | 'cmpx' | 'dash' | 'geo' | 'model' | 'research';
+type Tab = 'plus' | 'lite' | 'live' | 'mc' | 'density' | 'cms' | 'exp' | 'sens' | 'net' | 'cmp' | 'cmpx' | 'dash' | 'geo' | 'model' | 'research';
 const TABS: [Tab, string][] = [
+  ['plus', 'A-Lite+ (primary)'],
   ['live', 'Live simulation (A)'],
   ['lite', 'A-Lite simulation'],
   ['research', '180-second study'],
@@ -56,7 +59,7 @@ function lsSet(k: string, v: unknown) {
 const URLP = typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : new URLSearchParams();
 
 export default function App() {
-  const [tab, setTab] = useState<Tab>(() => (URLP.get('tab') as Tab) ?? lsGet('bailey.tab', 'live'));
+  const [tab, setTab] = useState<Tab>(() => (URLP.get('tab') as Tab) ?? lsGet('bailey.tab', 'plus'));
   const [scenarioId, setScenarioId] = useState<string>(() => URLP.get('scenario') ?? lsGet('bailey.scenario', 'concert-emergency'));
   const [cfg, setCfg] = useState<SimConfig>(() => {
     const sc = URLP.get('scenario');
@@ -86,7 +89,7 @@ export default function App() {
     setCfg((c) => {
       const n = cloneConfig(c);
       fn(n);
-      return n;
+      return tab==='plus'?plusConfig(n):n;
     });
   const onScenario = (id: string) => {
     setReplay(null);setReplayKey(k=>k+1);
@@ -96,13 +99,14 @@ export default function App() {
     setCfg(c);
   };
   const bundled = geo === BAILEY_HALL;
+  const legacyMismatch=!!cfg.plus&&!['plus','mc','geo','model','dash','research'].includes(tab);
   const showControls = tab !== 'geo' && tab !== 'model' && tab !== 'dash' && tab !== 'research';
 
   return (
     <div className="app">
       <header className="top">
         <div className="brand">
-          <b>Bail(ey)ing Out</b> <span className="muted">evacuation models A (agent-based) · B (network) · C (optimal flow) · Bailey Hall · CMCM 2026 · 04:20 research checkout</span>
+          <b>Bail(ey)ing Out</b> <span className="muted">A-Lite+ (primary) · A-Lite (reference queues) · A (lane movement) · B (contracted queues) · C (optimal flow) · Bailey Hall · 04:20 research checkout</span>
         </div>
         <nav className="tabs">
           {TABS.map(([id, label]) => (
@@ -117,8 +121,10 @@ export default function App() {
       </header>
       {!bundled && <div className="stale">Using an edited geometry (Geometry editor). Results are not comparable with the bundled reconstruction.</div>}
       <div className={`body ${showControls ? '' : 'full'}`}>
-        {showControls && <ControlPanel cfg={cfg} geo={geo} scenarioId={scenarioId} onScenario={onScenario} update={update} replace={(c) => setCfg(c)} />}
+        {showControls && <ControlPanel plus={tab==='plus'||(tab==='mc'&&!!cfg.plus)} cfg={cfg} geo={geo} scenarioId={scenarioId} onScenario={onScenario} update={update} replace={(c) => setCfg(tab==='plus'?plusConfig(c):c)} />}
         <main>
+          {legacyMismatch ? <div className="card"><b>This tab runs a legacy engine.</b><p>The loaded configuration uses A-Lite+ instruction and physical-installation rules. Load a legacy scenario or an archived study configuration to compare the original engines accurately.</p><button className="btn" onClick={()=>onScenario(scenarioId)}>Load legacy scenario</button><button className="btn" onClick={()=>setTab('plus')}>Return to A-Lite+</button></div> : <>
+          {tab === 'plus' && <PlusWorkspace geo={geo} cfg={cfg} replace={setCfg} dark={dark}/>}
           {tab === 'live' && <LiveView geo={geo} cfg={cfg} dark={dark} />}
           {tab === 'lite' && <LiveView key="lite" geo={geo} cfg={cfg} dark={dark} model="Lite" />}
           {tab === 'mc' && <MonteCarloPanel key={replayKey} geo={geo} cfg={cfg} bundled={bundled} replay={replay} clearReplay={()=>{setReplay(null);setReplayKey(k=>k+1);}} />}
@@ -133,6 +139,7 @@ export default function App() {
           {tab === 'geo' && <GeometryEditor geo={geo} setGeo={setGeo} dark={dark} />}
           {tab === 'model' && <ModelDocs />}
           {tab === 'research' && <ResearchStudyView apply={(c,model)=>{setReplay(null);setReplayKey(k=>k+1);setGeo(BAILEY_HALL);setCfg(cloneConfig(c));setScenarioId(c.scenarioId);setTab(model==='A'?'live':model==='Lite'?'lite':'net');}} replay={r=>{setGeo(BAILEY_HALL);setCfg(cloneConfig(r.cfg));setReplay(r);setReplayKey(k=>k+1);setTab('mc');}} />}
+          </>}
         </main>
       </div>
     </div>

@@ -52,6 +52,13 @@ export interface TraversalEvent {
   t: number;
 }
 
+/** Optional model factories. Absent factories preserve the historical engines. */
+export interface EngineExtensions {
+  movement?: (sim: SimulationEngine) => MovementSystem;
+  routing?: (sim: SimulationEngine) => RouteSystem;
+  guidance?: (sim: SimulationEngine) => GuidanceSystem;
+}
+
 const GRID = { x0: -32, y0: -26, cell: 3, nx: 22, ny: 25 };
 
 export class SimulationEngine {
@@ -114,7 +121,7 @@ export class SimulationEngine {
   private gridNext: Int32Array;
   private wallStart = 0;
 
-  constructor(geo: GeometryData, cfg: SimConfig, seed?: number, movementFactory?: (sim: SimulationEngine) => MovementSystem) {
+  constructor(geo: GeometryData, cfg: SimConfig, seed?: number, movementFactory?: (sim: SimulationEngine) => MovementSystem, extensions: EngineExtensions = {}) {
     this.geo = geo;
     this.cfg = cfg;
     this.seed = seed ?? cfg.seed;
@@ -136,8 +143,8 @@ export class SimulationEngine {
     const resp = cfg.stress.responders?.links ?? [];
     if (resp.length) this.gates.setResponderLinks(resp.map((id) => g.linkByIdOrThrow(id)));
     this.density = new DensityField(g);
-    this.movement = movementFactory ? movementFactory(this) : new MovementSystem(this);
-    this.routing = new RouteSystem(this);
+    this.movement = extensions.movement ? extensions.movement(this) : movementFactory ? movementFactory(this) : new MovementSystem(this);
+    this.routing = extensions.routing ? extensions.routing(this) : new RouteSystem(this);
     this.metrics = new MetricsRecorder(this);
     this.heat = [new HeatGrid(-30, -26, 1, 60, 70), new HeatGrid(-30, -26, 1, 60, 50)];
     this.gridHead = new Int32Array(2 * GRID.nx * GRID.ny).fill(-1);
@@ -160,7 +167,7 @@ export class SimulationEngine {
         })
       : null;
     this.densityRec = new DensityRecorder(regions, cfg, heatItems);
-    this.guidance = new GuidanceSystem(this);
+    this.guidance = extensions.guidance ? extensions.guidance(this) : new GuidanceSystem(this);
 
     this.decisionNode = Uint8Array.from(g.nodes.map((_, ni) => (g.adj[ni].filter((e) => !g.links[e.link].isRow).length >= 3 ? 1 : 0)));
     // obstruction visibility (discovery range) and exit-sign visibility per node
@@ -473,8 +480,8 @@ export class SimulationEngine {
       a.state = ST.OUTSIDE;
     }
     let infoChanged = false;
-    for (const li of this.nearClosed[n]) if (this.routing.learnBlocked(a, li)) infoChanged = true;
-    const signs = this.nearSigns[n];
+    for (const li of this.nearClosed[n]) if (this.canObserve(a, g.nodes[g.links[li].a].x, g.nodes[g.links[li].a].y, this.nodeFloorDisp[g.links[li].a]) && this.routing.learnBlocked(a, li)) infoChanged = true;
+    const signs = this.physicalSignsOnly() ? [] : this.nearSigns[n];
     if (signs.length) {
       const p = this.cfg.routing.noticeProb * (this.cfg.environment.darkness ? 0.6 : 1) * (1 - 0.5 * Math.min(1, this.cfg.environment.smoke));
       for (const gi of signs) {
@@ -523,7 +530,7 @@ export class SimulationEngine {
     if (Math.floor(before / 2) !== Math.floor(a.noRouteTime / 2)) {
       // lost: look for exit signs and follow the people one can see
       this.learnFromCrowd(a);
-      for (const gi of this.nearSigns[n]) if (this.rngDyn.random() < Math.min(1, 2 * this.cfg.routing.noticeProb)) a.knownExits |= 1 << gi;
+      for (const gi of (this.physicalSignsOnly() ? [] : this.nearSigns[n])) if (this.rngDyn.random() < Math.min(1, 2 * this.cfg.routing.noticeProb)) a.knownExits |= 1 << gi;
       this.routing.chooseExit(a, 'info', n);
     }
     if (a.noRouteTime > 30 && a.state !== ST.TRAPPED) {
@@ -591,6 +598,15 @@ export class SimulationEngine {
         a.y = this.graph.nodes[this.graph.safeByGroup[0][0]].y;
       }
   }
+
+  /** Additional physical visibility filter; legacy geometry rules remain unchanged. */
+  canObserve(_a: {x:number;y:number;floor:number}, _x:number, _y:number, _floor:number): boolean { return true; }
+  prepareQueueObservations(_a:Agent):void {}
+  perceivedGateQueue(_a:Agent,li:number):number { return this.gates.queueNow[li]; }
+  perceivedGateCapacity(_a:Agent,li:number):number { return this.gates.cap[li]; }
+  physicalSignsOnly(): boolean { return false; }
+  managerAcceptance(a: Agent): number { return this.cfg.crowdManagers.complianceProb * a.trust; }
+  managerMessage(_a: Agent, _gi:number, _accepted:boolean, _manager:number): void {}
 
   recordTraversal(a: Agent, from: number, to: number) {
     this.densityRec.cross(from >= 0 ? this.regionOfLink[from] : -1, this.regionOfLink[to]);
@@ -772,7 +788,7 @@ export class SimulationEngine {
    *              (b) the visible queue on the current route > expected + max(queueSurpriseMin, 50 % of expected),
    *            at most once per eventCooldown s. The commitment interval and route inertia still apply.
    */
-  private perceive() {
+  protected perceive() {
     const A = this.cfg.adaptive;
     const t = this.t;
     const base = this.cfg.alarm?.mode === 'voice' ? 0.35 : 0.2;

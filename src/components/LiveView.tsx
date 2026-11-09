@@ -1,3 +1,6 @@
+import {PlusSimulation} from '../plus/PlusSimulation';
+import {drawInstallations} from './PlusEditor';
+import {stateFor} from '../plus/State';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import type { GeometryData } from '../geometry/types';
 import { EXIT_GROUPS } from '../geometry/types';
@@ -17,17 +20,18 @@ import { GROUP_COLOR_INDEX, GROUP_SHORT, download, fmt, seriesColor, toCsv } fro
 const SPEEDS = [1, 2, 5, 10, 50];
 const LEGEND_STATES = [0, 1, 2, 3, 4, 5, 6, 9, 7, 8, 10, 12, 13];
 
-export function LiveView({ geo, cfg, dark, model = 'A' }: { geo: GeometryData; cfg: SimConfig; dark: boolean; model?: 'A' | 'Lite' }) {
+export function LiveView({ geo, cfg, dark, model = 'A' }: { geo: GeometryData; cfg: SimConfig; dark: boolean; model?: 'A' | 'Lite' | 'Plus' }) {
   const ctlRef = useRef<LiveController | null>(null);
   if (!ctlRef.current) ctlRef.current = new LiveController(geo, cfg, model);
   const ctl = ctlRef.current;
-  const graph = useMemo(() => graphFor(geo, cfg.movement.laneWidth), [geo, cfg.movement.laneWidth]);
+  const graph = ctl.sim.graph;
   const [, setTick] = useState(0);
   const [stale, setStale] = useState(false);
   const [selected, setSelected] = useState(-1);
   const [floorMode, setFloorMode] = useState<FloorMode>('split');
-  const [opts, setOpts] = useState<CanvasOptions>({ showLinks: false, showLabels: true, showSeats: true, showAgents: true, overlayOpacity: 0, overlayKind: 'plan' });
+  const [opts, setOpts] = useState<CanvasOptions>({ showLinks: model !== 'A', showLabels: true, showSeats: true, showAgents: true, overlayOpacity: 0, overlayKind: 'plan' });
   const [heat, setHeat] = useState<'off' | 'current' | 'peak'>('off');
+  const [routes,setRoutes] = useState(false);
   const [showQueues, setShowQueues] = useState(true);
   const [result, setResult] = useState<RunResult | null>(null);
 
@@ -96,7 +100,8 @@ export function LiveView({ geo, cfg, dark, model = 'A' }: { geo: GeometryData; c
 
   return (
     <div className="live">
-      <p className="muted small">Model {model === 'Lite' ? 'A-Lite' : 'A'} · seed {ctl.sim.seed} · {ctl.sim.guidance.cms.length} managers. This is one audience, not the study mean. The building-clearance time is reported separately from continued travel to street level.</p>
+      <p className="muted small">Model {model === 'Plus' ? 'A-Lite+' : model === 'Lite' ? 'A-Lite' : 'A'} · seed {ctl.sim.seed} · {ctl.sim.guidance.cms.length} managers · time step {ctl.sim.cfg.movement.dt} s. This is one audience, not the study mean. The building-clearance time is reported separately from continued travel to street level.</p>
+      {model === 'Lite' && <p className="card">A-Lite uses the original walkways, finite queues, individual response and route choices. People leave along their own seatway, then follow connected aisles, corridors and stairs. Dots show approximate positions within each queue; they are not collision-resolved walking trajectories. <a href="?tab=research">Load a tested six-manager LED/barrier plan or replay its exact batch</a>. <a href="/docs/research-180/MODEL_GUIDE.pdf" target="_blank" rel="noreferrer">Equations and calibration limits (PDF)</a>.</p>}
       <div className="toolbar">
         {!ctl.running ? (
           <button className="btn primary" onClick={() => ((ctl.replay = null), (ctl.running = true), setTick((t) => t + 1))} disabled={ctl.sim.finished}>
@@ -107,7 +112,7 @@ export function LiveView({ geo, cfg, dark, model = 'A' }: { geo: GeometryData; c
             ❚❚ Pause
           </button>
         )}
-        <button className="btn" onClick={() => ctl.stepOnce()} disabled={ctl.running || ctl.sim.finished} title="advance one time step (0.1 s)">
+        <button className="btn" onClick={() => ctl.stepOnce()} disabled={ctl.running || ctl.sim.finished} title={`advance one time step (${ctl.sim.cfg.movement.dt} s)`}>
           Step
         </button>
         <button className="btn" onClick={reset}>
@@ -155,8 +160,10 @@ export function LiveView({ geo, cfg, dark, model = 'A' }: { geo: GeometryData; c
         <label className="toggle">
           <input type="checkbox" checked={opts.showLabels} onChange={(e) => setOpts({ ...opts, showLabels: e.target.checked })} /> labels
         </label>
+        <label className="toggle"><input type="checkbox" checked={routes} onChange={e=>setRoutes(e.target.checked)}/>selected route / event log</label>
         <span className="muted small">scroll = zoom · drag = pan · double-click = fit · click a circle to inspect</span>
       </div>
+      {model==='Plus'&&routes&&<details open className="card"><summary>Recorded event log (simulated seconds)</summary><p className="small">The export retains the first 20,000 events. Event totals remain complete; inspect a person for their latest 20 messages and decisions.</p><div style={{maxHeight:150,overflow:'auto'}}>{stateFor(ctl.sim).events.slice(-20).reverse().map((e,i)=><div key={i}>{e.t.toFixed(1)} · {e.agent<0?'system':`#${e.agent}`} · {e.kind} · {e.source}{e.exit>=0?` → ${EXIT_GROUPS[e.exit]}`:''} · {e.reason}</div>)}</div><button className="btn small" onClick={()=>download('plus-events.json',JSON.stringify(stateFor(ctl.sim).events,null,2),'application/json')}>Export events</button></details>}
       {stale && (
         <div className="stale">
           Configuration changed - the running simulation still uses the old settings.{' '}
@@ -168,13 +175,19 @@ export function LiveView({ geo, cfg, dark, model = 'A' }: { geo: GeometryData; c
       <div className="live-main">
         <div className="map-wrap">
           <SimulationCanvas
-            geo={geo}
+            geo={ctl.sim.geo}
             graph={graph}
             floorMode={floorMode}
             options={opts}
             dark={dark}
             getFrame={() => ctl.currentFrame()}
             getDyn={() => ctl.dyn(selected, showQueues)}
+            drawOverlay={(ctx,toScreen,floor,scale)=>{
+              if(ctl.sim instanceof PlusSimulation)drawInstallations(ctx,toScreen,floor,scale,geo,ctl.sim.cfg,ctl.sim.guidance.installations.filter(i=>!i.sign.id.startsWith('EXIT-')).map(i=>i.sign),ctl.sim.t);
+              if(routes&&selected>=0){const a=ctl.sim.agents[selected];ctx.strokeStyle='#d327a3';ctx.lineWidth=3;
+                for(let i=a.pathPos;i<a.pathNodes.length;i++){const e=graph.adj[a.pathNodes[i]][a.pathAdj[i]],l=graph.links[e.link];if(l.floor!==floor)continue;ctx.beginPath();for(let k=0;k<l.xs.length;k++){const p=toScreen(l.xs[k],l.ys[k]);if(k)ctx.lineTo(...p);else ctx.moveTo(...p);}ctx.stroke();}
+              }
+            }}
             onClickWorld={(x, y, floor) => setSelected(ctl.findAgentAt(x, y, floor))}
           />
           <div className="legend map-legend">

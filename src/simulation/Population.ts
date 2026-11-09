@@ -106,6 +106,13 @@ export function createPopulation(geo: GeometryData, cfg: SimConfig, seed: number
     a.elderly = uElder < P.elderlyFraction;
     const f = a.elderly ? P.elderlySpeedFactor : 1;
     a.v0 = Math.min(P.speedMax, Math.max(P.speedMin, P.speedMean * f + P.speedSd * f * zSpeed));
+    if(P.speedDistribution==='lognormal'){
+      // Same arithmetic mean/SD before clipping, and the SAME normal draw: no
+      // re-sampling of age, response, groups or compliance in paired shape tests.
+      if(!(P.speedMean>0)||P.speedSd<0)throw new Error('Lognormal walking speed requires positive mean and nonnegative SD');
+      const varianceLog=Math.log1p((P.speedSd/P.speedMean)**2);
+      a.v0=Math.min(P.speedMax,Math.max(P.speedMin,f*P.speedMean*Math.exp(Math.sqrt(varianceLog)*zSpeed-.5*varianceLog)));
+    }
     a.stairRatio = a.elderly ? P.stairRatioElderly : P.stairRatio;
     a.stairRatioUp = a.elderly ? (P.stairRatioUpElderly ?? a.stairRatio) : (P.stairRatioUp ?? a.stairRatio);
     a.radius = Math.min(0.3, Math.max(0.17, P.radiusMean + P.radiusSd * zRadius));

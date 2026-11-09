@@ -1,6 +1,6 @@
 """Vector placement maps from the exact simulation configurations, in original geometry metres."""
 from pathlib import Path
-import json,math,html,shutil
+import json,math,html,shutil,sys
 D=Path('docs/research-180/figures');D.mkdir(exist_ok=True)
 g=json.load(open('src/data/geometry/bailey-hall.json'))
 cases=json.load(open('results/placement-study/screen-cases.json'))
@@ -54,9 +54,10 @@ body+=txt(20,750,'Blue: foyer · green: portico · orange: stage · purple: balc
 save('placement-layouts',body,1100,770)
 sel=Path('results/placement-study/selection.json')
 if sel.exists():
- c=json.loads(sel.read_text())['frozenCases'][1]['cfg'];body=txt(20,25,'Selected combined intervention · exactly six managers',19)
+ route='--config' in sys.argv
+ c=json.load(open(sys.argv[sys.argv.index('--config')+1])) if route else json.loads(sel.read_text())['frozenCases'][1]['cfg'];body=txt(20,25,('Selected overall policy' if '--overall' in sys.argv else 'Selected combined intervention')+' · exactly six managers',19)
  for floor in [1,2]:body+=panel(c,floor,15+(floor-1)*530,45,515,475,'Main floor' if floor==1 else 'Balcony',False,True)
  body+=txt(20,540,'Squares: managers · colored arrows: 2 m LED strips · red: hard panels · dashed orange: ropes',13)
  body+=txt(20,562,'Coordinates and device IDs come from the frozen simulation configuration. +x east; +y south. Not to construction accuracy.',12)
- save('placement-selected',body,1080,585)
+ save(('route-overall' if '--overall' in sys.argv else 'route-selected') if route else 'placement-selected',body,1080,585)
 print('Placement diagrams regenerated from configurations')

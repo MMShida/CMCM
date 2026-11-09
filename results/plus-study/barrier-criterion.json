@@ -1,0 +1,6 @@
+{
+  "frozenAt": "2026-11-08T22:51:10.102Z",
+  "criterion": "Withhold installation recommendation if any tested closure has an unresolved run or paired mean deterioration above 5 seconds against the same plan without barriers.",
+  "thresholdSeconds": 5,
+  "note": "Research material-harm screen, not a safety standard. Fixed before supplementary data exist; no change to primary selection."
+}

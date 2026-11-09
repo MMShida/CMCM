@@ -169,3 +169,40 @@ docs/research-180/figures/*.png
 /results/placement-study/visibility.json
 /results/placement-study/run-*.json
 /results/placement-study/complete.json
+
+# route-study: lossless archives are tracked; local raw copies are not.
+/results/route-study/confirmation.json
+/results/route-study/convergence.json
+/results/route-study/opt-Lite-trials.jsonl
+/results/route-study/opt-Lite.json
+/results/route-study/overall-confirmation.json
+/results/route-study/questions.json
+/results/route-study/resolution.json
+/results/route-study/robustness.json
+/results/route-study/screen.json
+/results/route-study/validation.json
+
+# Interrupted local prototypes and ad-hoc UI/single-run exports.
+/results/plus-study/development-*
+/results/plus-study/run-*.json
+/results/plus-study/layouts.json
+/results/route-study/run-*.json
+
+# plus-study: lossless archives are tracked; local raw copies are not.
+/results/plus-study/confirmation.json
+/results/plus-study/guidance-refinement-confirmation.json
+/results/plus-study/guidance-refinement-fine.json
+/results/plus-study/guidance-refinement-robustness.json
+/results/plus-study/guidance-refinement-search.json
+/results/plus-study/guidance-refinement-validation.json
+/results/plus-study/opt-Plus-trials.jsonl
+/results/plus-study/opt-Plus.json
+/results/plus-study/screen.json
+/results/plus-study/speed-confirmation.json
+/results/plus-study/speed-sensitivity.json
+/results/plus-study/staff-expansion-confirmation.json
+/results/plus-study/staff-expansion-robustness.json
+/results/plus-study/staff-expansion-screen.json
+/results/plus-study/staff-expansion-validation.json
+/results/plus-study/staff-validation.json
+/results/plus-study/validation.json

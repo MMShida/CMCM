@@ -1,0 +1,264 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[T1]{fontenc}
+\usepackage{amsmath,amssymb,newtxtext,newtxmath}
+\usepackage[margin=24mm]{geometry}
+\usepackage{booktabs,longtable,array,enumitem,microtype,xcolor,xurl,hyperref}
+\hypersetup{colorlinks=true,urlcolor=blue,linkcolor=blue,citecolor=blue,
+ pdftitle={Implementation prompt: Bailey Hall A-Lite+},pdfauthor={CMCM Bailey Hall modelling study}}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{5pt}
+\setlength{\emergencystretch}{2em}
+\setlist{itemsep=2pt,topsep=4pt}
+\newcommand{\code}[1]{{\small\nolinkurl{#1}}}
+\newcommand{\clip}{\operatorname{clip}}
+\newcommand{\ind}{\mathbf{1}}
+\title{Implementing the Bailey Hall evacuation model\\\large A technical prompt for a coding assistant}
+\author{}
+\date{8 November 2026}
+\begin{document}
+\begin{center}
+{\LARGE Implementing the Bailey Hall evacuation model}\par
+\medskip
+{\large A technical prompt for a coding assistant}\par
+\smallskip
+8 November 2026
+\end{center}
+\vspace{2mm}
+
+\textit{How to use this document.} Give the implementing assistant this prompt, the Bailey geometry JSON, the scenario configuration and the problem brief. If continuing this repository, also provide the current code and model guide. In this repository, the geometry is \code{src/data/geometry/bailey-hall.json}; use \code{results/plus-study/selected-config.json} for the original concert case or \code{results/plus-study/guidance-refined-fine-config.json} for the completed retuned case. The instructions below describe A-Lite+, the individual queue model on the detailed building graph. They do not ask for a new social-force simulator or an optimally routed population.
+
+\section{What I want built}
+
+I want you to implement a reproducible evacuation model for Bailey Hall. I need to understand why it predicts a particular clearance time, inspect what each person knows and decides, and compare staff, LED and temporary-barrier arrangements in the same building. Build the simulation, its tests and an interface that runs the same engine. Explain any departure from this specification before treating its results as comparable.
+
+Use A-Lite+ as the main model. Each person has their own response time, speed, group, knowledge and destination. Movement takes place on the original walkways, with finite storage, individual travel times and capacity-limited queues. Congestion follows from those restrictions. Preserve the older A, B, C and A-Lite implementations if they are supplied; add the extension without silently changing their defaults.
+
+The objective is an average last-person building-clearance time below 180 seconds. This is an optimization objective, not a calibration observation. Do not increase capacity, shrink people, remove wheelchair users, shorten response times or choose a time step merely to meet it. If the tested model does not support the target, report that result.
+
+\section{Inputs, geometry and the endpoint}
+
+Use the supplied geometry rather than redrawing a more convenient building. Represent it as a directed navigation graph $G=(V,E)$, retaining each original link's polyline, physical length $L_e$, width $w_e$, lane count, floor, slope, accessibility, gate identity and permitted directions. Keep the seven exit groups: foyer, west/east porticoes, west/east stage routes and northwest/northeast balcony exits. The supplied stage escape routes are existing links, not newly invented exits.
+
+The concert audience is exactly 1,329: 527 orchestra, 486 mezzanine and 316 balcony, including three wheelchair users. A person may leave their own seatway and then use connected aisles, corridors and stairs. Another seating row is never a through-route. Do not let interpolation draw a straight line through seats when the walkway bends. The geometry is a reconstruction, not a surveyed digital twin; retain its uncertainty labels and record its hash.
+
+Let $t_{ir}$ be person $i$'s first exterior-building crossing in replication $r$. Report
+\begin{equation}
+ T_r=\max_{1\leq i\leq1329}t_{ir},\qquad
+ \overline T=\frac1R\sum_{r=1}^{R}T_r,\qquad
+ \widehat p_{180}=\frac1R\sum_{r=1}^{R}\ind\{T_r\leq180\}.
+\end{equation}
+Here $R$ is the number of sampled audiences. This average is not the mean person's exit time. A run with anyone inside at the 900-second failure horizon has no finite full-house clearance time. Keep it in the denominator of the success fraction and do not publish a completion-conditioned mean as an unconditional result.
+
+Report street-level arrival separately. An exterior assistance landing can count as outside the building without implying that assisted descent has finished. Preserve accessible routes, two assistance teams, availability from 60 seconds and the inherited lognormal descent time (median 60 seconds, log standard deviation 0.4). Staff are represented as information sources in this model, not collision-resolved bodies; the stated endpoint covers the 1,329 audience members. Make that limitation visible when adding staff.
+
+\section{Sample the audience once}
+
+Use seeded random streams for the audience, runtime decisions and information processes. The same audience seed must preserve seats, ages, body sizes, speeds, response draws, groups and persistent compliance draws across intervention comparisons. Do not resample a faster population when loading a different layout.
+
+For the original concert case, sample free walking speed as
+\begin{equation}
+ v_{0i}=\clip_{[0.5,2.0]}\!\left[f_i(\mu+\sigma Z_i)\right],
+ \quad Z_i\sim\mathcal N(0,1),\quad \mu=1.2,\quad\sigma=0.25,
+\end{equation}
+in metres per second. The older share is 0.25; $f_i=0.78$ for older people and 1 otherwise. Wheelchair speed is separately fixed at 0.8 m/s. Ambulatory body radius is normal with mean 0.22 m and standard deviation 0.02 m, clipped to 0.17--0.30 m; wheelchair radius is 0.45 m. Preserve the supplied individual stair ratios (ordinary 0.57; older 0.51) and environmental factors. Observed congested stair speeds are not interchangeable with desired free speeds \cite{nist}.
+
+Keep a separately named 1.4 m/s alternative, with the same age adjustment, spread and bounds. Ren et al. compare individual free speeds of healthy older participants with young adults \cite{ren}; this supports considering a transferred alternative, not calling 1.4 a measured Bailey parameter. If implementing a right-skew sensitivity, match its pre-clipping mean and standard deviation:
+\begin{equation}
+ s_L^2=\log\!\left[1+(\sigma/\mu)^2\right],\qquad
+ v_{0i,L}=\clip_{[0.5,2.0]}\!\left[f_i\mu e^{s_LZ_i-s_L^2/2}\right].
+\end{equation}
+Reuse the same $Z_i$. Right skew changes the median and both tails; it does not make everybody faster. Report the sampled moments after clipping and age mixing.
+
+Response delays use $\tau=\exp(\log m+\sigma_{\log}Z)$, where $m$ is the median. Recognition has median 6 seconds and log standard deviation 0.6. The response median is
+\begin{equation}
+ m_i=14L_i\exp\!\left[0.04\min(d_{i,\mathrm{aisle}},15)
+ +0.05d_{i,\mathrm{door}}/10-0.15I_{i,\mathrm{familiar}}\right].
+\end{equation}
+Distances are in metres; $L_i=1.1$ on the balcony and 1 elsewhere. Response log standard deviation is 0.6. Half the audience also prepares belongings, with median 6 seconds and log standard deviation 0.6. Theatre observations support heterogeneous, position-dependent response \cite{hopkin}; these coefficients remain inherited assumptions.
+
+Implement unaware, responding, preparing, group-waiting, moving, queuing, outside and awaiting-assistance states. Preserve social response acceleration:
+\begin{equation}
+ \frac{dc_i}{dt}=1+1.5\phi_i,\qquad
+ p_{\mathrm{aware}}=1-e^{-0.4\phi_i\Delta t},\qquad
+ \tau_i' = c_i+0.5\max(0,\tau_i-c_i).
+\end{equation}
+The social share $\phi_i$ counts moving neighbours plus half the preparing/standing share in the inherited neighbourhood. The last rule applies after the first heard manager instruction. It shortens the remaining realized response; it does not resample the original delay.
+
+Approximately half the audience belongs to adjacent groups of two to four, with size weights 0.7, 0.2 and 0.1. Preserve readiness waiting up to 90 seconds, leader-destination following and the inherited 12 m group-break rule. A consistent-message option gives a group its original leader's seat-block recommendation, while retaining each member's hearing and acceptance draws.
+
+\section{Travel, service and finite queues}
+
+Keep every original link. Do not contract the graph into B's network. A link has parallel FIFO lanes, shared occupancy and an individual remaining-distance clock. For representative speed $\bar v_e$, lane count $m_e$, mean diameter $d=0.44$ m and headway $H=0.7$ s, use
+\begin{equation}
+ C_e^{\mathrm{walk}}=\frac{m_e\bar v_e}{d+H\bar v_e},\qquad
+ S_e=\max\!\left(m_e,\left\lfloor\rho_{\max}L_ew_e\gamma_e\right\rfloor\right),
+ \quad\rho_{\max}=4.5\ \mathrm{persons/m^2}.
+\end{equation}
+The geometry factor $\gamma_e$ comes from the supplied link data. The headway formula follows by dividing speed by centre spacing, $d+H\bar v_e$ \cite{seyfried,johansson}. It is a representative service approximation, not a fitted wheelchair-flow model. Seat rows instead use a body-spacing storage bound and a 0.45 m/s speed cap. Lecture-theatre evidence questions a universal 0.45 cap, but does not establish a replacement for Bailey's mixed audience \cite{spearpoint}.
+
+Use the original lane counts. Where the geometry generates them from width, retain $\max(1,\lfloor w_e/0.6+0.2\rfloor)$. Do not silently smooth that discrete width rule. Both directions share non-row storage and split passage service in proportion to their current directional occupancy. The two ends of a row are distinct release resources.
+
+Door and stair admission also requires gate service. Preserve
+\begin{align}
+ C_e^{\mathrm{gate}}&=q_ew_{e,\mathrm{eff}}f_{\mathrm{luggage}}f_{\mathrm{env}}g(u,\pi),\\
+ w_{e,\mathrm{eff}}&=\max(0.4,w_e-2b_e),\\
+ g(u,\pi)&=(1+0.15u)\left[1-0.45\max\!\left(0,\frac{\pi-0.35}{0.65}\right)^2\right].
+\end{align}
+Specific flow $q_e$ is 1.3 persons/(m s) for doors and 1.0 for stairs; boundary losses $b_e$ are 0.15 and 0.09 m. The luggage factor is 0.97. Urgency $u$ and queue impatience $\pi$ follow the supplied configuration. These are inherited gate assumptions. A barrier never adds a positive capacity multiplier.
+
+For each service resource, accumulate credit before admissions and cap the remainder afterwards:
+\begin{equation}
+ b^*=b^k+C^k\Delta t,\qquad D^k\leq\lfloor b^*\rfloor,\qquad
+ b^{k+1}=\min(1,b^*-D^k).
+\end{equation}
+Use one initial unit of credit per direction, record cumulative service and test that discharge never exceeds initial credit plus integrated capacity. Capping credit before service loses fractional capacity. Do not copy that numerical error. Passage discharge and gate admission are separate checks.
+
+Every transition obeys
+\begin{equation}
+ n_e^{k+1}=n_e^k+A_e^k-D_e^k,\qquad 0\leq n_e^k\leq S_e,
+\end{equation}
+where $A_e^k$ and $D_e^k$ are admissions and departures. Reserve space for all occupants, including those still travelling. There is no timed storage-overflow exemption. Two opposing queue heads may exchange slots only simultaneously, at a common node, with both service credits and enough width for both bodies. If those conditions fail, retain the blockage rather than shrinking people.
+
+Passage lanes are FIFO by entry sequence. Row-end queues order people by their arrival clocks. Consider eligible queue heads in deterministic arrival/entry/person order. A person must finish the link's travel time before joining its discharge queue. Queue drawing positions may move backward within that link; identify them as display approximations rather than collision-resolved trajectories.
+
+For unbroken groups, use the slowest free speed among members on the same link, in the same direction and within 4 m. Remote members do not permanently set everybody's pace. Group experiments motivate distinguishing approach coordination from immediate exit discharge; they do not estimate this 4 m parameter \cite{bode}. Update remaining distance when speed changes:
+\begin{equation}
+ \ell_i^{k+1}=\max(0,\ell_i^k-v_i^k\Delta t),\qquad
+ t_i^{\mathrm{ready}}=t_k+\ell_i^k/v_i^k.
+\end{equation}
+A moving follower may use an actually empty parallel lane on a non-row, non-gated link at least 1.8 m wide if it would otherwise catch a slower leader. It may not reorder a saturated door queue. Congestion already produces waiting through service and storage; do not add an arbitrary second density slowdown to the same delay.
+
+\section{What a person knows and how they choose}
+
+A person chooses among known exits and routes believed open. Use Dijkstra's algorithm with perceived link costs, not instantaneous building-wide queue data. Respect accessibility, outward-only doors and prohibited links. Start with travel time, visible queue delay, narrow-door aversion and visible opposing traffic:
+\begin{equation}
+ c_{ie}=\frac{L_e}{v_{i,e}}+\frac{w_Q}{w_T}\frac{\widehat Q_{ie}}{\widehat C_{ie}}
+ \left[1+1.5\max\!\left(0,\frac{2-w_e}{2}\right)\right]
+ +\frac{3N_{ie}^{\mathrm{opp}}}{m_e}.
+\end{equation}
+Apply the queue term at observed gates and retain the configured aisle-occupancy term. Barrier detours are already in physical link length; there is no additional rope-crossing penalty. The inherited walkway/opposing-flow estimate uses a link's directional occupancy when its junction is visible. State this coarser approximation: it does not count visibility of every person along a long or curved link.
+
+For gates, count waiting people visible on the same floor, within 15 m and through a clear segment in the drawn walls/columns. While a gate remains continuously visible and queued, estimate discharge over at least five seconds:
+\begin{equation}
+ \widehat C_{ie}=\clip_{[0.2,C_e]}\frac{P_e(t)-P_e(t-\Delta_o)}{\Delta_o},
+ \qquad\widehat W_{ie}=\frac{\widehat Q_{ie}}{\widehat C_{ie}}.
+\end{equation}
+Here $P_e$ is cumulative gate admissions. Use nominal capacity as the prior; restart the observation window after a visibility gap. Learn visible closures. Keep a distinction between unknown congestion and observed empty space.
+
+For an uncommitted choice, retain the persistent random-utility model
+\begin{equation}
+ V_{ig}=-w_T\widehat T_{ig}/30+w_FF_g+w_SS_{ig}+3w_GG_{ig}
+ +w_II_{ig}^{\mathrm{current}},\qquad
+ g_i=\arg\max_g(V_{ig}+\varepsilon_{ig}).
+\end{equation}
+The terms represent perceived route cost, foyer familiarity, nearby social choice, accepted guidance and destination inertia. Draw each $\varepsilon_{ig}\sim\mathrm{Gumbel}(0,1)$ once per person and exit. Independent Gumbel errors give the usual logit formula \cite{train}; persistent tastes do not imply a fresh independent logit lottery at every junction. Initial type shares and weights are:
+
+\begin{center}\small
+\begin{tabular}{lrrrrrrr}\toprule
+Type & Share & $w_T$ & $w_Q$ & $w_F$ & $w_S$ & $w_G$ & $w_I$\\\midrule
+Shortest & .20 & 2.4 & 1.2 & .3 & .3 & 1.0 & .8\\
+Habitual & .35 & .6 & .3 & 2.8 & .5 & .8 & 1.5\\
+Follower & .25 & .8 & .4 & .9 & 2.8 & 1.0 & 1.0\\
+Queue avoider & .10 & 1.4 & 2.8 & .4 & .2 & 1.0 & .6\\
+Cooperative & .05 & 1.0 & .8 & 1.0 & 1.0 & 1.6 & 1.2\\
+Impatient & .05 & 2.2 & .8 & .5 & .5 & .6 & .6\\\bottomrule
+\end{tabular}
+\end{center}
+
+Initial familiarity probability is 0.15. Knowledge probabilities are 1 for the foyer, .25 for each portico, .10 for each stage exit and .35 for each balcony exit. Retain the complete supplied behaviour configuration, including type-specific review rates. These weights are model assumptions, not fitted Bailey observations.
+
+Preserve the adaptive memory/urgency extension when enabled. A remembered wait decays as $B_{ig}'=e^{-a_{ig}/60}B_{ig}$, with information age $a_{ig}$ in seconds; add only $\max(0,B_{ig}'-O_{ig})$ beyond currently observed delay $O_{ig}$. This avoids counting the same queue twice. Confidence is the larger of freshness and the inherited familiarity prior (0.8 for familiar/foyer routes; 0.5 otherwise). Urgency increases the travel-time weight by $1+0.5u_i$ and decreases the familiarity weight by $1-0.5u_i$. Preserve the configured cooperation, recent-abandonment, trust and hesitation rules rather than inventing new values.
+
+A moving person may review alternatives after the six-second cooldown when estimated improvement exceeds $\max(8\ \mathrm{s},0.15\widehat T_{ig})$ \cite{liao}. A review can change intent immediately, but the new path starts at the forward endpoint of the occupied link. It cannot teleport the person, reverse them through a wall or execute a turn before a connected junction.
+
+\section{Managers, announcements and LEDs}
+
+The original concert comparison has six managers. Additional counts require explicit additional posts, with costs and results labelled separately. Activation is lognormal (median 10 seconds, log standard deviation 0.5). Hearing uses a 12 m same-floor acoustic reach and the inherited room/open-door path check, not unrestricted transmission through walls. For hearing rate $h=0.35\ \mathrm{s}^{-1}$,
+\begin{equation}
+ p_{\mathrm{hear}}(\Delta t)=1-e^{-h\Delta t},\qquad
+ A_i^{CM}=\ind\{u_i^{CM}<0.8\},\quad u_i^{CM}\sim U(0,1).
+\end{equation}
+Use the original persistent acceptance draw. The primary acceptance probability is fixed at .8, independent of trust. A heard instruction can create awareness and shorten remaining response through the rule above. An accepted, reachable instruction commits an actual destination and route; it is not merely a utility bonus. Agreeing repeats keep a valid path. A changed instruction or known obstruction can revise it; release an unreachable command. Accessibility takes precedence for wheelchair users.
+
+The optional pre-announcement reaches .6 of attendees and is accepted by .7 of those reached. It teaches a seat-block destination, not certain eventual exit use. Keep readiness/group waiting intact. Never substitute universal agreement to meet outside for a measured intervention effect.
+
+Represent every LED as a physical wall point or a polyline inside an existing walkway. Store position, floor, orientation, exit message, activation, range, detection, acceptance and static/dynamic mode. Validate entire strip segments, not just endpoints. One public sign carries one public message; it does not know each viewer's original seat.
+
+An eligible viewer must be on the same floor, in range and have a clear sightline. Wall signs use a facing cone; strips do not. Defaults for added LEDs are activation at 3 seconds, range 8 m, wall half-angle $70^\circ$, detection .77 and acceptance .8. Use separate persistent person--installation draws for noticing and acceptance, with one opportunity per message version. Repeated checks must not guarantee eventual notice. A noticed message teaches the exit; an accepted message commits a destination unless an accepted manager command conflicts. Log that conflict and keep the manager command.
+
+The .77 detection value is transferred from controlled dynamic-sign experiments \cite{galea2014}; its transfer to dense theatre floor strips is uncertain. The range, cone and acceptance values remain assumptions. The combined signage/voice outcome in \cite{galea2017} is not an independent detection probability. Existing exit signs use .38 detection at inferred exit-node positions. There is no calibrated head-occlusion, luminance or smoke-optics model.
+
+Dynamic signs use delayed staff information. Managers receive local gate observations after 2 seconds; radio adds 3 seconds with .9 reliability; the sign controller adds another 3 seconds. A sign listens to the nearest active same-floor manager and compares nominal travel plus reported waits. Require a 20-second improvement and a 20-second hold before an ordinary change. Reverse a strip's arrow when its indicated route changes direction. Adaptive guidance research motivates this comparison, not perfect foresight \cite{cellevac}.
+
+Disclose the inherited information shortcuts. A visible gate gives staff its full simulated queue count and configured rate. Reports persist until updated, and missing waits are treated as zero. Optional adaptive manager forecasts also use simulated remaining zone/peer counts without an additional reporting delay. The main fixed-plan policy does not use that adaptive destination allocation. The current staff closure flag covers the configured closure set; validate unknown obstructions one link at a time unless implementing and separately testing per-link discovery.
+
+If testing moving managers, use explicit connected, level, non-row, non-gated routes at least 1.8 m wide. Start at the actual post node, use a finite speed (the study uses 1 m/s), and wait when the occupied segment contains audience members. Compare with identical stationary starting posts. Record how many managers actually have feasible patrols. This approximates changing information coverage; it does not simulate a leader pushing through a crowd. Experimental work supports testing placement and guidance mode separately, without importing a universal improvement factor \cite{liu}.
+
+\section{Temporary barriers}
+
+Use approved corridor slots only. A barrier has a type (low belt, open rail or separately labelled opaque panel), length $b$ and angle $\theta$ to the corridor axis. Its projected span and remaining bypass width are
+\begin{equation}
+ w_{\mathrm{span}}=|b\sin\theta|,\qquad
+ w_{\mathrm{bypass}}=w_e-w_{\mathrm{span}}.
+\end{equation}
+Anchor the device to one side so there is one bypass, not two fictitious half-width lanes. Bend the link centreline around its end while retaining the original junctions. Recompute usable width, length, lanes and service. The implemented partial-barrier lane rule is $\max(1,\lfloor w_{\mathrm{bypass}}/0.6\rfloor)$. A full-width device closes the slot; an open rail remains optically transparent and an opaque panel blocks sightlines.
+
+Reject devices outside their slot footprint, at exterior/gated/row links, or with a partial bypass below 1.1 m. This is a research screening rule, not a claim of code compliance. Recheck accessible connectivity from every wheelchair origin. Preserve alternative escape paths; include post bases in any later site survey. Barrier experiments show configuration-dependent benefits and costs \cite{wang,feliciani,chen}. Do not import a published percentage gain as a universal multiplier.
+
+\section{Experiments, checks and deliverables}
+
+Freeze physical and behavioural assumptions before optimizing operational layouts. Compare manager posts/counts, block instructions, pre-announcements, physical LEDs and barriers with common audience seeds. Use separate training, validation and final confirmation audiences. Keep every evaluated configuration and failure. An optimizer may search operations; it must not use the 180-second target to fit an unmeasured physical parameter.
+
+Use at least 100 fresh audiences for a final mean claim when that computational work is authorized. For completed full-house runs, report the sample standard deviation and
+\begin{equation}
+ \overline T\ \pm\ t_{0.975,R-1}\frac{s_T}{\sqrt R}.
+\end{equation}
+Report paired differences on common seeds, Wilson intervals for the fraction clearing by 180, exit use, unresolved people, peak density and density exposure. Separate audience variation from uncertainty about geometry and calibration. Never hide an incomplete batch or a failed audience behind a successful average.
+
+Preserve the 0.1-second reference and test smaller steps without choosing the fastest result retrospectively. The completed retuned policy uses 0.0125 seconds. For isolated travel time $\tau$, time-grid checking rounds arrival to $\lceil\tau/\Delta t\rceil\Delta t$ with error below $\Delta t$; interacting queues and decisions can amplify or reverse whole-run differences. Keep numerical refinement separate from changing behaviour.
+
+Build tests with observable outcomes:
+\begin{enumerate}
+\item An isolated saturated gate discharges at its configured rate across time steps, without hoarding idle credit.
+\item Every step conserves the population and respects shared storage. An exchange never creates a person or bypasses required service.
+\item Every transition joins adjacent links. Nobody enters another seatway, a closed link or an inaccessible wheelchair route.
+\item Occluded signs are not noticed; messages are public and delayed. Repeated checks reuse persistent notice/acceptance draws.
+\item Accepted feasible instructions commit destinations; intended turns execute only at connected nodes. Invalid or inaccessible commands do not override physical constraints.
+\item Barrier geometry and the rendered map agree. Reject a strip that cuts a corner even if both endpoints lie in a corridor.
+\item Identical exported configuration and seed reproduce the same result in command-line and browser workers. A cancelled batch is not published as complete.
+\end{enumerate}
+
+Provide a placement editor, live run controls, a person inspector and an event log. Show the loaded policy, seed, time step and actual manager count. Expose hearing, acceptance, chosen destination, waiting and executed turns separately. A user must be able to load a saved policy, replay an individual seed or restore the exact 100-run seed base. Playback speed must not change simulated time integration.
+
+Organize scenario outputs around ordinary departure, an unexpected obstruction, knowledgeable lecture students without managers, LED/barrier comparisons, and costs. Scenario-specific changes must be explicit. Budget defaults are illustrative: \$120 per manager-event, \$250 per wall sign, \$40 per metre of strip, \$150 per barrier and \$800 per dynamic controller; installation and maintenance are additional. Do not equate equal cost with equal evacuation performance.
+
+Include Model C only as a separate ideal-flow benchmark. Static flow obeys capacity and node conservation, with maximum flow equal to minimum-cut capacity \cite{ford1956}. Time-expanded flow adds transit-time and waiting arcs \cite{ford1958}. The inherited flow calculation uses representative speed and excludes wheelchair users; it is not an attainable full-house prediction or an optimal decision engine for the people in A-Lite+.
+
+Deliver the implementation, runnable JSON examples, tests, exact reproduction commands and a technical LaTeX document with diagrams. For each parameter, identify whether it comes from the brief, reconstructed geometry, experimental transfer or an assumption. State which tests actually ran. The existing study's retuned twelve-manager case averaged 184.45 seconds (95\% interval 182.39--186.51) over 100 audiences at 0.0125 seconds; it did not demonstrate the target. This is a reference result, not a number to hard-code. Some additional study batches were stopped at the user's request and must remain labelled unrun.
+
+\section*{Writing and evidence}
+Write the implementation notes in direct technical prose. Define a symbol when introducing it and explain what an equation changes in the simulation. Use specific quantities for performance claims and tests with observable pass/fail conditions. These presentation choices follow technical-writing and requirements guidance \cite{writing,nasa}; they are not evidence about evacuation behaviour. Keep the mechanisms supported by each research source separate from the numerical assumptions used here.
+
+\begin{thebibliography}{20}\small
+\bibitem{seyfried} A. Seyfried et al. (2005). \emph{The fundamental diagram of pedestrian movement revisited}. \url{https://arxiv.org/abs/physics/0506170}.
+\bibitem{johansson} A. Johansson (2009). \emph{Constant-net-time headway as a key mechanism behind pedestrian flow dynamics}. Physical Review E 80, 026120. \url{https://doi.org/10.1103/PhysRevE.80.026120}.
+\bibitem{spearpoint} M. Spearpoint and X. Xiang (2011). \emph{Calculating evacuation times from lecture theatre type rooms using a network model}. Fire Safety Science 10, 599--612. \url{https://doi.org/10.3801/IAFSS.FSS.10-599}.
+\bibitem{hopkin} C. G. Hopkin, E. R. Galea and S. J. Deere (2015). \emph{A study of response behaviour in a theatre during a live performance}. Human Behaviour in Fire, 385--398. Author manuscript: \url{https://gala.gre.ac.uk/id/eprint/14359/}. Related journal study: \url{https://doi.org/10.1002/fam.2424}.
+\bibitem{bode} N. W. F. Bode et al. (2015). \emph{Disentangling the impact of social groups on response times and movement dynamics in evacuations}. PLOS ONE 10, e0121227. \url{https://doi.org/10.1371/journal.pone.0121227}.
+\bibitem{train} K. Train (2009). \emph{Discrete Choice Methods with Simulation}, 2nd ed., Chapter 3. \url{https://eml.berkeley.edu/books/choice2nd/Ch03_p34-75.pdf}.
+\bibitem{liao} W. Liao, A. U. Kemloh Wagoum and N. W. F. Bode (2017). \emph{Route choice in pedestrians: determinants for initial choices and revising decisions}. Journal of the Royal Society Interface. \url{https://doi.org/10.1098/rsif.2016.0684}.
+\bibitem{galea2014} E. R. Galea, H. Xie and P. J. Lawrence (2014). \emph{Experimental and survey studies on the effectiveness of dynamic signage systems}. Fire Safety Science 11, 1129--1143. \url{https://doi.org/10.3801/IAFSS.FSS.11-1129}.
+\bibitem{galea2017} E. R. Galea et al. (2017). \emph{Evaluating the effectiveness of an improved active dynamic signage system using full scale evacuation trials}. Fire Safety Journal 91, 908--917. \url{https://gala.gre.ac.uk/id/eprint/16552/}.
+\bibitem{cellevac} M. A. L\'opez-Carmona and \'A. Paricio Garc\'ia (2021). \emph{CellEVAC: an adaptive guidance system for crowd evacuation through behavioral optimization}. Safety Science. \url{https://arxiv.org/abs/2007.05963}.
+\bibitem{wang} L. Wang et al. (2023). \emph{Influence of pre-bottleneck diversion devices on pedestrian flow}. Journal of Statistical Mechanics. \url{https://arxiv.org/abs/2212.01296}.
+\bibitem{feliciani} C. Feliciani et al. (2020). \emph{Systematic experimental investigation of the obstacle effect during non-competitive and extremely competitive evacuations}. Scientific Reports 10, 15947. \url{https://pmc.ncbi.nlm.nih.gov/articles/PMC7525554/}.
+\bibitem{chen} H. Chen et al. (2023). \emph{Effect of S-shaped guardrails on pedestrian crowd flows in bottleneck areas}. Safety Science 159, 106020. \url{https://doi.org/10.1016/j.ssci.2022.106020}.
+\bibitem{ren} X. Ren et al. (2019). \emph{The fundamental diagrams of elderly pedestrian flow in straight corridors under different densities}. Journal of Statistical Mechanics, 023403. \url{https://doi.org/10.1088/1742-5468/aafa7b}.
+\bibitem{nist} E. D. Kuligowski et al. (2015). \emph{Movement on Stairs During Building Evacuations}. NIST Technical Note 1839. \url{https://doi.org/10.6028/NIST.TN.1839}.
+\bibitem{ford1956} L. R. Ford and D. R. Fulkerson (1956). \emph{Maximal flow through a network}. Canadian Journal of Mathematics 8, 399--404. \url{https://www.cs.yale.edu/homes/lans/readings/routing/ford-max_flow-1956.pdf}.
+\bibitem{ford1958} L. R. Ford and D. R. Fulkerson (1958). \emph{Constructing maximal dynamic flows from static flows}. Operations Research 6, 419--433. \url{https://doi.org/10.1287/opre.6.3.419}.
+\bibitem{liu} W. Liu et al. (2026). \emph{Mode-dependent optimal positioning of evacuation guides: An experimental--modeling study on static and dynamic guidance effect}. Tunnelling and Underground Space Technology 171, 107458. \url{https://doi.org/10.1016/j.tust.2026.107458}.
+\bibitem{writing} H. Corrigan-Gibbs. \emph{Suggestions for Technical Writing}. Accessed 8 November 2026. \url{https://people.eecs.berkeley.edu/~henrycg/pers/writing/}.
+\bibitem{nasa} NASA. \emph{Systems Engineering Handbook}, Appendix C: How to Write a Good Requirement. \url{https://www.nasa.gov/reference/appendix-c-how-to-write-a-good-requirement/}.
+\end{thebibliography}
+\end{document}

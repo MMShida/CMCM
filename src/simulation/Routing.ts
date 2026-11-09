@@ -65,7 +65,7 @@ interface FieldSet {
 
 export class RouteSystem {
   private cache = new Map<string, FieldSet>();
-  private readonly sim: SimulationEngine;
+  protected readonly sim: SimulationEngine;
   readonly nGroups = EXIT_GROUPS.length;
   // scratch buffers for the forward search
   private dist: Float64Array;
@@ -73,10 +73,10 @@ export class RouteSystem {
   private predAdj: Int32Array;
   private settled: Uint8Array;
   /** adaptive: queue delay observed along the best path to each node, and visible gates on it */
-  private obsDelay: Float64Array;
-  private obsGates: Int32Array;
+  protected obsDelay: Float64Array;
+  protected obsGates: Int32Array;
   /** adaptive: the exterior door at the end of the best path to each node was visible */
-  private obsExit: Uint8Array;
+  protected obsExit: Uint8Array;
   plansComputed = 0;
   private safeGroup: Int32Array;
   /** links used outward only by evacuees (auditorium doors, foyer connections, orchestra access stairs; a -> b is outward) */
@@ -191,7 +191,7 @@ export class RouteSystem {
    * Runs the forward search. Returns per-group best cost and target node; the
    * predecessor arrays stay valid until the next call.
    */
-  private search(a: Agent, fromNode: number | null, noUturn = -1): { cost: Float64Array; target: Int32Array; meetCost: number } {
+  protected search(a: Agent, fromNode: number | null, noUturn = -1): { cost: Float64Array; target: Int32Array; meetCost: number } {
     const sim = this.sim;
     const g = sim.graph;
     const n = g.nodes.length;
@@ -328,10 +328,10 @@ export class RouteSystem {
         let seen = 0;
         let delay = 0;
         if (L.gate) {
-          const q = sim.gates.queueNow[e.link];
-          const visible = (anyFloor || sim.nodeFloorDisp[u] === a.floor) && Math.hypot(nu.x - a.x, nu.y - a.y) <= vis + 0.5 * q && (!space || space[L.a] === mySpace || space[L.b] === mySpace);
+          const q = sim.perceivedGateQueue(a,e.link);
+          const visible = sim.canObserve(a, nu.x, nu.y, sim.nodeFloorDisp[u]) && (anyFloor || sim.nodeFloorDisp[u] === a.floor) && Math.hypot(nu.x - a.x, nu.y - a.y) <= vis + 0.5 * q && (!space || space[L.a] === mySpace || space[L.b] === mySpace);
           if (q > 0 && visible) {
-            const capL = Math.max(0.2, sim.gates.cap[e.link]);
+            const capL = Math.max(0.2, sim.perceivedGateCapacity(a,e.link));
             c += (qw * q * (1 + narrowB * Math.max(0, (2 - L.width) / 2))) / capL;
             delay = q / capL;
           }
@@ -339,7 +339,7 @@ export class RouteSystem {
         }
         if (L.width < 2.6) {
           const opp = mv.dirCount[2 * e.link + (e.dir > 0 ? 1 : 0)];
-          if (opp > 0) c += (cfPen * opp) / Math.max(1, L.lanes);
+          if (opp > 0 && sim.canObserve(a, nu.x, nu.y, sim.nodeFloorDisp[u])) c += (cfPen * opp) / Math.max(1, L.lanes);
         }
         // visible crowd inside aisles / cross-aisles / passages: people walking or standing the same
         // way ahead delay you by about n / (lanes x lane capacity); seen like a gate queue
@@ -347,7 +347,7 @@ export class RouteSystem {
           const dIdx = e.dir > 0 ? 0 : 1;
           const same = mv.dirCount[2 * e.link + dIdx];
           // lanes actually available to this direction (half of them when people come the other way)
-          if (same > 1 && (anyFloor || sim.nodeFloorDisp[u] === a.floor) && Math.hypot(nu.x - a.x, nu.y - a.y) <= vis && (!space || space[u] === mySpace)) {
+          if (same > 1 && sim.canObserve(a, nu.x, nu.y, sim.nodeFloorDisp[u]) && (anyFloor || sim.nodeFloorDisp[u] === a.floor) && Math.hypot(nu.x - a.x, nu.y - a.y) <= vis && (!space || space[u] === mySpace)) {
             c += (aisleQ * qw * same) / (mv.allowedLanes(e.link, dIdx) * LANE_CAPACITY);
             delay += same / (mv.allowedLanes(e.link, dIdx) * LANE_CAPACITY);
           }
@@ -372,7 +372,7 @@ export class RouteSystem {
   }
 
   /** Reconstruct the path (node sequence + adjacency indices) to `target` from the last search. */
-  private extractPath(target: number): { nodes: number[]; adj: number[] } {
+  protected extractPath(target: number): { nodes: number[]; adj: number[] } {
     const nodes: number[] = [];
     const adj: number[] = [];
     let v = target;
@@ -389,7 +389,7 @@ export class RouteSystem {
   }
 
   /** Remaining perceived cost of the agent's current path (for route inertia). */
-  private currentPathCost(a: Agent): number {
+  protected currentPathCost(a: Agent): number {
     if (!a.pathValid) return Infinity;
     const sim = this.sim;
     const g = sim.graph;
@@ -401,16 +401,16 @@ export class RouteSystem {
       if (a.knownBlocked.includes(e.link)) return Infinity;
       c += g.nominalCost(e.link, e.dir, false) * ts;
       c += ropeCost(sim.cfg, g.links[e.link].id);
-      if (g.links[e.link].gate) {
-        const q = sim.gates.queueNow[e.link];
-        if (q > 0) c += q / Math.max(0.2, sim.gates.cap[e.link]);
+      if (g.links[e.link].gate && sim.canObserve(a, g.nodes[a.pathNodes[i]].x, g.nodes[a.pathNodes[i]].y, sim.nodeFloorDisp[a.pathNodes[i]])) {
+        const q = sim.perceivedGateQueue(a,e.link);
+        if (q > 0) c += q / Math.max(0.2, sim.perceivedGateCapacity(a,e.link));
       }
       if (doorGoal && this.outsideGroup[e.other] >= 0) c += sim.cfg.routing.outdoorWeight * this.outsideRest[e.other] * ts;
       const L = g.links[e.link];
       if ((sim.cfg.routing.aisleQueueWeight ?? 0) > 0 && !L.gate && (L.kind === 'aisle' || L.kind === 'crossAisle' || L.kind === 'passage')) {
         const dIdx = e.dir > 0 ? 0 : 1;
         const same = sim.movement.dirCount[2 * e.link + dIdx];
-        if (same > 1) c += (sim.cfg.routing.aisleQueueWeight * same) / (sim.movement.allowedLanes(e.link, dIdx) * LANE_CAPACITY);
+        if (same > 1 && sim.canObserve(a, g.nodes[a.pathNodes[i]].x, g.nodes[a.pathNodes[i]].y, sim.nodeFloorDisp[a.pathNodes[i]])) c += (sim.cfg.routing.aisleQueueWeight * same) / (sim.movement.allowedLanes(e.link, dIdx) * LANE_CAPACITY);
       }
     }
     return c;
@@ -583,7 +583,7 @@ export class RouteSystem {
     return false;
   }
 
-  private adoptPath(a: Agent, gi: number, r: { cost: Float64Array; target: Int32Array }, cause: string) {
+  protected adoptPath(a: Agent, gi: number, r: { cost: Float64Array; target: Int32Array }, cause: string) {
     if (r.target[gi] < 0) {
       a.pathValid = false;
       return;
@@ -600,7 +600,7 @@ export class RouteSystem {
     a.pathGroup = gi;
   }
 
-  private setPath(a: Agent, p: { nodes: number[]; adj: number[] }) {
+  protected setPath(a: Agent, p: { nodes: number[]; adj: number[] }) {
     a.pathNodes = p.nodes;
     a.pathAdj = p.adj;
     a.pathPos = 0;
@@ -633,10 +633,11 @@ export class RouteSystem {
       const e = g.adj[u][a.pathAdj[i]];
       const L = g.links[e.link];
       if (space && space[L.a] !== mySpace && space[L.b] !== mySpace) continue;
+      if (!sim.canObserve(a, nu.x, nu.y, sim.nodeFloorDisp[u])) continue;
       const d = Math.hypot(nu.x - a.x, nu.y - a.y);
       if (L.gate) {
-        const q = sim.gates.queueNow[e.link];
-        if (q > 0 && d <= vis + 0.5 * q) c += q / Math.max(0.2, sim.gates.cap[e.link]);
+        const q = sim.perceivedGateQueue(a,e.link);
+        if (q > 0 && d <= vis + 0.5 * q) c += q / Math.max(0.2, sim.perceivedGateCapacity(a,e.link));
       } else if (L.kind === 'aisle' || L.kind === 'crossAisle' || L.kind === 'passage') {
         const dIdx = e.dir > 0 ? 0 : 1;
         const same = sim.movement.dirCount[2 * e.link + dIdx];

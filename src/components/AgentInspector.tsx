@@ -1,3 +1,5 @@
+import {PlusSimulation} from '../plus/PlusSimulation';
+import {stateFor} from '../plus/State';
 import { EXIT_GROUPS } from '../geometry/types';
 import { REASON_LABEL, STATE_COLOR, STATE_LABEL } from '../simulation/Agent';
 import { BEHAVIOR_LABEL } from '../simulation/Params';
@@ -32,14 +34,15 @@ export function AgentInspector({ sim, id, onClose }: { sim: SimulationEngine; id
     ['Group', group ? `#${a.group} (${group.length} people${a.groupLeader ? ', leader' : ''}${sim.groupBroken[a.group] ? ', separated in crowd' : ''})` : 'alone'],
     ['Known exits', known.join(', ')],
     ['Known closures', a.knownBlocked.map((li) => g.links[li].label).join(', ') || 'none'],
-    ['Crowd Manager', a.instructedCM ? (a.cmGroup >= 0 ? `instructed, complied → ${GROUP_SHORT[EXIT_GROUPS[a.cmGroup]]}` : 'instructed, did not comply') : 'not reached'],
-    ['LED guidance', a.ledSeen ? (a.ledGroup >= 0 ? `followed → ${GROUP_SHORT[EXIT_GROUPS[a.ledGroup]]}` : 'seen / not followed or not perceived') : '-'],
+    ['Crowd Manager', a.instructedCM ? (a.cmGroup >= 0 ? `${sim instanceof PlusSimulation?'accepted message':'instructed, complied'} → ${GROUP_SHORT[EXIT_GROUPS[a.cmGroup]]}` : 'instructed, did not accept') : 'not reached'],
+    ['LED guidance', a.ledSeen ? (a.ledGroup >= 0 ? `${sim instanceof PlusSimulation?'accepted message':'followed'} → ${GROUP_SHORT[EXIT_GROUPS[a.ledGroup]]}` : 'seen / no accepted destination') : '-'],
     ['Reroutes', String(a.reroutes)],
     ['Total waiting at bottlenecks', `${fmt(a.waitTotal)} s`],
     ['Current link', link ? `${link.label} (${link.kind}), ${fmt(a.sDir, 1)}/${fmt(link.len, 1)} m, lane ${a.lane + 1}/${link.lanes}` : '-'],
     ['Speed now', `${fmt(a.v, 2)} m/s (desired ${fmt(a.vDes, 2)})`],
     ['Local density', `${fmt(a.densityHere, 2)} p/m²`],
   ];
+  if(sim instanceof PlusSimulation){const p=stateFor(sim).people[a.id];rows.push(['Instruction commitment',a.wheelchair?'Accessible assistance route takes priority':p.command>=0?`${p.source} → ${EXIT_GROUPS[p.command]}`:'none'],['Pending feasible turn',p.pending?'yes, at next connected node':'no'],['Last decision',p.lastDecision],['Estimated remaining costs',p.costs.map((x,i)=>`${EXIT_GROUPS[i]}: ${x===null?'unknown':x.toFixed(1)+' s'}`).join('; ')],['Visible queues / apparent rate',p.observed.map(o=>`${o.link}: ${o.queue} people / ${o.rate.toFixed(2)} p/s / ${o.wait.toFixed(1)} s`).join('; ')||'none']);}
   return (
     <div className="inspector">
       <div className="inspector-head">
@@ -59,6 +62,7 @@ export function AgentInspector({ sim, id, onClose }: { sim: SimulationEngine; id
           ))}
         </tbody>
       </table>
+      {sim instanceof PlusSimulation&&<details open><summary>Information and decision history</summary>{stateFor(sim).people[a.id].history.map((e,i)=><p className="small" key={i}>{e.t.toFixed(1)} s · {e.kind} {e.source} → {EXIT_GROUPS[e.exit]} {e.accepted===undefined?'':e.accepted?'accepted':'declined'}</p>)}</details>}
       {a.utilities.length > 0 && (
         <>
           <div className="muted small">Last exit-choice evaluation (utility, est. cost s):</div>

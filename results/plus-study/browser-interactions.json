@@ -1,0 +1,25 @@
+{
+  "date": "2026-11-09T00:25:10.196Z",
+  "checks": [
+    "physical policy load: 12 strips, 2 belts",
+    "LED message, dynamic mode and activation edit",
+    "invalid bypass rejected",
+    "barrier disable",
+    "map sign placement",
+    "sign removal",
+    "draw and finish floor strip on an existing walkway",
+    "live step, resume, pause and reset controls",
+    "exact JSON layout export",
+    "actual file import",
+    {
+      "roundTrip": {
+        "same": true,
+        "N": 1329,
+        "staff": 6,
+        "signs": 12,
+        "barriers": 1
+      }
+    }
+  ],
+  "errors": []
+}

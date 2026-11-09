@@ -36,6 +36,8 @@ def inline(s,citations=True):
     saved=[]
     def keep(x):saved.append(x);return 'ZZLATEX'+str(len(saved)-1)+'ZZ'
     s=re.sub(r'`([^`]+)`',lambda m:keep(r'\code{'+m[1]+'}'),s)
+    # Explicit Markdown currency must not be mistaken for paired inline math.
+    s=re.sub(r'\\\$',lambda m:keep(r'\$'),s)
     s=re.sub(r'\[([^\]]+)\]\(([^)]+)\)',lambda m:keep(r'\href{'+m[2].replace('%',r'\%').replace('#',r'\#')+'}{'+inline(m[1],False)+'}'),s)
     s=re.sub(r'\$([^$\n]+)\$',lambda m:keep('$'+m[1]+'$'),s)
     s=re.sub(r'\*\*([^*]+)\*\*',lambda m:keep(r'\textbf{'+inline(m[1],citations)+'}'),s)
@@ -99,11 +101,14 @@ PREAMBLE=r'''\documentclass[11pt,a4paper]{article}
 \special{pdf:minorversion 7}
 '''
 META={
-'MODEL_GUIDE':('Bailey Hall evacuation modelling','Mathematical specification, assumptions and verification','This document develops the model from flow conservation and travel times to heterogeneous agents, spatial interactions, imperfect guidance and the separate A-Lite queue model. Equations describe the implemented rules; citations justify modelling mechanisms without treating unmeasured coefficients as Bailey-specific evidence. The audience remains 1,329 people, including three wheelchair users. The quantity of interest is the mean, over independent audiences, of the last person\'s exterior-boundary crossing time. The companion experimental reports distinguish numerical corrections, structural simplifications and parameter calibration.'),
-'RESULTS_AND_CHANGES':('Interventions and changes from Mateus\'s 04:20 model','Experimental results and reproducibility record','This report leads with the fixed six-manager comparison of physical LED strips and removable corridor barriers, with placement maps, independent confirmation and a replay audit. It also preserves the original guidance-and-barrier investigation. It distinguishes the predictions of spatial Model A and network Model B, and reports numerical checks, calibration sensitivities and evidence limits. The later A-Lite extension has a separate audit and comparison report; historical panel configurations are not installation recommendations.'),
+'MODEL_GUIDE':('Bailey Hall evacuation modelling','Mathematical specification, assumptions and verification','This document develops the model from flow conservation and travel times to heterogeneous agents, spatial interactions, imperfect guidance and the A-Lite+ primary model, with physical installations, local information and explicit instruction execution. The original A/B/C/Lite engines remain reference models. Equations describe the implemented rules; citations justify modelling mechanisms without treating unmeasured coefficients as Bailey-specific evidence. The audience remains 1,329 people, including three wheelchair users. The quantity of interest is the mean, over independent audiences, of the last person\'s exterior-boundary crossing time. The companion experimental reports distinguish numerical corrections, structural simplifications and parameter calibration.'),
+'RESULTS_AND_CHANGES':('Interventions and changes from Mateus\'s 04:20 model','Experimental results and reproducibility record','This report evaluates the final A-Lite+ model with six managers, physical LED guidance and low-profile removable barriers. A frozen research-bounded calibration precedes operational search, independent confirmation, controlled ablations, obstruction tests and numerical refinement. It answers all five competition questions, reports indicative costs, and distinguishes computational verification from missing empirical Bailey validation. Historical engines and results remain reproducible.'),
 'SIMPLIFICATION_AUDIT':('A-Lite: a spatial queue model for Bailey Hall','Mechanism audit, mathematical specification and comparative experiments','This report tests whether a spatial queue representation can remove unsupported microscopic detail while retaining the full audience, original graph, finite passage storage, physical gate capacities, heterogeneous response and imperfect guidance. Numerical corrections, individual ablations, operational optimization and calibration changes are evaluated separately. Original Model A remains the benchmark. Independent confirmation, failures, time-step sensitivity and the effects lost by simplification determine the recommendation.')}
 
 def render(text,stem):
+    # Manuscript maintenance markers are not reader-facing text. Remove them
+    # before paragraph collection, which can otherwise consume a closing marker.
+    text=re.sub(r'<!--.*?-->','',text,flags=re.S)
     # Bibliography entries are collected centrally and typeset once at the end.
     text=re.sub(r'^\*\*\[[^]]+\]\*\* .+\n?','',text,flags=re.M)
     text=re.sub(r'^\[R3–R19\].+\n?','',text,flags=re.M)
@@ -131,10 +136,17 @@ def render(text,stem):
         if m:
             f=D/m[2];dest=TEX/'figures'/(f.stem+'.pdf')
             if f.suffix=='.svg':
-                doc=fitz.open('svg',f.read_bytes());pdf=fitz.open('pdf',doc.convert_to_pdf());pdf.save(dest);pdf.close();doc.close()
+                doc=fitz.open('svg',f.read_bytes());pdf=fitz.open('pdf',doc.convert_to_pdf())
+                same=False
+                if dest.exists():
+                    old=fitz.open(dest)
+                    same=len(old)==len(pdf) and all(a.rect==b.rect and a.get_text('dict')==b.get_text('dict') and a.get_drawings()==b.get_drawings() and a.get_pixmap().samples==b.get_pixmap().samples for a,b in zip(old,pdf))
+                    old.close()
+                if not same:pdf.save(dest)
+                pdf.close();doc.close()
             elif f.suffix=='.pdf':shutil.copyfile(f,dest)
             else:dest=TEX/'figures'/f.name;shutil.copyfile(f,dest)
-            height='.82' if f.stem=='placement-layouts' else '.48' if f.stem=='placement-selected' else '.30'
+            height='.68' if f.stem.startswith('plus-') and f.stem.endswith(('-main','-balcony')) else '.82' if f.stem=='placement-layouts' else '.48' if f.stem=='placement-selected' or f.stem.startswith('plus-selected') or f.stem.startswith('plus-combined') else '.30'
             out.append(r'\begin{figure}[htbp]\centering'+'\n'+r'\includegraphics[width=\linewidth,height='+height+r'\textheight,keepaspectratio]{figures/'+dest.name+'}\n'+r'\caption{'+inline(m[1])+'}'+r'\label{fig:'+f.stem+'}\n'+r'\end{figure}');continue
         if s.startswith('|'):
             rows=[s]
@@ -143,8 +155,10 @@ def render(text,stem):
             rows=[row for row in rows if not all(re.fullmatch(r':?-+:?',v) for v in row)]
             n=len(rows[0]);table+=1
             weights={2:[.29,.71],3:[.26,.34,.40],4:[.23,.16,.23,.38],5:[.34,.12,.26,.14,.14],6:[.30,.25,.17,.10,.09,.09],7:[.28,.16,.14,.12,.10,.10,.10],8:[.31,.09,.09,.09,.09,.09,.09,.15]}.get(n,[1/n]*n)
-            if stem=='RESULTS_AND_CHANGES' and n==5:weights=[.35,.13,.26,.13,.13]
+            if stem=='RESULTS_AND_CHANGES' and n==5:weights=[.30,.06,.28,.08,.28]
             if stem=='RESULTS_AND_CHANGES' and n==8:weights=[.22,.10,.09,.12,.12,.13,.11,.11]
+            if n==5 and 'Wilson' in ' '.join(rows[0]):weights=[.27,.07,.26,.10,.30]
+            if n==6 and rows[0][1]=='Model':weights=[.28,.07,.07,.30,.17,.11]
             # Widths plus intercolumn padding total exactly linewidth.
             spec='@{}'+''.join(r'>{\raggedright\arraybackslash}p{\dimexpr '+f'{w:.4f}'+r'\linewidth-'+f'{2*(n-1)*4*w:.3f}'+r'pt\relax}' for w in weights)+'@{}'
             head=' & '.join(r'\textbf{'+inline(v)+'}' for v in rows[0])+r' \\'
@@ -187,7 +201,7 @@ Scope & Research model; assumptions and calibration limits stated explicitly
 \vspace{9mm}
 \end{titlepage}
 \pagenumbering{roman}
-\tableofcontents
+{\small\tableofcontents}
 \clearpage
 \pagenumbering{arabic}
 '''.replace('SUBTITLE',escape(sub)).replace('TITLE',escape(title)).replace('ABSTRACT',inline(abstract))
@@ -214,6 +228,10 @@ if __name__=='__main__':
             shutil.copyfile(TEX/(stem+'.pdf'),D/(stem+'.pdf'))
             dest=ROOT/'public/docs/research-180';dest.mkdir(parents=True,exist_ok=True);shutil.copyfile(D/(stem+'.pdf'),dest/(stem+'.pdf'))
 
+    if args.compile and not args.stem and (TEX/'IMPLEMENTATION_PROMPT.tex').exists():
+        subprocess.run(['tectonic','--keep-logs','--outdir',str(TEX),str(TEX/'IMPLEMENTATION_PROMPT.tex')],cwd=TEX,check=True)
+        shutil.copyfile(TEX/'IMPLEMENTATION_PROMPT.pdf',D/'IMPLEMENTATION_PROMPT.pdf')
+        shutil.copyfile(TEX/'IMPLEMENTATION_PROMPT.pdf',ROOT/'public/docs/research-180/IMPLEMENTATION_PROMPT.pdf')
     if args.compile:
         bundle=D/'BAILEY_LATEX_SOURCES.zip'
         with zipfile.ZipFile(bundle,'w',zipfile.ZIP_DEFLATED) as archive:

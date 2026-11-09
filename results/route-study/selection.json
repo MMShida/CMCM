@@ -1,0 +1,21 @@
+{
+ "frozenAt": "2026-11-08T22:02:45.048Z",
+ "sourceHash": "cd8dd4c330f88da173617d433934a4c45dbdede7747706061137cb4b38bb8133",
+ "rule": "Lowest complete 24-audience validation mean among prescreened configurations with physical LEDs and barriers; no holdout inspected",
+ "trainingBase": 62006,
+ "validationBase": 62007,
+ "confirmationBase": 62106,
+ "selectedId": "route-coverage-decision-rope1",
+ "validationMean": 190.17083333333332,
+ "screenCases": 84,
+ "shortlist": [
+  "route-decision-none-rope1",
+  "route-decision-decision-rope1",
+  "route-coverage-decision-rope1",
+  "route-coverage-corridor-rope1",
+  "route-decision-corridor-rope1",
+  "route-decision-corridor-hard1",
+  "route-existing-corridor-rope1",
+  "previous-combined"
+ ]
+}

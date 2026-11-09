@@ -20,3 +20,5 @@ python3 scripts/check-research-pdfs.py
 ```
 
 The generator requires Python 3 and PyMuPDF (`pip install pymupdf`); PDF compilation requires Tectonic on PATH. Editing generated `.tex` files directly is supported for a standalone submission, but regeneration will overwrite such edits. Use the Markdown manuscripts for ongoing repository edits.
+
+`IMPLEMENTATION_PROMPT.tex` is a standalone prompt maintained directly in LaTeX. It describes A-Lite+ for another implementing assistant, with research references and explicit checks. The full build also compiles it; it can be compiled directly with `tectonic IMPLEMENTATION_PROMPT.tex`.

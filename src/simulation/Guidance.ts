@@ -287,6 +287,18 @@ export class GuidanceSystem {
     }
   }
 
+  /** Optional moving-post extension: refresh location-dependent hearing and observations. */
+  protected refreshManagerPositions(anchors?:Map<number,{node:number;dist:Float32Array}>){
+    for(const cm of this.cms){
+      const anchor=anchors?.get(cm.idx);
+      cm.node=anchor?.node??this.nearestNode(cm.post);cm.dist=anchor?.dist??this.walkDistances(cm.node,cm.post);
+      cm.group=this.space[cm.node]*4+(cm.post.floor===2?2:1);
+      cm.obsLinks=[];cm.obsGates=[];
+    }
+    this.setupObservation();
+    for(const cm of this.cms)cm.peers=this.cms.filter(b=>b!==cm&&b.group===cm.group&&Math.hypot(b.post.x-cm.post.x,b.post.y-cm.post.y)<=2*this.sim.cfg.crowdManagers.radius).map(b=>b.idx);
+  }
+
   /** staff route (walk time at 1.2 m/s and the gates on it) from node to exit group gi */
   route(node: number, gi: number, knowsBlocked: boolean): { walk: number; gates: number[] } | null {
     const key = `${node}|${gi}|${knowsBlocked ? 1 : 0}`;
@@ -762,6 +774,7 @@ export class GuidanceSystem {
       complied = true;
       if (a.ledGroup >= 0 && a.ledGroup !== gi && prev !== gi) a.hesitate += sim.cfg.led.conflictDelay;
     }
+    sim.managerMessage(a, gi, complied, cm.idx);
     // an instruction re-plans like a routine decision (route inertia, no U-turn); only newly
     // learned closures force an unconditional re-plan (prevents back-and-forth walking)
     if (a.state >= ST.MOVING && a.state <= ST.REUNITING) sim.routing.chooseExit(a, learned ? 'info' : 'node');
@@ -809,7 +822,7 @@ export class GuidanceSystem {
     }
     const prevTarget = a.targetGroup;
     let complied = false;
-    if (a.uCM < C.complianceProb * a.trust) {
+    if (a.uCM < sim.managerAcceptance(a)) {
       const prev = a.cmGroup;
       a.cmGroup = gi;
       a.cmSource = cm.idx;
@@ -817,6 +830,7 @@ export class GuidanceSystem {
       complied = true;
       if (a.ledGroup >= 0 && a.ledGroup !== gi && prev !== gi) a.hesitate += sim.cfg.led.conflictDelay;
     }
+    sim.managerMessage(a, gi, complied, cm.idx);
     // a new instruction is new relevant information: re-evaluate (bypasses the commitment interval,
     // keeps route inertia and the no-U-turn rule); newly learned closures force a re-plan
     if (a.state >= ST.MOVING && a.state <= ST.REUNITING) {

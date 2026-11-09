@@ -1,0 +1,51 @@
+{
+ "frozenAt": "2026-11-09T00:15:55.640Z",
+ "reason": "The additional-staff placements inherited messages optimized for six managers. Test a bounded operational retuning without altering calibration, devices or staffing.",
+ "baseline": "staff-expanded-config: selected using staff validation only",
+ "search": {
+  "base": 73501,
+  "runs": 8,
+  "sidePatterns": 4,
+  "tailBlocks": 8,
+  "sweeps": 1,
+  "minGainSeconds": 1
+ },
+ "validation": {
+  "base": 73502,
+  "runs": 20,
+  "candidates": [
+   "inherited",
+   "best-side-pattern",
+   "coordinate-refinement"
+  ]
+ },
+ "confirmation": {
+  "base": 73503,
+  "runs": 100
+ },
+ "fine": {
+  "base": 73503,
+  "runs": 100,
+  "dt": 0.0125
+ },
+ "robustness": {
+  "base": 73504,
+  "runs": 12,
+  "closures": [
+   "F3",
+   "FC2",
+   "D3"
+  ],
+  "withAndWithoutBarriers": true
+ },
+ "audit": {
+  "base": 73507,
+  "runs": 2,
+  "conditions": [
+   "open",
+   "FC2"
+  ]
+ },
+ "selection": "Lowest complete validation mean. Freeze before opening new holdout; retain inherited policy as a candidate. Stop after this one search, regardless of 180 s.",
+ "scope": "Only staff/pre-announcement seat-block destinations. Four coherent side-zone patterns compare foyer/own-side portico, then eight most frequent non-side tail blocks each test own-side exits once. Public sign messages, physical calibration and all devices remain fixed."
+}

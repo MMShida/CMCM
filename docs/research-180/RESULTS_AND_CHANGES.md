@@ -1,476 +1,409 @@
-# What changed after 04:20 — and did it reach 180 seconds?
+# A-Lite+ results and changes from Mateus’s 04:20 model
 
-<!-- SIX_MANAGER_START -->
-## Current scope: six managers and the original problem constraints
-This update addresses **Question 2** (full-house concert emergency, including an initially unknown blocked exit) and **Question 4** (removable corridor barriers and directional LED strips). The original seven-page *Bail(ey)ing Out* PDF was reread, including the evacuation plans and seating maps. The brief requires at least six managers; this comparison uses **exactly six**, as requested. Earlier 10/18-manager results remain historical resource sensitivities.
+## Primary result and interpretation
 
-| Constraint | Source page | Treatment |
+Finalized at the user’s request using completed cases only. Supplemental ablations, device-isolation comparisons, Q1/Q3 scenario batches, parameter uncertainty, two planned 100-run numerical replays, and the smaller-step diagnostic were not completed. Closure tests are partial. At the prespecified 100-run 0.0125 s step: refined guidance fine (12 managers), 184.45 s [95% CI 182.39–186.51], 32/100 at or below 180. The 100-run 0.0125 s confirmation does not establish a mean below 180 s with a 95% interval wholly below the target. A-Lite+ with six managers gives 190.58 s (95% CI 188.58–192.58) on 100 fresh audiences; 17/100 clear by 180 s and 0 are unresolved. The original six-manager calibration does not demonstrate a mean below 180 seconds. These are research-grounded model predictions, not empirical Bailey validation. The separately declared 1.4 m/s clipped-normal alternative gives 185.63 s (95% CI 183.06–188.21); 38/100 clear by 180 s. Its mean interval does not demonstrate the sub-180 target. The expanded 12-manager policy at 1.4 m/s averages 183.25 s (95% CI 181.20–185.30); 40/100 clear by 180. Its independent mean interval does not demonstrate the sub-180 target.
+
+![Independent confirmation. Parameter and staffing alternatives are labeled explicitly; interval width describes sampled audiences, not unknown venue calibration.](figures/plus-confirmation.svg)
+
+The validation-selected policy is `optimized-guidance`. It uses six coverage posts, 0 wall signs, 24.0 m of floor strips and 2 physical barriers. Original geometry and 1,329 audience members, including three wheelchair users, remain. The primary physical calibration was frozen before operational search. The endpoint is the last exterior building crossing; assisted travel to street level is separate.
+
+A-Lite+ is recommended as the single comparative planning model because it retains the detailed walkway graph, heterogeneous response and decisions, finite storage, accessible routing and physical device locations while making service conservation explicit. Its simplified queue positions do not resolve body contact or every group interaction. A, B and original Lite remain structural comparisons; Model C is an ideal network-flow benchmark. Choosing the shortest prediction across engines is not calibration.
+
+## What changed, and what stayed fixed
+
+| Component | Change from original Lite / Mateus | Reason and limit |
 |---|---|---|
-| 1,329 occupants, including up to three wheelchair users | 2–3 | All 1,329 retained, including three wheelchair users; not 1,329 plus three. |
-| Declaration to last person outside | 1–2 | Response time included; no 180 s censoring; building boundary and street safety reported separately. |
-| At least six staff at concerts | 2 | Exactly six actual posts; no staff removed by the device interventions. |
-| Temporary corridor barriers; directional floor/wall LEDs | 2 | Original corridor slots and finite floor-strip segments; no physical rate or width bonus. |
-| Exit obstruction and execution error | 2 | Matched discovery-mode blocked-door tests; visibility and notice sensitivities. |
-| No elevator; preserve building layout | 3–7 | Original graph and prohibited links unchanged; all candidate rows and wheelchair seats retain an egress path. |
-| One-page executive summary, explicit questions addressed | 2–3 | Summary addressed to Timothy Ryan precedes this report; Questions 2 and 4 selected. |
-
-The user's target is an average below 180 s. The brief's wording is stricter: an evacuation must finish under 180 s. The report therefore shows both the mean last-person time and the count at or below 180. Graph connectivity does not establish installation feasibility, body-level pressure, smoke tenability or empirical accuracy. The full audit is `CONSTRAINTS.md`.
-
-## Why your Model A run can differ from 230 seconds
-
-The historical refined A result is **231.2475 s**, averaged over 40 specified audiences. It uses six existing managers, W1/E1 hard corridor panels, pre-announcement, abstract LEDs, adaptive managers and conservative service integration. The default concert baseline is **268.645 s** on the same audiences. The configuration's stored seed 1 is not the batch's first generated seed.
-
-The archived refined A audience with seed **2132682877** leaves the building at **235.1 s**, the last ambulatory person reaches street level at **266.0 s**, and all-person street safety including scheduled wheelchair assistance is **282.7 s**. Individual clearance times in that 40-run batch span **212.9–260.1 s**. The interface's former prominent clock included outside travel and assistance; it was not the study's clearance metric. The live view now displays building clearance separately. The study tab loads exact configurations, replays a known audience, and reproduces the complete archived seed list.
-
-A fresh current-code audit reproduced **all 1,000 runs** in the original A/B and later A-Lite main confirmation archives, including the known incomplete corrected-A case. Numerical run fields match; measured CPU runtime is excluded. Real browser checks independently matched the live A/B results and all 40 refined A worker results. Multiple local checkouts were serving different code on ports 5173/5174; this worktree serves port 5180. A shared Vite dependency cache also caused duplicate-React errors; the cache is now local to this checkout.
-
-The generic Monte Carlo summary previously could show a completion-conditioned mean when another audience failed. It now reports no finite full-house mean for an incomplete batch, preserving failures in the success fraction. This display correction does not change trajectories. Reproduction verifies implementation consistency; it cannot establish agreement with a real Bailey evacuation without calibration data.
-
-## Placement experiment and resource budget
-
-Three six-manager layouts (existing, seat coverage, decision points), four LED choices (none, early approach, decision areas, corridor/exit approach) and seven barrier choices give **84 configurations**, each tested on four common training audiences. Barrier choices are none; hard W0/E0, W1/E1, W2/E2; W1/E1 ropes; and asymmetric hard W0/E2 or W2/E0. Thus symmetry is tested, not presumed.
-
-The same expanded seat-block instructions and pre-announcement are used throughout the screen. Staff have acoustic reach and individual message hearing; congestion redirection is initially held static, while closure handling remains enabled. Four additional zone-control variants enter the longer shortlist. Physical probabilities remain 0.9 notice and 0.7 acceptance for LEDs, 0.8 base staff acceptance, with inherited imperfect hearing. Ropes add 15 perceived seconds, a sensitivity assumption rather than an observed Bailey deterrent.
-
-Each LED layout uses **twelve 2 m floor strips, 24 m total**, clipped to existing links. The message is public and fixed; no strip reads a person's original seat. Range is 12 m, same-floor only, with walls, columns and hard panels occluding. One notice/acceptance opportunity uses the original random draws. Body occlusion, height, luminance and optical smoke effects are not calibrated. The strips are localized cues, not an uninterrupted illuminated route. Floor strips are visible from either side; arrow direction is distinct from the facing cone of a wall sign. Model Guide equation 25 specifies the finite-strip visibility calculation.
-
-Bernardini et al. [R20] support investigating low-level directional cues and message comprehension, using isolated-person VR evidence. Galea et al. [R8] support message consistency. Neither establishes Bailey's notice/acceptance values. Barrier experiments [R11–R12,R17] show configuration-dependent benefits and harm; no published percentage is pasted onto capacity.
-
-![All three equal-length LED layouts and all six candidate corridor barrier slots; arrows show public exit directions.](figures/placement-layouts.svg)
-
-## Training selection, fixed before independent confirmation
-
-The shortlist contains **17 candidates**, each evaluated on 12 new training audiences (base seed 61007), after screening with base seed 61006. Selection was frozen before viewing the 40-audience confirmation set (61106). The lowest training mean selected `decision-none-rope1` overall; the best candidate containing both devices selected `coverage-decision-rope1`. These are two prespecified roles, not a choice of the best holdout result.
+| Transport | Original uncontracted links; conservative service and finite storage retained. Local group pace replaces permanent remote slowest-member pacing; limited passing into empty wide-corridor lanes. | Bode group experiments [R23] motivate separating approach coordination from gate service. The 4 m neighborhood and 1.8 m passing threshold remain assumptions. |
+| Individual decisions | Nearby line-of-sight queues and observed discharge; moving people may revise intent before a junction; actual turns require connected nodes. | Travel plus visible wait, persistent preferences, cooldown and hysteresis. No instantaneous remote queue knowledge. |
+| Manager instructions | Persistent fixed 0.8 acceptance, independent of trust. Accepted feasible directions commit a destination. Hearing, acceptance and execution logged separately. | Requested behavioral change; 0.8 is assumed, tested at 0.6/0.9. Accessibility takes precedence. Six managers in the primary concert. |
+| LEDs | Explicit wall points / floor polylines, visibility, persistent notice and acceptance. Public static/dynamic messages; delayed local/radio controller. | Experimental detection [R24] transfer is uncertain in a dense theatre. No personalized message from a public sign. |
+| Barriers | Low belt / open rail / historical opaque panel; explicit span, bypass, width/lane reduction and detour. No arbitrary rope penalty. | Obstacle experiments [R11,R12,R17] do not establish a universal benefit. Reject inaccessible/narrow/exit-blocking placements. Transparent devices preserve sightlines. Hardware footprints and venue approval remain necessary. |
+| Numerics and UI | Independent Plus engine factories; original engines retained. Polyline animation, placement editor, inspector, event log, matched comparison, costs and evidence ledger. | Exact source snapshots, seeded configurations and browser parity checks. Performance indexing does not change simulated outcomes. |
 
 
-| Training configuration | Mean s [95% CI] | Failures |
-|---|---|---|
-| decision-none-rope1 | 191.6 [182.8, 200.5] | 0 |
-| zone-none-hard1 | 193.1 [182.1, 204.0] | 0 |
-| coverage-decision-rope1 | 193.8 [186.7, 200.8] | 0 |
-| decision-none-hard1 | 194.6 [185.9, 203.4] | 0 |
-| decision-corridor-hard1 | 194.8 [184.6, 205.0] | 0 |
-| zone-corridor-hard1 | 195.8 [187.6, 204.0] | 0 |
-| existing-none-rope1 | 199.5 [185.1, 214.0] | 0 |
-| zone-decision-hard1 | 201.7 [186.0, 217.5] | 0 |
+The original placement study holds headway, body size, capacities, audience, speed distribution, response and building layout fixed. The later user-requested speed study declares a separate 1.4 m/s alternative before inspecting its outcomes and preserves the original study. The literature review bounded existing assumptions and changed only the stated group/perception/instruction mechanisms before freezing them. Sensitivity values are not ranked to choose a physical calibration; the declared alternative and the original result remain separate. No seat-back crossing or use of another row as a shortcut is permitted.
 
-## Independent six-manager comparison
+## Search protocol and independent confirmation
 
-Exactly six managers: the preselected combined plan gives 230.1 s in A, 194.2 s in A-Lite and 182.6 s in B (40 independent audiences each). The mean 180-second target is not demonstrated.
+The screen compared 48 physically specified staff/device policies on four common audiences (seed base 73001). The fastest complete training policy supplied the starting layout. The 16 seat blocks most represented among its last 50 evacuees were selected before further optimization. Coordinate descent evaluated 65 distinct plans on six training audiences (73003), for up to two sweeps with a 1 s acceptance threshold. It changed block instructions and pre-announcement, not physical parameters or public sign messages.
 
-| Configuration / model | Mean s [95% CI] | ≤180 | Unresolved |
-|---|---|---|---|
-| Training-selected overall plan / A | 232.7 [229.4, 236.1] | 0/40 | 0/40 |
-| Training-selected overall plan / B | 190.5 [186.2, 194.8] | 9/40 | 0/40 |
-| Training-selected overall plan / Lite | 201.2 [195.0, 207.5] | 3/40 | 0/40 |
-| Training-selected LEDs + barriers / A | 230.1 [226.6, 233.6] | 0/40 | 0/40 |
-| Training-selected LEDs + barriers / B | 182.6 [178.7, 186.5] | 18/40 | 0/40 |
-| Training-selected LEDs + barriers / Lite | 194.2 [189.1, 199.3] | 7/40 | 0/40 |
-| Same combined plan, LEDs off / Lite | 194.7 [190.1, 199.4] | 3/40 | 0/40 |
-| Same combined plan, barriers removed / Lite | 218.2 [213.5, 222.9] | 0/40 | 0/40 |
-| Same posts and messages, both devices off / A | 235.7 [231.9, 239.6] | 0/40 | 0/40 |
-| Same posts and messages, both devices off / B | 189.4 [185.6, 193.1] | 8/40 | 0/40 |
-| Same posts and messages, both devices off / Lite | 216.1 [211.3, 221.0] | 0/40 | 0/40 |
-| Existing posts, no devices / Lite | 219.2 [214.5, 223.9] | 0/40 | 0/40 |
+A shortlist of 8 policies was evaluated on 16 separate validation audiences (73002). The lowest complete mean among six-manager policies was frozen before the 100 confirmation audiences (73101). A combined-device role was also frozen; if the same policy wins both roles, its result is counted once. Ten- and twelve-manager variants used 16 training audiences (73004); the selected additional-staff option has its own 100-run holdout. All roles were fixed before opening confirmation results. This is a bounded search, not proof of global optimality.
 
-Negative paired differences mean faster; confidence intervals describe the paired audience sample. The intervention comparison keeps posts, instructions and pre-announcement fixed.
+| Policy | Runs | Mean [95% CI], s | p95, s | ≤180; Wilson CI; failed |
+|---|---|---|---|---|
+| selected | 100 | 190.58 [188.58, 192.58] | 206.59 | 17/100; 11–26%; 0 failed |
+| baseline6 | 100 | 219.14 [216.56, 221.72] | 240.40 | 0/100; 0–4%; 0 failed |
+| extra staff | 100 | 190.52 [188.04, 192.99] | 214.25 | 17/100; 11–26%; 0 failed |
 
-| A-Lite paired comparison | Difference s [95% CI] |
+
+Selected minus baseline on the same 100 audiences: **-28.56 [-32.07, -25.06] s** (paired 95% interval). Negative means faster. The success fraction requires all 1,329 outside by 180; failures are never removed from a claimed unconditional mean. Confidence intervals describe audience sampling conditional on the model, not unknown Bailey calibration.
+
+## 100-run numerical confirmation of the declared speed and staffing policies
+
+At the prespecified 100-run 0.0125 s step: refined guidance fine (12 managers), 184.45 s [95% CI 182.39–186.51], 32/100 at or below 180. The 100-run 0.0125 s confirmation does not establish a mean below 180 s with a 95% interval wholly below the target.
+
+| Policy | Runs | Mean [95% CI], s | p95, s | ≤180; Wilson CI; failed |
+|---|---|---|---|---|
+| refined guidance fine | 100 | 184.45 [182.39, 186.51] | 202.74 | 32/100; 24–42%; 0 failed |
+
+
+Two additional 100-audience numerical refinements were declared before either speed/staff confirmation was opened; they were not completed before the finalization cutoff. Their declarations remain archived. The study never chooses the fastest time step. Audience sampling remains independent of operational selection; the same audiences permit paired numerical comparison. Treat a threshold crossed only at one resolution cautiously. The later guidance retuning has its own declared 100-audience 0.0125 s confirmation on new seed base 73503. Every completed 100-run confirmation is available in the UI with its exact configuration and seeds.
+
+| 0.0125 s minus original 0.1 s result | Paired difference [95% CI], s |
 |---|---|
-| Combined minus neither device | -21.91 [-26.89, -16.92] |
-| Add LEDs to same barrier plan | -0.54 [-4.48, 3.40] |
-| Add ropes to same LED plan | -24.00 [-28.25, -19.74] |
+| refined guidance fine | 1.37 [-1.02, 3.77] |
 
-The combined policy is retained as the prespecified device comparison even if the overall training winner performs differently on confirmation. A small LED difference with an interval containing zero is not evidence of a reliable improvement. Simpler device layouts can be preferable when the effect is uncertain. Search does not prove a global optimum.
 
-| Combined plan / model | Max local density, persons/m² | Mean exposure, persons·s/m² |
+## Smaller-step numerical diagnostic
+
+The 20-audience expanded-policy comparison changed by 2.32 s between 0.025 and 0.0125 s. Before opening any 100-run fine-step result, an additional diagnostic was declared at 0.00625 s on the first twenty matching confirmation audiences of each frozen policy. Only the time step changes. The 100-run 0.0125 s result remains the declared confirmation; no fastest-step substitution is made. The smaller-step diagnostic was declared but not run before finalization. No result from it is claimed.
+
+Not completed before the user-requested finalization cutoff; no result is claimed.
+
+No completed comparison in this section at finalization.
+
+A small difference is a numerical check, not proof of a continuous-time limit; a material change limits the precision of a threshold claim. Changed steps can alter later routing and hearing histories even with identical audiences. Complete policies, seeds and the diagnostic declaration are archived.
+
+## Placements and implementation
+
+![Selected main-floor policy: actual posts, initial public messages and barrier bypasses.](figures/plus-selected-main.svg)
+
+![Selected balcony policy. Arrows show initial messages; dynamic changes are logged.](figures/plus-selected-balcony.svg)
+
+| Manager | Position (x, y), m | Floor |
 |---|---|---|
-| A | 5.8 | 19.1 |
-| Lite | 4.5 | 14.5 |
-| B | 9.7 | 18.5 |
-
-Exposure integrates density above 2 persons/m² per person, then averages over people and runs. This is an analytical comparison, not a safety threshold. Local A windows, Lite whole-link averages and B edge averages differ in resolution; their peak values are not interchangeable.
-
-## Where the selected devices and six managers are
-
-The combined plan uses **coverage** posts, **decision** LED placement, and **rope1** barriers. The frozen configuration contains every polyline point, arrow message, staff setting and seat-block instruction.
-
-![Selected combined plan: six managers, physical directional strips and corridor barriers on both floors.](figures/placement-selected.svg)
-
-| Strip / existing link | Floor | Centre (x, y), m | Public destination |
-|---|---|---|---|
-| L1 / FX_2 | 1 | (-2.33, -7.60) | STAGE_W |
-| L2 / FX_3 | 1 | (2.33, -7.60) | STAGE_E |
-| L3 / WK_2 | 1 | (-15.25, -1.10) | PORTICO_W |
-| L4 / WK_9 | 1 | (15.25, -1.10) | PORTICO_E |
-| L5 / WK_4 | 1 | (-9.88, 12.50) | PORTICO_W |
-| L6 / WK_7 | 1 | (9.88, 12.50) | PORTICO_E |
-| L7 / WK_5 | 1 | (-3.70, 15.21) | FOYER |
-| L8 / WK_6 | 1 | (3.70, 15.21) | FOYER |
-| L9 / BWK_1 | 2 | (-18.40, 0.08) | BAL_NW |
-| L10 / BWK_8 | 2 | (18.40, 0.08) | BAL_NE |
-| L11 / BWK_2 | 2 | (-14.32, 12.54) | FOYER |
-| L12 / BWK_7 | 2 | (14.32, 12.54) | FOYER |
-
-Each listed strip is 2 m long along its existing link. Coordinates use east-positive x and south-positive y; they are reconstruction coordinates, not surveyed installation dimensions. Full ordered endpoints are retained in the JSON and drawn as arrows.
+| 1 | (-5.10, -3.20) | 1 |
+| 2 | (5.10, -3.20) | 1 |
+| 3 | (-4.90, 12.40) | 1 |
+| 4 | (4.90, 12.40) | 1 |
+| 5 | (-18.40, 2.85) | 2 |
+| 6 | (18.40, 2.85) | 2 |
 
 
-| Manager | Existing: (x,y,floor) | Coverage: (x,y,floor) | Decision: (x,y,floor) |
-|---|---|---|---|
-| CM1 | (-12.8, -4.8, 1) | (-5.1, -3.2, 1) | (0, -7, 1) |
-| CM2 | (12.8, -4.8, 1) | (5.1, -3.2, 1) | (0, 12, 1) |
-| CM3 | (-4.9, 12.4, 1) | (-4.9, 12.4, 1) | (-16.5, 7.5, 1) |
-| CM4 | (4.9, 12.4, 1) | (4.9, 12.4, 1) | (16.5, 7.5, 1) |
-| CM5 | (-18.4, 2.85, 2) | (-18.4, 2.85, 2) | (-17.6, 3.6, 2) |
-| CM6 | (18.4, 2.85, 2) | (18.4, 2.85, 2) | (17.6, 3.6, 2) |
-
-| Slot / link | Centre (x,y), m | Corridor width, m |
+| Device | Geometry / setting | Operational interpretation |
 |---|---|---|
-| W0 / CO_3 | (-17.476, 1.222) | 3.042 |
-| W1 / CO_7 | (-14.269, 10.753) | 2.4 |
-| W2 / CO_10 | (-9.404, 15.05) | 2.589 |
-| E2 / CO_17 | (9.404, 15.05) | 2.589 |
-| E1 / CO_20 | (14.269, 10.753) | 2.4 |
-| E0 / CO_24 | (17.476, 1.222) | 3.042 |
+| CO_7 | belt; length 1.20 m; angle 90°; bypass 1.20 m | Reduced usable width and explicit bypass; no flow bonus |
+| CO_20 | belt; length 1.20 m; angle 90°; bypass 1.20 m | Reduced usable width and explicit bypass; no flow bonus |
 
-The maps number staff CM1–CM6 for comparison; implementation IDs are CM1–CM6 for existing, CV1–CV6 for coverage and DP1–DP6 for decision posts. Panel and rope positions are the same slot midpoints; panels close the slot and obscure sight, ropes remain crossable. All six managers remain available. Staff footprint and their own evacuation remain absent from the inherited audience model.
 
-## Blocked exit and visibility robustness
-
-Twelve matched audiences (base 61206) compare open conditions with **F3 blocked from the start**, initially discovered locally. F3 is one exterior foyer door; no door is removed from the intervention geometry. Neither the static strips nor people receive perfect initial closure information.
-
-| Policy / model | Open mean s | F3 blocked mean s | Paired change s [95% CI] |
-|---|---|---|---|
-| best-six / A | 234.2 | 243.8 | 9.62 [1.16, 18.08] |
-| best-six / B | 201.8 | 194.0 | -7.79 [-23.28, 7.69] |
-| best-six / Lite | 194.2 | 200.8 | 6.63 [-4.77, 18.04] |
-| combined-six / A | 226.6 | 247.4 | 20.84 [6.19, 35.49] |
-| combined-six / B | 185.5 | 189.8 | 4.23 [-6.78, 15.24] |
-| combined-six / Lite | 197.3 | 183.0 | -14.25 [-25.40, -3.10] |
-
-The combined-policy blockage result is model-dependent: F3 closure slows A but speeds Lite in this sample. Mean foyer use in Lite falls from 650.6 to 605.6 people, redistributing demand toward portico and stage routes. This is a route-choice/queue interaction, not increased physical capacity. It is not a recommendation to close an exit, and the disagreement with A limits transfer to the real building. An additional final-state audit checks zero passages through F3 and full completion on every combined-plan blocked replicate.
-
-Twelve further paired audiences (61306) check a 6 m visibility range and a reduced 0.60 notice probability separately. Acceptance remains 0.70; the full audience, six staff and devices remain. These are labeled uncertainty sensitivities, not refits used to select a faster model.
-
-| Combined-plan visibility case | Lite mean s [95% CI] | Change from same-seed control |
+| LED / floor | Position; initial exit | Type / mode |
 |---|---|---|
-| range6 | 198.6 [187.6, 209.5] | -0.97 [-6.47, 4.52] |
-| notice60 | 194.2 [184.6, 203.8] | -5.34 [-12.60, 1.92] |
-| visibility-control | 199.6 [189.2, 209.9] | 0.00 [0.00, 0.00] |
+| L1 / 1 | (-2.33, -7.60); STAGE_W | floor strip / dynamic |
+| L2 / 1 | (2.33, -7.60); STAGE_E | floor strip / dynamic |
+| L3 / 1 | (-15.25, -1.10); PORTICO_W | floor strip / dynamic |
+| L4 / 1 | (15.25, -1.10); PORTICO_E | floor strip / dynamic |
+| L5 / 1 | (-9.88, 12.50); PORTICO_W | floor strip / dynamic |
+| L6 / 1 | (9.88, 12.50); PORTICO_E | floor strip / dynamic |
+| L7 / 1 | (-3.70, 15.21); FOYER | floor strip / dynamic |
+| L8 / 1 | (3.70, 15.21); FOYER | floor strip / dynamic |
+| L9 / 2 | (-18.40, 0.08); BAL_NW | floor strip / dynamic |
+| L10 / 2 | (18.40, 0.08); BAL_NE | floor strip / dynamic |
+| L11 / 2 | (-14.32, 12.54); FOYER | floor strip / dynamic |
+| L12 / 2 | (14.32, 12.54); FOYER | floor strip / dynamic |
 
-## Code changes and reproduction
 
-The update adds finite physical strips to the shared sign-visibility code, preserving all point-sign and abstract-sign behavior when strips are absent. The renderer shows their actual locations and arrows. A-Lite runs the same barrier/LED guidance machinery as A and is now available in live and Monte Carlo views. No movement coefficient, door/stair rate, row speed, group rule, response distribution or original geometry was changed in this update. All new cases retain conservative service integration; Lite also retains its mandatory exhausted-path correction.
+The complete JSON contains every polyline point, orientation, activation, visibility and behavioral parameter. The map uses the actual geometry and posts instantiated by the engine. Dynamic arrows show initial messages; later changes are recorded per run. Coordinates are reconstruction coordinates, not installation survey accuracy. A full open rail is a route closure with transparent sightlines; a partial belt leaves one shared, bidirectional bypass. Hardware supports must fit the assessed envelope. Actual installations require University Fire Marshal review.
 
-The original 1,000-run replay, browser verification, exact seeds, raw per-run results, frozen configurations and geometry/source hashes are stored in `results/placement-study/`. `comparisons.csv` contains every new experiment. Large records are compressed, and source snapshots are deduplicated; intermediate logs and caches remain local.
+## Q4: device comparisons and mechanisms
 
-```
-node --import tsx scripts/placement-cases.ts
-node --import tsx scripts/verify-published-study.ts --workers 4
-node --import tsx scripts/lite-study.ts --cases results/placement-study/confirmation-cases.json --out /tmp/six-manager-confirmation.json --runs 40 --seed 61106 --workers 4
-python3 scripts/placement-report.py
-python3 scripts/build-latex-docs.py --compile
-```
+The 48 whole-policy screening cases include alternative staff, LED and barrier placements. Their raw results and configurations are archived; the separate paired device-isolation batch below was not run before finalization.
 
-No frozen six-manager plan demonstrated a mean below 180 seconds in A or A-Lite. A defensible next improvement needs better measured visibility, route-use or movement evidence; lowering congestion solely to cross a target would change the physical hypothesis.
+Not completed before the user-requested finalization cutoff; no result is claimed.
 
-<!-- SIX_MANAGER_END -->
+These are paired ablations of the same combined policy. Public messages, staff count, physical calibration and audience seeds remain fixed while devices change. They distinguish a device effect from the effect of choosing a different staff plan. “Static” means a fixed illuminated instruction; it is not the low-notice unlit baseline sign. Floor strips have no wall-facing cone. Dynamic updates use delivered manager snapshots, not perfect global state.
 
+No completed comparison in this section at finalization.
 
-
-
-
-
-**Historical guidance study: A 231.2 s; B 166.4 s. Later A-Lite study: 191.4 s [188.3, 194.6] on forty new audiences. A and Lite remain above the mean 180-second target.**
-
-The historical tables below preserve the original intervention study, including historical panel configurations. The later no-barrier simplification study is summarized below and fully documented in **SIMPLIFICATION_AUDIT.pdf**. Its structural changes to group motion are separate from the earlier unchanged-group intervention scope.
-
-This is a continuation of Mateus's 8 November 2026, 04:20:42 EST commit **3e4bcf0**, in the isolated `mateus-0420` checkout. Earlier dirty work is preserved in the parent checkout. This report accompanies **MODEL_GUIDE.pdf**, which develops all model equations and research references from basic flow to the full agent model.
-
-The target is the average, across audiences, of the last person's building-departure time. Every primary test retains **1,329 occupants, three wheelchair users, the original building, physical capacities, speeds, response distributions, group behavior, assistance and compliance probabilities**. No occupancy reduction or capacity multiplier is used to obtain the result.
-
-Final confirmation uses **40 new audiences per configuration**, separate from screening and optimization. There are 6,052 recorded simulation replications across the reproduced matrix, search, confirmation, calibration/congestion sensitivities and 259 optimizer evaluations; time-step and ideal-flow diagnostic runs are additional. Optimization is not proof of a global optimum.
-
-## 1. Independent confirmation
-
-| Configuration | Model | Mean seconds [95% CI] | Runs ≤180 | Unresolved |
-|---|---|---|---|---|
-| Mateus original fixed | A | 268.6 [262.2, 275.1] | 0/40 | 0/40 |
-| Mateus original fixed | B | 221.9 [217.9, 226.0] | 0/40 | 0/40 |
-| Service integration only | A | 260.9 [256.3, 265.6] | 0/40 | 0/40 |
-| Service integration only | B | 209.2 [205.7, 212.8] | 0/40 | 0/40 |
-| Initial A finalist | A | 230.7 [227.4, 234.1] | 0/40 | 0/40 |
-| Signs with wall occlusion, A plan | A | 230.8 [228.5, 233.2] | 0/40 | 0/40 |
-| Selected for Model B | B | 166.4 [162.3, 170.5] | 34/40 | 0/40 |
-| Signs with wall occlusion, B plan | B | 169.3 [165.7, 172.8] | 33/40 | 0/40 |
-| Selected for A after refinement | A | 231.2 [227.7, 234.8] | 0/40 | 0/40 |
-
-On matched audiences, selected A changes clearance by **-37.4 s [-45.2, -29.6]** relative to the original fixed policy. Selected B changes it by **-55.5 s [-61.2, -49.8]**. Negative values mean faster.
-
-Cross-application: the selected A plan gives **180.9 [177.3, 184.5] s in B**; the selected B plan gives **257.4 [253.5, 261.2] s in A**. Full confirmation rows, including removing B's barriers, are in the app and CSV. Model-specific success is not automatically transferable.
-
-The mean target and the probability of clearing every run by 180 s are different requirements. Confidence intervals represent seed variation under the assumptions; they do not measure error relative to a real Bailey evacuation. Any unresolved run makes the reported all-person mean unresolved.
-
-## 2. What the selected guidance actually does
-
-**Selected for A after refinement:** 6 managers at existing posts; adaptive individuals off, adaptive managers on; preassignment on; LEDs inherited abstract guidance field; group-consistent plan off; W1 (hard-panel), E1 (hard-panel).
-
-**Selected for Model B:** 10 managers at existing posts; adaptive individuals on, adaptive managers on; preassignment on; LEDs 12 fixed signs, 24 m catchment, occlusion off; group-consistent plan off; W1 (soft-rope, 5 perceived s), E1 (soft-rope, 5 perceived s).
-
-Instructions divide the audience into Mateus's original **44 zone/side/front-or-back blocks**. Search changes destinations on the existing routes, staff posts/count, communication options and corridor barrier slots. The plans are saved in the full configuration objects in `confirmation-cases.json` and `refinement-confirmation-cases.json` and can be loaded from the app's **180-second study** tab.
-
-The initial search used 6 audiences, the placement/channel/barrier follow-up and coordinate descent used 4, and the shortlist used 12 common training audiences. A final A refinement started from the best 12-audience plan, then was assessed on those 12 training audiences before any reserved outcomes were consulted. It improved the training mean and entered separate 40-audience confirmation. The final 40-audience sample was reserved for confirmation. Joint mirrored front-to-back plans complement the asymmetric one-block optimizer; symmetry is a candidate restriction, not an asserted property of real evacuation behavior.
-
-The refinement did not improve the independent A mean: 231.2 s versus 230.7 s for the initial finalist. It remains the training-selected plan; both results are retained, with no further tuning on these audiences.
-
-The optional service correction conserves fractional door/stair service after admissions. It keeps the stated rates and a one-person idle burst. It is compared separately as “Service integration only”; it is not an invented physical improvement. Legacy defaults remain unchanged.
-
-## 3. Crowd managers versus LEDs and preassignment
-
-The table isolates guidance channels on the selected screening plan. These are **four-audience exploratory comparisons**, not independent estimates of effect size. “CM” denotes existing staff instructions; “pre” denotes the inherited probabilistic preassignment, and “LED” the inherited abstract guidance field. The underlying plan, behavior and probabilities remain fixed within each group.
-
-| Training case | Model | Mean s | Inside at 180 | Unresolved |
-|---|---|---|---|---|
-| bestA-none | A | 325.9 | 531.8 | 0/4 |
-| bestA-cm6 | A | 252.9 | 233.8 | 0/4 |
-| bestA-cm10 | A | 245.8 | 217.5 | 0/4 |
-| bestA-led | A | 291.2 | 423.0 | 0/4 |
-| bestA-pre | A | 302.1 | 311.3 | 0/4 |
-| bestA-cm-led | A | 237.1 | 209.5 | 0/4 |
-| bestA-cm-pre | A | 231.6 | 231.8 | 0/4 |
-| bestA-led-pre | A | 257.3 | 294.8 | 0/4 |
-| bestB-none | B | 233.1 | 232.5 | 0/4 |
-| bestB-cm6 | B | 170.4 | 0.3 | 0/4 |
-| bestB-cm10 | B | 177.8 | 0.5 | 0/4 |
-| bestB-led | B | 175.0 | 0.5 | 0/4 |
-| bestB-pre | B | 191.8 | 9.3 | 0/4 |
-| bestB-cm-led | B | 177.0 | 0.3 | 0/4 |
-| bestB-cm-pre | B | 164.8 | 0.3 | 0/4 |
-| bestB-led-pre | B | 177.6 | 1.3 | 0/4 |
-
-Dynamic signage research supports investigating redirection, but the reported **66% final redirection in one combined sign/voice experiment** is not a universal probability of noticing or obeying a sign. This continuation labels the existing 0.9 notice and 0.7 acceptance values as assumptions; it does not raise them to make the target pass. [Galea et al., primary study](https://gala.gre.ac.uk/id/eprint/16552/).
-
-## 3a. Additional staff: a resource comparison
-
-The final staffing extension tests 12 and 18 proposed posts near existing walkable junctions, using the same activation-time distribution, hearing radius and acceptance probabilities. Each complete layout assigns every seating zone to a manager. These are additional personnel, not a cost-free change to the original six-manager plan. The inherited model omits staff footprint, crowd obstruction and staff evacuation: the unchanged 1,329-person population is the audience. Additional staffing must be read with this abstraction limit.
-
-| Training case | Model | Mean s | Inside at 180 | Unresolved |
-|---|---|---|---|---|
-| staff12-A-fixed | A | 237.6 | 229.3 | 0/4 |
-| staff12-A-managers | A | 257.6 | 212.5 | 0/4 |
-| staff12-A-both | A | 243.1 | 250.0 | 0/4 |
-| staff18-A-fixed | A | 239.9 | 221.3 | 0/4 |
-| staff18-A-managers | A | 233.1 | 219.8 | 0/4 |
-| staff18-A-both | A | 245.5 | 253.5 | 0/4 |
-| staff12-B-fixed | B | 174.8 | 0.3 | 0/4 |
-| staff12-B-managers | B | 166.6 | 0.0 | 0/4 |
-| staff12-B-both | B | 164.0 | 0.0 | 0/4 |
-| staff18-B-fixed | B | 176.5 | 0.3 | 0/4 |
-| staff18-B-managers | B | 170.5 | 0.3 | 0/4 |
-| staff18-B-both | B | 166.2 | 0.0 | 0/4 |
-
-The first ten activation draws remain unchanged. Additional staff receive additional independent draws from the same distribution instead of cyclically reusing another manager's activation. Unavailable posts are honored in both engines, and the UI lists the selected layout's actual posts. These four-audience comparisons enter the training shortlist before any confirmation outcomes are available.
-
-## 4. Visibility and barrier comparisons
-
-| Visibility case | Model | Mean s | Inside at 180 | Unresolved |
-|---|---|---|---|---|
-| bestA-signs12-walls | A | 231.9 | 225.3 | 0/4 |
-| bestA-signs12-clear | A | 234.5 | 224.8 | 0/4 |
-| bestA-signs24-walls | A | 232.6 | 224.5 | 0/4 |
-| bestA-signs24-clear | A | 232.2 | 230.0 | 0/4 |
-| bestB-signs12-walls | B | 174.9 | 0.5 | 0/4 |
-| bestB-signs12-clear | B | 164.9 | 0.0 | 0/4 |
-| bestB-signs24-walls | B | 167.0 | 0.0 | 0/4 |
-| bestB-signs24-clear | B | 161.9 | 0.0 | 0/4 |
-
-For the selected B plan, enabling wall occlusion changes time by **2.8 s [-0.8, 6.4]** on the same 40 audiences; the configuration differs only in that switch. Its mean remains **169.3 s**, with 33/40 audiences at or below 180.
-
-The visibility variant uses 12 fixed-message signs, same-floor eligibility, a 75-degree half-angle, 12 or 24 m range and optional wall/column/panel occlusion. These dimensions are assumptions tested for sensitivity. Sign height, crowd occlusion, luminance and actual installation feasibility are not resolved. [Visibility catchment method](https://fseg.gre.ac.uk/fire/visibility_catchment_area.html).
-
-## 4a. Panel, rope and placement comparisons
-
-These six-audience screening rows share the plan and guidance mode within each block. The final selected configuration is subsequently retested on the untouched audiences. Penalties are in perceived seconds, not measured walking delay.
-
-| Barrier screening case | Model | Mean s | Inside at 180 | Unresolved |
-|---|---|---|---|---|
-| split-fixed | A | 239.2 | 232.7 | 0/6 |
-| split-fixed-panel1 | A | 232.3 | 192.7 | 0/6 |
-| split-fixed-rope5 | A | 235.5 | 208.3 | 0/6 |
-| split-fixed-rope15 | A | 231.1 | 206.8 | 0/6 |
-| split-fixed-rope30 | A | 233.1 | 198.7 | 0/6 |
-| portico-both | B | 165.0 | 0.0 | 0/6 |
-| portico-both-panel1 | B | 172.6 | 0.2 | 0/6 |
-| portico-both-rope5 | B | 164.2 | 0.0 | 0/6 |
-| portico-both-rope15 | B | 177.8 | 0.3 | 0/6 |
-| portico-both-rope30 | B | 173.3 | 0.3 | 0/6 |
-
-On the final 40 audiences, the selected B ropes change time by **-1.2 s [-5.4, 2.9]** versus the identical plan without barriers. The interval, rather than the small mean difference alone, determines how persuasive the barrier benefit is.
-
-Hard panels close an existing corridor slot and occlude sight. Low ropes remain traversable and add an assumed 5/15/30 s perceived routing penalty; they do not slow actual walking or increase capacity. Panel/rope/asymmetric-location comparisons are fully listed in **ALL_COMPARISONS.csv**. Early rope screening preceded the correction that applies its cost consistently when reassessing the current path; selection and confirmation rerun candidates on the final mechanism.
-
-Diversion posts, guardrails, ropes and opaque panels are not interchangeable. Experiments report context-dependent time and density effects, including guardrails that reduce density while increasing time. This lane/network model lacks the contact-force mechanism needed to claim a post's “arch-breaking” benefit. No imported percentage speed bonus or unmodeled mesh benefit is applied. [Wang et al.](https://arxiv.org/abs/2212.01296), [Feliciani et al.](https://pmc.ncbi.nlm.nih.gov/articles/PMC7525554/), [Chen et al.](https://doi.org/10.1016/j.ssci.2022.106020).
-
-## 5. What is driving time, and what remains uncertain?
-
-| Diagnostic on final selected plan | Model A | Model B |
-|---|---|---|
-| People still inside at 180 s | 194.5 | 0.3 |
-| Mean start time of the last 20 out | 40.2 | 28.4 |
-| Recorded wait of the last 20 out | 42.4 | 41.6 |
-| Mean speed attribute of the last 20 (m/s) | 1.06 | 0.93 |
-| Share of last 20 in a social group | 59.8% | 75.1% |
-| Original-policy excess-density exposure | 17.5 | 19.2 |
-| Selected-policy excess-density exposure | 18.3 | 16.9 |
-
-Exposure integrates density above 2 persons/m² over time; its units are person·seconds/m² for each individual. This comparison level is not a safety threshold. A's faster policy has slightly more excess-density exposure than its original policy; B's has less.
-
-**Spatial movement:** A imposes row speeds, no passing within a lane, gap acceptance, group pacing and finite space. At 1.2 m/s its inherited headway rule permits about **0.94 persons/s/lane** before other delays. The inherited rule floor(width/0.6 + 0.2) gives a 1.1 m aisle two lanes. B shares the representative lane-capacity formula but uses network queues and constant transit speed by default; its inherited storage-relief rule permits entry after 30 s of blockage. B therefore cannot establish A's target.
-
-**Response and groups:** the maximum over 1,329 people amplifies late response and travel tails. Group readiness waiting, leader following and pacing can increase time; experiments motivate retaining group interaction. Their Bailey-specific parameters need measurements. Group-consistent messages preserve those rules. The inherited voice-alarm/meet-outside package and vacated-row routing are reported separately and excluded from the primary winner.
-
-**Bailey:** the geometry is a reconstruction, not an as-built survey. Measured clear widths, door operation, stair routes, sightlines and whether particular posts are usable remain uncertain. Another theatre's symmetry and visible exits do not establish those properties here. Cornell's public seating figure differs from the problem specification; all primary runs deliberately retain **1,329**. [Theatre drills](https://link.springer.com/article/10.1007/s10694-018-0783-2), [Cornell venue information](https://scl.cornell.edu/get-involved/event-planning/bailey-hall/technical-information).
-
-## 6. Numerical and ideal-flow checks
-
-| Case | Audiences | Mean A: Δt=.1 | Mean A: Δt=.05 | Mean B: Δt=.25 | Mean B: Δt=.125 |
-|---|---|---|---|---|---|
-| mateus-fixed | 3 | 266.1 | 271.8 | 218.1 | 232.1 |
-| selected-A | 3 | 225.2 | 240.9 | 173.0 | 172.5 |
-| selected-B | 3 | 258.2 | 260.7 | 160.1 | 167.8 |
-| refined-A | 3 | 230.2 | 242.4 | 173.6 | 174.4 |
-
-Time-step differences include interactions and discrete decision timing, not only service integration. Three diagnostic audiences per configuration are a sensitivity check, not a convergence proof. A result near 180 must be read with this limitation.
-
-| Case | Runs | Flow N | Mean C immediate | Mean C intrinsic | Mean own-speed bound | Mean C: A starts | Mean C: B starts |
-|---|---|---|---|---|---|---|---|
-| mateus-fixed | 3 | 1326 | 101.0 | 146.3 | 172.7 | 189.7 | 115.3 |
-| selected-A | 3 | 1326 | 101.0 | 146.3 | 172.7 | 155.0 | 115.3 |
-| selected-B | 3 | 1326 | 101.0 | 146.3 | 172.7 | 143.7 | 115.0 |
-| refined-A | 3 | 1326 | 101.0 | 146.3 | 172.7 | 156.3 | 115.3 |
-
-Model C's time-expanded flow has **1,326 ambulatory releases** and a representative travel speed. It is an ideal allocation benchmark, not a behavioral simulation of all 1,329 or a universal lower bound on every faster individual. The separate own-speed calculation includes the audience and accessibility. Missing departure times or unreachable routes now make the bound unresolved instead of silently dropping people. Building departure and assisted arrival at street level remain separate endpoints.
-
-## 6a. Is Model B reasonable, and why is it faster?
-
-B is a useful aggregate queue-and-route model. It is **not independently calibrated for Bailey**, and A's extra detail does not automatically make A correct. The same B-selected plan takes 257.4 s in A and 166.4 s in B on the 40 confirmation audiences.
-
-| Mechanism | Spatial A | Network B |
-|---|---|---|
-| Seats to aisle | Actual row gaps, occupied-seat squeezing, no passing | Timed row travel, then aggregate row-end queue |
-| Aisle movement | Individual gaps and lane order; slow walkers constrain followers | Representative capacity at 1.2 m/s, then individual transit time |
-| Groups | Readiness, pace and physical separation/cohesion stops | Readiness, leader choice and slowest-member pace; no spatial cohesion stop |
-| Crowding | Continuous space and opposing-flow interactions | Density slowdown off by default; approximate node storage |
-| Recorded start | First physical row insertion | Beginning of timed row traversal after readiness |
-
-The following **12-audience training-seed diagnostics** keep the selected plans and use only B's existing options. “No relief” removes the 30 s storage bypass but retains its original incoming-arc storage approximation; it is not a strict reservation of all incoming streams.
-
-| Plan | B option | Mean s [95% CI] | Unresolved |
-|---|---|---|---|
-| A-selected | inherited | 180.9 [175.9, 185.9] | 0/12 |
-| A-selected | density-slowing | 287.1 [280.0, 294.3] | 0/12 |
-| A-selected | no-storage-relief | 181.8 [175.7, 187.9] | 0/12 |
-| A-selected | density-and-no-relief | 293.0 [283.4, 302.5] | 0/12 |
-| B, wall occlusion | inherited | 169.4 [165.8, 173.0] | 0/12 |
-| B, wall occlusion | density-slowing | 294.9 [286.1, 303.8] | 0/12 |
-| B, wall occlusion | no-storage-relief | 173.6 [165.4, 181.7] | 0/12 |
-| B, wall occlusion | density-and-no-relief | 298.5 [289.4, 307.6] | 0/12 |
-
-Density slowing changes visible-sign B from 169.4 to 294.9 s; removing relief alone gives 173.6 s. Slowing acts over a whole contracted arc at admission, possibly overlapping queue delay. **This uncalibrated sensitivity is not the corrected answer.** B's sub-180 result depends on its movement representation.
-
-## 6b. Can existing A parameters reasonably reduce time?
-
-The user-requested calibration audit changes two existing parameters while preserving all 1,329 people, geometry, body sizes, free-speed distribution, response, groups, compliance and guidance. These are **12 common training audiences**, separate from the unchanged-problem confirmation. Changing physical parameters is not counted as a guidance/barrier success.
-
-| Parameter case | Row m/s | Headway s | A mean [95% CI] | B mean [95% CI] |
-|---|---|---|---|---|
-| Inherited parameters | 0.45 | 0.7 | 226.8 [222.2, 231.5] | 180.9 [175.9, 185.9] |
-| Row speed only | 0.6 | 0.7 | 227.4 [221.0, 233.8] | 179.1 [173.0, 185.2] |
-| Headway 0.60 | 0.45 | 0.6 | 225.4 [220.8, 230.0] | 183.2 [176.2, 190.1] |
-| Headway 0.50 | 0.45 | 0.5 | 223.0 [219.7, 226.4] | 180.8 [173.1, 188.6] |
-| Headway 1.06 | 0.45 | 1.06 | 241.3 [237.8, 244.8] | 181.7 [177.5, 185.9] |
-| Row + headway 0.60 | 0.6 | 0.6 | 224.1 [219.4, 228.7] | 180.4 [173.9, 187.0] |
-| Row + headway 0.50 | 0.6 | 0.5 | 225.0 [219.3, 230.7] | 184.0 [177.0, 191.1] |
-
-The fastest tested A setting is **Headway 0.50**, 223.0 [219.7, 226.4] s, versus 226.8 s with inherited parameters. Its paired change is **-3.8 s [-8.9, 1.3]**; 0/12 audiences clear by 180. The paired interval includes zero, so this sample does not establish a reliable improvement. Mean individual excess-density exposure rises from 17.9 to 21.7 person·s/m². This is an exploratory comparison, not a confirmed winner or proof that 180 is impossible.
-
-**Research supports testing, not choosing by the target.** Spearpoint and Xiang's lecture-theatre validation questioned a universal 0.45 m/s row cap and discusses 0.60 m/s as an alternative model value. Johansson motivates shorter net headways, while Seyfried's single-file data show a larger spacing slope. The definitions, settings and populations differ. The Model Guide's calibration-evidence section gives the equations and transfer limits. [Lecture-theatre study](https://publications.iafss.org/publications/fss/10/599/view), [headway study](https://arxiv.org/pdf/0908.3118), [single-file study](https://arxiv.org/pdf/physics/0506170).
-
-A defensible next calibration would compare row trajectories, aisle discharge curves and group separation against observations, then validate on separate data. Simply reducing response delays, deleting group waiting, shrinking bodies or raising door flow until the target passes is not justified. No calibration setting from this audit replaces Mateus's defaults or the primary confirmed configurations.
-
-
-## 6c. Can we simply weaken congestion until A passes?
-
-This final user-requested check deliberately goes beyond the research-motivated calibration range. It removes the explicit opposing-flow speed penalty, raises the occupancy cap from 4.5 to 5.4 persons/m², and reduces net headway as far as 0.1 s. These settings are **diagnostics, not Bailey-calibrated improvements**. Geometry, audience, intrinsic speeds, response, groups and the selected A guidance remain unchanged. Each row uses the same 12 training audiences.
-
-| A parameter case | H (s) | Counterflow coefficient | Density cap | Mean s | Runs ≤180 |
-|---|---|---|---|---|---|
-| inherited | 0.7 | 0.5 | 4.5 | 226.8 | 0/12 |
-| no-counterflow-friction | 0.7 | 0 | 4.5 | 230.7 | 0/12 |
-| density-cap54 | 0.7 | 0.5 | 5.4 | 229.4 | 0/12 |
-| headway030 | 0.3 | 0.5 | 4.5 | 221.8 | 0/12 |
-| headway010 | 0.1 | 0.5 | 4.5 | 224.6 | 0/12 |
-| combined030 | 0.3 | 0 | 5.4 | 223.4 | 0/12 |
-| combined010 | 0.1 | 0 | 5.4 | 225.7 | 0/12 |
-
-The fastest tested case is **headway030: 221.8 s [216.7, 226.8]**, with 0/12 unresolved runs. Its paired change from inherited parameters is **-5.1 s [-11.0, 0.9]**. Mean individual excess-density exposure is 26.2, versus 17.9 person·s/m² originally.
-
-At the unchanged representative speed 1.2 m/s and mean body diameter 0.44 m, reducing H from 0.7 to 0.3 or 0.1 s increases nominal lane capacity from 0.938 to 1.50 or 2.14 persons/s: approximately **60% or 129% more**. This changes physical throughput assumptions even though no aisle is widened. Removing counterflow friction still leaves lane sharing, body gaps, merging and queue constraints. Raising the density cap permits more crowding; it does not add door capacity.
-
-Even these deliberately optimistic tests do not produce a sub-180 mean. They do not prove that every possible intervention or calibration must fail. The headway literature motivates testing shorter gaps, but it does not justify using 0.1 s for this mixed full-house audience. A target is an evaluation criterion, not a calibration observation.
-
-No stress-test setting replaces the defaults or primary confirmed plans. Files: `congestion-cases.json`, `congestion.json`; reproduce with the study runner's evaluate mode, 12 runs and training seed base 9001. `research-congestion-report.ts` regenerates this page.
-
-
-## 7. Exact changes from Mateus and verification
-
-| Files / area | Change and reason |
+| Confirmed policy | Mean exit-group use (people/run) |
 |---|---|
-| QueueSystem; NetworkSimulation; SimulationEngine | Optional conservative service integration; original default retained. |
-| Barriers; Routing; StaticFlow; TimeExpanded | Distinguish physical panel closures from traversable rope routing cues in A, B and C. |
-| SignVisibility; Guidance; NetworkSimulation | Optional range/facing/occlusion eligibility with fixed public sign messages and one notice opportunity. |
-| Plan; Guidance; Placements | Optional consistent group messages; coverage layouts with 6, 10, 12 or 18 staff; guarded existing partial redirection. |
-| Routing | Optional research sensitivity for staff-guided vacated seatways; excluded from primary search. |
-| Comparison; TimeExpanded | Unknown starts and inaccessible destinations cannot disappear from the all-person individual bound. |
-| ResearchStudyView; controls; map controllers | Load recorded configurations; show rope/panel distinction, actual network staff posts and spatial signs. |
-| Research scripts; tests; docs | Seeded searches, raw runs/configs, source snapshots, failure-aware summaries, comparisons and both PDFs. |
+| selected | FOYER: 513.45; PORTICO_W: 247.66; PORTICO_E: 289.94; STAGE_W: 94.15; STAGE_E: 71.96; BAL_NW: 52.14; BAL_NE: 59.70 |
+| baseline6 | FOYER: 598.41; PORTICO_W: 254.67; PORTICO_E: 254.53; STAGE_W: 54.86; STAGE_E: 55.19; BAL_NW: 55.45; BAL_NE: 55.89 |
+| extra staff | FOYER: 493.54; PORTICO_W: 256.12; PORTICO_E: 294.35; STAGE_W: 94.76; STAGE_E: 77.46; BAL_NW: 52.76; BAL_NE: 60.01 |
 
-**Unchanged fundamentals:** population generator, geometry data, physical flow-rate formulas, base movement law, recognition/response distributions, group waiting/cohesion, assistance and compliance probabilities. Default adaptive-off behavior reproduces stored legacy A/B results exactly.
 
-Validation: The clean full suite passed 132 tests in 10 files. Updated layouts, the additional staffing test, all nine research tests and exact legacy A/B reproduction subsequently passed (133 tests covered). TypeScript checking and the production build passed. Both PDFs passed overflow checks and visual review. Browser checks confirmed all 16 result rows, both PDF links, exact configuration loading and A/B advancement to 60 s, with no console errors. One existing test assumed every custom placement had six posts; it was extended for the explicit ten-person layout and caught a misplaced new rear post, which was moved to the existing rear cross-aisle. All affected placement cases were rerun. This did not alter inherited post coordinates.
+## Controlled model ablations
 
-## 8. Reproduce and inspect
+Not completed before the user-requested finalization cutoff; no result is claimed.
 
-Run from **CMCM/mateus-0420**, not the older dirty parent checkout. `npm run dev -- --port 5180 --strictPort` serves this version. The study tab links both PDFs and loads each confirmed configuration into its matching engine.
+No completed comparison in this section at finalization.
 
-**Confirmation:** `node --import tsx scripts/research-study.ts --mode evaluate --cases results/research-180/confirmation-cases.json --runs 40 --seed 20261108 --out results/research-180/confirmation.json`.
+Each ablation changes one mechanism. Utility-only instruction disables commitment for both manager and LED instructions. No-moving-observation disables the extra moving review, while inherited junction decisions remain. Turning off adaptive individuals leaves the local observation hook active but changes the inherited choice/memory engine. These comparisons are not alternative calibrations selected for speed.
 
-If the final A refinement was selected, its additional confirmation uses `refinement-confirmation-cases.json` with the same 40 untouched audience seeds and writes `refinement-confirmation.json`. `research-refine-finish.mjs` records the training-only selection rule and runs this additional comparison and its diagnostics.
+## Expanded staffing and moving-post comparison
 
-**Original matrix:** `node --import tsx scripts/adaptive-experiments.ts --runs 40 --workers 5 --out results/research-180/mateus-matrix.json --doc docs/research-180/MATEUS_MATRIX.md`. Its defaults preserve the 04:20 behavior; the archived original run loaded the exact base simulation before these changes.
+The expanded 12-manager policy at 1.4 m/s averages 183.25 s (95% CI 181.20–185.30); 40/100 clear by 180. Its independent mean interval does not demonstrate the sub-180 target.
 
-**Audit files:** `screen.json`, `followup.json`, `placement-corrected.json`, `bands.json`, `optimise-A/B-trials.jsonl`, `shortlist.json`, `confirmation.json` and `ALL_COMPARISONS.csv`. Each primary run retains its complete configuration and seed. Confirmation and diagnostics include exact source snapshots. The first broad screen used an earlier optional-feature state and is retained as search history, not final confirmation.
+The user-authorized expansion compares 25 explicit placement/patrol policies at the separately declared 1.4 m/s calibration. Counts 6, 8, 10, 12 and 18 use actual posts, rather than a requested number exceeding the available positions. Eight screening audiences (73401) precede sixteen validation audiences (73402) for four finalists. The winner `staff-12-patrol-posts-static` is frozen before 100 new audiences (73403). Its identical 1.2 m/s counterpart and the six-manager 1.4 control are also confirmed on those audiences.
 
-**Calibration audit:** `node --import tsx scripts/research-study.ts --mode evaluate --cases results/research-180/calibration-cases.json --runs 12 --out results/research-180/calibration.json`; run `research-network-audit.ts --id refined-A` and `--id visible-B` with the same Node/tsx invocation, then `research-calibration-report.ts`. These retain training seeds and do not replace confirmation.
-
-**Regenerate the professional LaTeX documents:** `python3 scripts/build-latex-docs.py --compile`, then `python3 scripts/check-research-pdfs.py`. Editable `.tex` sources and vector figures are in `docs/research-180/latex`; Tectonic or XeLaTeX compiles them. Full mathematical derivations, equations and source-specific scope limits are in **MODEL_GUIDE.pdf**. The data remain available for independent review, including failures and out-of-scope inherited sensitivity cases.
-
-## 9. A-Lite extension: independent results and new corrections
-
-The separate spatial FIFO model retains all 268 nodes, 384 links and 1,329 people. It substitutes travel clocks, lane FIFO service and strict storage for microscopic following and acceleration; group readiness and slowest-member pace remain, while spatial cohesion stops and distance breakup are removed. Original A defaults remain available. All new operational finalists have no barriers.
-
-| New confirmation case | Model | Mean s [95% CI] | Runs ≤180 | Unresolved |
+| Policy | Runs | Mean [95% CI], s | p95, s | ≤180; Wilson CI; failed |
 |---|---|---|---|---|
-| Original 04:20 | A | 263.6 [259.9, 267.4] | 0/40 | 0 |
-| Open-route A guidance | A | 239.0 [235.6, 242.3] | 0/40 | 0 |
-| All numerical corrections | A | Unresolved | 0/40 | 1 |
-| Corrections + instant acceleration | A | 211.0 [207.5, 214.5] | 0/40 | 0 |
-| Lite-selected guidance | A | 259.0 [254.7, 263.4] | 0/40 | 0 |
-| Lite-selected guidance | A-Lite | 191.4 [188.3, 194.6] | 6/40 | 0 |
-| Lite-selected guidance | B | 166.4 [163.2, 169.7] | 38/40 | 0 |
+| staff 6 coverage | 8 | 186.62 [177.20, 196.05] | 201.35 | 3/8; 14–69%; 0 failed |
+| staff 8 coverage | 8 | 184.20 [171.75, 196.65] | 205.22 | 4/8; 22–78%; 0 failed |
+| staff 10 coverage | 8 | 183.06 [172.41, 193.71] | 200.93 | 4/8; 22–78%; 0 failed |
+| staff 12 coverage | 8 | 180.78 [172.22, 189.33] | 196.16 | 4/8; 22–78%; 0 failed |
+| staff 18 coverage | 8 | 178.90 [172.14, 185.66] | 189.80 | 4/8; 22–78%; 0 failed |
+| staff 6 decision | 8 | 184.79 [174.12, 195.46] | 201.64 | 3/8; 14–69%; 0 failed |
+| staff 6 bottleneck | 8 | 202.54 [189.64, 215.44] | 225.55 | 0/8; 0–32%; 0 failed |
+| staff 6 hybrid222 | 8 | 222.49 [211.49, 233.49] | 241.20 | 0/8; 0–32%; 0 failed |
+| staff 6 robust | 8 | 191.66 [180.39, 202.93] | 211.98 | 2/8; 7–59%; 0 failed |
+| staff 12 decision | 8 | 184.28 [176.23, 192.32] | 194.87 | 2/8; 7–59%; 0 failed |
+| staff 12 hybrid222 | 8 | 181.78 [174.60, 188.95] | 192.74 | 4/8; 22–78%; 0 failed |
+| staff 18 decision | 8 | 186.85 [175.78, 197.92] | 202.88 | 3/8; 14–69%; 0 failed |
+| staff 18 hybrid222 | 8 | 184.86 [173.80, 195.92] | 199.63 | 3/8; 14–69%; 0 failed |
+| staff 6 adaptive | 8 | 190.89 [176.72, 205.05] | 215.50 | 3/8; 14–69%; 0 failed |
+| staff 12 adaptive | 8 | 180.78 [172.22, 189.33] | 196.16 | 4/8; 22–78%; 0 failed |
+| staff 18 adaptive | 8 | 178.90 [172.14, 185.66] | 189.80 | 4/8; 22–78%; 0 failed |
+| staff 6 patrol posts static | 8 | Unresolved | — | 4/8; 22–78%; 1 failed |
+| staff 6 patrol20 | 8 | Unresolved | — | 4/8; 22–78%; 1 failed |
+| staff 6 patrol45 | 8 | Unresolved | — | 4/8; 22–78%; 1 failed |
+| staff 12 patrol posts static | 8 | 177.50 [169.21, 185.79] | 193.52 | 6/8; 41–93%; 0 failed |
+| staff 12 patrol20 | 8 | 181.43 [167.71, 195.14] | 206.79 | 5/8; 31–86%; 0 failed |
+| staff 12 patrol45 | 8 | 181.07 [170.06, 192.09] | 202.88 | 6/8; 41–93%; 0 failed |
+| staff 18 patrol posts static | 8 | 182.47 [172.86, 192.09] | 196.19 | 3/8; 14–69%; 0 failed |
+| staff 18 patrol20 | 8 | 181.35 [170.85, 191.85] | 199.93 | 5/8; 31–86%; 0 failed |
+| staff 18 patrol45 | 8 | 178.99 [169.07, 188.90] | 198.31 | 6/8; 41–93%; 0 failed |
 
-These fresh audiences use base seed 20261109; the previous study used 20261108. Do not interpret differences between their original-A means as a code change. The Lite policy uses eighteen coverage staff, fixed acoustic instructions with closure overrides, preassignment, no LED and no barrier. More staff is an explicit resource; staff bodies are not part of the inherited audience model. The same policy transfers poorly to spatial A.
 
-New numerical switches preserve admitted boundary velocity, use start-of-step following gaps and invalidate exhausted paths before inertia. Each has an isolated counterexample and regression test. The all-corrections A case leaves 36 inside on one audience; its completion-conditioned 230.9 s mean is not a valid unconditional clearance mean. Instant acceleration is a separately labeled structural simplification, not a numerical fix.
+| Policy | Runs | Mean [95% CI], s | p95, s | ≤180; Wilson CI; failed |
+|---|---|---|---|---|
+| staff 12 patrol posts static | 16 | 184.10 [178.93, 189.27] | 197.40 | 5/16; 14–56%; 0 failed |
+| staff 18 coverage | 16 | 186.32 [180.53, 192.12] | 202.50 | 5/16; 14–56%; 0 failed |
+| staff 18 adaptive | 16 | 186.32 [180.53, 192.12] | 202.50 | 5/16; 14–56%; 0 failed |
+| staff 18 patrol45 | 16 | 192.26 [184.62, 199.90] | 210.62 | 5/16; 14–56%; 0 failed |
 
-At a 0.025 s step, the frozen Lite policy averages 188.7 s [186.2, 191.2] on the same forty audiences. The target still fails. The complete audit includes individual ablations, six-cell headway/row-speed sensitivity, blocked-door paired tests, final-50 traces, queue/exit/density comparisons and runtime. No physical capacity, population, intrinsic response or compliance was tuned to manufacture a pass.
+
+| Policy | Runs | Mean [95% CI], s | p95, s | ≤180; Wilson CI; failed |
+|---|---|---|---|---|
+| expanded staff 1.4 | 100 | 183.25 [181.20, 185.30] | 199.50 | 40/100; 31–50%; 0 failed |
+| same staff 1.2 | 100 | 192.55 [190.44, 194.67] | 207.62 | 13/100; 8–21%; 0 failed |
+| six manager 1.4 control | 100 | 188.31 [186.02, 190.60] | 207.53 | 26/100; 18–35%; 0 failed |
+
+
+| Patrol candidate | Total managers | Managers with feasible patrols |
+|---|---|---|
+| staff-6-patrol20 | 6 | 0 |
+| staff-6-patrol45 | 6 | 0 |
+| staff-12-patrol20 | 12 | 3 |
+| staff-12-patrol45 | 12 | 3 |
+| staff-18-patrol20 | 18 | 3 |
+| staff-18-patrol45 | 18 | 3 |
+
+
+Only posts within 4 m of an eligible wide-corridor node receive a patrol. The six coverage posts have no qualifying route, so their patrol-labeled cases are stationary fallbacks, not evidence about moving guides. The 12- and 18-post layouts each contain three eligible patrols; all remaining managers stay at their posts. Full-run motion audits and the browser replay use the actual 12-manager patrol case.
+
+The six-post explicit stationary representation has identical post coordinates and activation draws to the coverage template, but consumes six rather than the geometry's ten potential-post activation draws from the inherited guidance stream. Subsequent hearing draws therefore differ. This does not change the sampled audience or marginal hearing law, but it prevents attributing a seed-by-seed difference between those two representations to placement. Patrol effects are compared with their own explicit, stationary-post controls. Any unresolved audience excludes that candidate, regardless of its completion-conditioned mean.
+
+The rejected six-post explicit candidate illustrates a counterflow failure. In seed 31553826, opposing ready queues fill the existing 0.9 m passages SPW_2 and SPW_3. The two queue heads have combined modeled body diameters of 0.935 m, so the conservative side-by-side exchange rule cannot release them. Twelve people remain inside at the 900 s horizon. No body radius, passage width or storage limit was relaxed to clear that run. The model lacks body rotation and negotiated retreat, so this is a failure under its spatial-queue assumptions, not proof that Bailey would physically trap those people. `rejected-run-diagnostic.json` preserves the queue states and the calculation.
+
+Expanded staffing minus six-manager control, both at 1.4 m/s on the same 100 audiences: **-5.06 [-8.14, -1.98] s**. The different-speed counterpart is reported separately, so a speed effect is not attributed to staffing.
+
+![Expanded staffing, main floor: actual starting posts, devices and any patrol paths.](figures/plus-expanded-staff-main.svg)
+
+![Expanded staffing, balcony.](figures/plus-expanded-staff-balcony.svg)
+
+Moving managers follow explicit wide, level, non-gate walkway sequences. They start at 20 or 45 s, move at 1.0 m/s only while their link is empty of audience members, and dwell 10 s at each end. Static controls use identical starting posts. Existing hearing, persistent acceptance, observation and radio delays remain. The controlled guidance study by Liu et al. [R28] motivates distinguishing guidance modes and locations; its platform performance and attraction coefficients are not imported. Staff bodies are absent from queue storage and the audience endpoint, so patrol results remain a limited coverage sensitivity, not validated staff–crowd mechanics.
+
+| Policy | Runs | Mean [95% CI], s | p95, s | ≤180; Wilson CI; failed |
+|---|---|---|---|---|
+| expanded reference | 20 | 187.44 [181.12, 193.76] | 206.65 | 6/20; 15–52%; 0 failed |
+| expanded dt0.025 | 20 | 183.65 [178.26, 189.03] | 203.33 | 9/20; 26–66%; 0 failed |
+| expanded dt0.0125 | 20 | 181.33 [176.47, 186.19] | 198.03 | 10/20; 30–70%; 0 failed |
+| expanded F3 | 20 | 220.04 [216.42, 223.66] | 231.91 | 0/20; 0–16%; 0 failed |
+| expanded F3 without barriers | 20 | 246.28 [239.58, 252.98] | 270.87 | 0/20; 0–16%; 0 failed |
+| expanded FC2 | 20 | 188.86 [183.14, 194.58] | 204.09 | 6/20; 15–52%; 0 failed |
+| expanded FC2 without barriers | 20 | 187.71 [181.04, 194.37] | 210.65 | 8/20; 22–61%; 0 failed |
+
+
+| Expanded policy check minus same-seed reference | Paired difference [95% CI], s |
+|---|---|
+| expanded dt0.025 | -3.79 [-9.72, 2.13] |
+| expanded dt0.0125 | -6.11 [-12.74, 0.52] |
+| expanded F3 | 32.60 [26.46, 38.74] |
+| expanded F3 without barriers | 58.84 [50.19, 67.49] |
+| expanded FC2 | 1.42 [-5.82, 8.66] |
+| expanded FC2 without barriers | 0.27 [-8.73, 9.26] |
+
+
+Additional passive audits cover 6 expanded, twelve-manager patrol and blocked runs; 0 forbidden transitions. Every step checks finite staff travel and the occupied-link waiting rule, alongside audience service, storage and conservation.
+
+## Final operational retuning of the selected additional-staff layout
+
+The prior instructions were optimized for six managers. Queue-sensitive route allocation motivates a further operational comparison [R7, R10]. A final bounded search keeps the selected 12 posts, the declared 1.4 m/s distribution, devices and every physical/behavioral parameter fixed. It changes only manager and pre-announcement seat-block destinations. Eight new training audiences (73501) compare the inherited plan and four coherent west/east side-zone patterns; the eight most frequent non-side tail blocks then receive one coordinate-descent sweep, accepting gains above 1 s. This evaluates 21 plans. The inherited, best-pattern and refined candidates use twenty separate validation audiences (73502). The selected role `coordinate-refinement` is frozen before 100 new audiences (73503), then always rerun at 0.0125 s. This last search stops regardless of the target; no physical parameter is tuned to its outcomes.
+
+| Policy | Runs | Mean [95% CI], s | p95, s | ≤180; Wilson CI; failed |
+|---|---|---|---|---|
+| inherited | 20 | 188.68 [183.65, 193.71] | 203.63 | 3/20; 5–36%; 0 failed |
+| best side pattern | 20 | 189.31 [183.27, 195.35] | 211.52 | 4/20; 8–42%; 0 failed |
+| coordinate refinement | 20 | 185.48 [181.73, 189.23] | 194.69 | 5/20; 11–47%; 0 failed |
+
+
+| Policy | Runs | Mean [95% CI], s | p95, s | ≤180; Wilson CI; failed |
+|---|---|---|---|---|
+| refined guidance | 100 | 183.07 [180.95, 185.19] | 200.41 | 47/100; 38–57%; 0 failed |
+| refined guidance fine | 100 | 184.45 [182.39, 186.51] | 202.74 | 32/100; 24–42%; 0 failed |
+
+
+Devices and staff locations are identical to the expanded-staff maps above. Public LEDs keep their spatial messages; only the following accepted staff/pre-announcement destinations differ.
+
+| Seat block | Inherited destination | Final destination |
+|---|---|---|
+| ORCH_SIDE_W:W:F | FOYER | PORTICO_W |
+| MEZZ_E:E:B | PORTICO_E | FOYER |
+
+
+| Policy | Runs | Mean [95% CI], s | p95, s | ≤180; Wilson CI; failed |
+|---|---|---|---|---|
+| refined F3 | 12 | 220.93 [217.15, 224.70] | 229.92 | 0/12; 0–24%; 0 failed |
+| refined F3 without barriers | 12 | 254.33 [244.92, 263.74] | 277.97 | 0/12; 0–24%; 0 failed |
+| refined FC2 | 12 | 182.03 [178.50, 185.56] | 191.53 | 3/12; 9–53%; 0 failed |
+
+
+The final policy’s additional passive audits were not run before finalization. The earlier ten full-run physical audits remain available. Its confirmation audiences differ from the earlier staffing study; cross-study mean differences are not paired causal estimates.
+
+| Staffing / refined policy | Exposure / peak density | Mean exit-group use |
+|---|---|---|
+| expanded staff 1.4 | 10992 / 4.49 | FOYER: 493.82; PORTICO_W: 256.96; PORTICO_E: 296.64; STAGE_W: 94.07; STAGE_E: 75.80; BAL_NW: 52.22; BAL_NE: 59.49 |
+| same staff 1.2 | 10481 / 4.49 | FOYER: 493.84; PORTICO_W: 255.80; PORTICO_E: 296.32; STAGE_W: 93.99; STAGE_E: 76.31; BAL_NW: 52.84; BAL_NE: 59.90 |
+| six manager 1.4 control | 11472 / 4.49 | FOYER: 510.17; PORTICO_W: 248.36; PORTICO_E: 294.87; STAGE_W: 93.72; STAGE_E: 70.36; BAL_NW: 52.09; BAL_NE: 59.43 |
+| refined guidance fine | 11420 / 4.49 | FOYER: 507.27; PORTICO_W: 286.02; PORTICO_E: 254.67; STAGE_W: 93.96; STAGE_E: 75.76; BAL_NW: 51.90; BAL_NE: 59.42 |
+
+
+## Q2: unexpected obstruction and communication
+
+Not completed before the user-requested finalization cutoff; no result is claimed.
+
+F3 is an exterior foyer door, FC2 a foyer connection and D3 a side connection. In discovery cases, closures are physically present from the start but unknown until visible or communicated. The announced FC2 case introduces staff knowledge after 45 s. No exit is widened and no closure is inferred to improve physical capacity merely because it changes route choices. Compare the same device plan with and without barriers under the same closure before recommending a barrier. A substantial adverse paired effect or unresolved audience is a reason to withhold that installation, even if its open-building mean is faster.
+
+The complete declared obstruction screen was not finished. **No barrier installation recommendation is made.** Completed pairs are reported below; an absent test is not a pass.
+
+| Study | Closure | Paired barrier minus no-barrier difference, s | Status |
+|---|---|---|---|
+| obstructions | F3 | Unrun | Not completed |
+| obstructions | FC2 | Unrun | Not completed |
+| obstructions | D3 | Unrun | Not completed |
+| staff-expansion-robustness | F3 | -26.24 [-33.02, -19.46] | No deterioration above the declared 5 s screen |
+| staff-expansion-robustness | FC2 | 1.16 [-5.89, 8.20] | No deterioration above the declared 5 s screen |
+| staff-expansion-robustness | D3 | Unrun | Not completed |
+| guidance-refinement-robustness | F3 | -33.41 [-44.97, -21.85] | No deterioration above the declared 5 s screen |
+| guidance-refinement-robustness | FC2 | Unrun | Not completed |
+| guidance-refinement-robustness | D3 | Unrun | Not completed |
+
+
+## Q1 and Q3: different uses of the same model
+
+Not completed before the user-requested finalization cutoff; no result is claimed.
+
+Q1 uses the inherited ordinary-departure distribution: longer belongings preparation, habitual foyer use, urgency zero and mean desired speed 1.1 m/s. Six staff are represented at their posts, but emergency redirection is inactive; the second case is an operational sensitivity with active directions. This separates staff presence from an emergency instruction. Ordinary-preparation coefficients remain assumptions, not measured concert behavior.
+
+Q3 keeps the full 1,329 audience and three wheelchair users, removes managers, and makes emergency-exit knowledge complete as the problem explicitly states. The inherited student scenario has no elderly share, mean desired speed 1.35 m/s, fewer groups, more belongings and response median 22 s. The 14 s response case tests that uncertain assumption. The device case uses fixed messages because no manager/radio controller is available. Student familiarity is knowledge, not perfect compliance. These changes answer a different competition scenario; they do not substitute a younger audience into Q2.
+
+## Transferred-calibration uncertainty
+
+Not completed before the user-requested finalization cutoff; no result is claimed.
+
+All changes in this table are one-at-a-time sensitivity hypotheses, never operational winners. LED sensitivities use the combined-device reference; other rows use the six-manager selection. They bound dependence on free speed, rows, headway, stair pace, gate rates, response, storage and instruction uptake. Changing headway changes implied lane throughput. A faster row cap is motivated as an alternative by lecture-room research but is not measured Bailey calibration. These intervals still cover audience variability only; the spread between parameter cases illustrates additional model uncertainty.
+
+## User-requested free-speed and right-skew follow-up
+
+The separately declared 1.4 m/s clipped-normal alternative gives 185.63 s (95% CI 183.06–188.21); 38/100 clear by 180 s. Its mean interval does not demonstrate the sub-180 target.
+
+The concert originally uses a 1.20 m/s mean before age adjustment; 1.35 belongs to the inherited lecture scenario. The alternative 1.40 was declared before speed outcomes, informed by controlled corridor measurements in Ren et al. [R26]. This is an external experimental transfer, not a Bailey measurement. The original 25% older share, .78 speed factor, .25 m/s pre-age SD, wheelchair speed, row cap, headway, gate rates and operational layout remain fixed. Davidich and Köster [R27], show why context-specific field calibration can differ from standard laboratory values. The model guide gives the exact sampling equations and research limitations.
+
+| Policy | Runs | Mean [95% CI], s | p95, s | ≤180; Wilson CI; failed |
+|---|---|---|---|---|
+| normal 1.2 | 20 | 190.20 [186.20, 194.20] | 203.22 | 3/20; 5–36%; 0 failed |
+| normal 1.35 | 20 | 183.48 [178.67, 188.29] | 198.18 | 6/20; 15–52%; 0 failed |
+| normal 1.4 | 20 | 188.25 [181.16, 195.35] | 210.19 | 6/20; 15–52%; 0 failed |
+| normal 1.5 | 20 | 186.62 [181.15, 192.08] | 208.70 | 7/20; 18–57%; 0 failed |
+| lognormal 1.2 | 20 | 191.30 [184.05, 198.55] | 219.90 | 5/20; 11–47%; 0 failed |
+| lognormal 1.4 | 20 | 185.72 [178.56, 192.87] | 211.21 | 8/20; 22–61%; 0 failed |
+
+
+| Speed family / input mean | Sampled ambulant mean / SD | Younger / older mean |
+|---|---|---|
+| normal-1.2 | 1.134 / 0.263 m/s | 1.199 / 0.934 m/s |
+| normal-1.35 | 1.275 / 0.270 m/s | 1.348 / 1.050 m/s |
+| normal-1.4 | 1.322 / 0.271 m/s | 1.398 / 1.089 m/s |
+| normal-1.5 | 1.415 / 0.274 m/s | 1.496 / 1.167 m/s |
+| lognormal-1.2 | 1.133 / 0.261 m/s | 1.198 / 0.933 m/s |
+| lognormal-1.4 | 1.321 / 0.267 m/s | 1.396 / 1.089 m/s |
+
+
+Normal and lognormal families use the same person-specific random draw and match their pre-clipping mean and standard deviation. They are both clipped to the inherited 0.5–2.0 m/s bounds after age adjustment. Right skew is not an overall speed increase: it changes the median and tails, and the last-person endpoint can be sensitive to slower walkers. The study reports sampled moments rather than assuming clipping has no effect. The 1.5 sensitivity is not promoted just because it might be faster. Mean-speed changes also affect representative walkway service through J=v/(0.44+0.70v), while door/stair gate capacities remain unchanged.
+
+| Policy | Runs | Mean [95% CI], s | p95, s | ≤180; Wilson CI; failed |
+|---|---|---|---|---|
+| selected | 100 | 190.58 [188.58, 192.58] | 206.59 | 17/100; 11–26%; 0 failed |
+| speed alternative 1.4 | 100 | 185.63 [183.06, 188.21] | 210.63 | 38/100; 29–48%; 0 failed |
+
+
+Declared 1.4 alternative minus original on the same 100 audiences: **-4.95 [-7.61, -2.28] s**. The policy was frozen without using these confirmation audiences. A lower mean is a conditional prediction under a different free-speed assumption, not an operational device benefit.
+
+## Time-step sensitivity and conservation
+
+Not completed before the user-requested finalization cutoff; no result is claimed.
+
+No completed comparison in this section at finalization.
+
+The selected physical policy is unchanged across steps. Finer integration reduces arrival/admission rounding but can also alter later hearing and route histories; individual runs need not change monotonically. The original six-manager 1.2 m/s confirmation uses its frozen 0.1 s step. The original-policy twenty-audience refinement was not completed. The expanded-staff study did complete twenty-audience comparisons at 0.1, 0.025 and 0.0125 s, and the retuned policy completed 100 audiences at both 0.1 and 0.0125 s. The other two 100-run fine-step replays were not completed. No fastest-step substitution is made. Passing component tests does not establish exact continuous-time convergence.
+
+Passive full-run audits cover 4 selected/combined/blocked runs, 77,988 graph transitions and 5,303,219 occupied-position checks. They found **0 forbidden transitions**, and checked every link's storage, population conservation and cumulative directional/gate service every step. Queue-display relocation within a link is recorded separately; it is not a physical walking trajectory or a shortcut over seats.
+
+## Model C benchmark and the late tail
+
+| Flow benchmark | Result | Interpretation |
+|---|---|---|
+| Static max flow | 17.18 people/s | Capacity benchmark; 7.383 people/s is the full-house whole-run requirement |
+| immediate | 101.00 s / 1326 people | Representative speed, optimal routing; wheelchair users excluded |
+| intrinsic | 149.00 s / 1326 people | Representative speed, optimal routing; wheelchair users excluded |
+
+
+A-Lite+ is an individual, network-based queue simulation. It does not solve a max-flow problem to force optimal human decisions. C alone optimizes network flow. Its representative-speed ambulant benchmark omits wheelchair travel, heterogeneous decisions and operational information limits, so it is neither an attainable full-house prediction nor a universal lower bound on every heterogeneous run.
+
+| Late-tail diagnostic | Selected policy, 100 audiences |
+|---|---|
+| Mean start of last 50 | 27.58 s |
+| Mean accumulated waiting before building crossing | 94.28 s |
+| Most represented seat zones | ORCH_C_BACK: 1515, ORCH_C_FRONT: 1150, ORCH_SIDE_W: 556, ORCH_FRONT_E: 347, ORCH_SIDE_E: 342, MEZZ_E: 317 |
+
+
+| Confirmed policy | LED noticed / first notice (s) | Destination switches by cause | Density exposure / peak |
+|---|---|---|---|
+| selected | 1239 / 19.00 | switch-manager: 193.3; switch-observation: 3.6; switch-sign: 320.6 | 10579 / 4.49 |
+| baseline6 | 0 / — | switch-manager: 62.2; switch-observation: 14.3; switch-sign: 5.0 | 5464 / 4.49 |
+| extra staff | 1238 / 18.63 | switch-manager: 184.5; switch-observation: 3.0; switch-sign: 290.3 | 10367 / 4.49 |
+
+
+## Q5: costs and practical feasibility
+
+Expanded staffing uses 12 managers, with illustrative capital \$2060 and staffing \$1440 per event. The incremental staff cost versus six is \$720 per event. This resource increase is explicit, not a six-manager result.
+
+| Confirmed policy | Staff / signs / strip metres / barriers | Capital / staff per event |
+|---|---|---|
+| selected | 6 / 0 / 24.0 / 2 | \$2060 / \$720 |
+| baseline6 | 6 / 0 / 0.0 / 0 | \$0 / \$720 |
+| extra staff | 12 / 0 / 24.0 / 2 | \$2060 / \$1440 |
+
+
+Costs are editable illustrative USD assumptions: \$120 per manager-event, \$250 per wall sign, \$40 per metre of strip, \$150 per barrier and \$800 for a dynamic controller. They exclude installation labor, power, maintenance, storage, removals, replacement and venue approval. No retrieved quote establishes a suitable Bailey dynamic LED system. As external price anchors checked 8 November 2026, [Uline H-3736](https://www.uline.com/BL_8917/Retractable-Crowd-Control?keywords=PL-S) lists \$119 per carton of two belt posts, and [Crowd Manager Training](https://crowdmanagers.com/purchase/) lists \$24.95 per person for a two-hour course with a two-year certificate. These are product/training prices, not an installed design or staff wage quote. Post bases must be included in a real clear-width assessment.
+
+For E events, compare capital + E × staffing + installation + maintenance + training. Dividing device capital by the additional staffing cost per event shown above gives a budget break-even only if recurring device costs are omitted. It does not establish equivalent evacuation performance. Keep the six-manager primary result separate from extra-staff results, and do not remove required staff to fund devices. Device usability, power, accessible bypass, message consistency and obstruction robustness all affect implementation complexity.
+
+## Reproducibility, tests and remaining limits
+
+Verification completed 171 tests across 16 files with no failures, and the production build passed. The suite includes legacy regression, conservation, service, accessibility, physical sign/barrier semantics, moving-post restrictions and seeded speed-family checks. Browser interaction and final replay records are stored alongside the study; their exact checks and timestamps remain separately inspectable.
+
+This final Plus study contains **2,430 experiment replications**, excluding passive audits, component tests and browser replays. Raw cases, seeds, configurations, source snapshots and all optimization trials are archived losslessly. Training, validation, holdout and supplementary seed bases are distinct. The source and geometry hashes in the freeze and batch files identify the exact implementation. Performance-only visibility changes reproduced 12 baseline/device runs exactly before screening resumed.
+
+Open the A-Lite+ tab at `http://127.0.0.1:5180/?tab=plus`. Load `selected-six` (original 1.2 m/s) or `speed-alternative-1.4`, reset, choose a listed confirmation seed and start. For the mean, use Prepare 100-run reproduction, then Run matched comparison; this restores base 73101 and the exact saved policy. The independent-results table exposes exact configurations; the matched comparison uses common audiences. A study mean is not a single seed, and the live clock can continue after building clearance for outdoor travel/assistance. The editor and runtime share the same installation overlay. Invalid bypasses are rejected; configuration export/import preserves layouts.
+
+The professional model guide derives the mathematics and supplies the full evidence ledger. The original A-Lite simplification audit documents its transport foundation. Remaining limits include reconstructed dimensions, inferred sign mounting, no head occlusion or photometry, approximate acoustic reach, whole-link occupancy at visible walkway junctions, full queue counts and configured rates at visible staff-observed gates, persistent stale gate reports, simulated zone-demand counts in adaptive staff forecasts, a shared staff closure flag for multi-closure configurations, queue-position approximation, unmeasured group behavior/compliance, staff bodies absent from flow, and no fire tenability or injury mechanics. Computational verification cannot supply missing Bailey observations. The defensible next calibration work is to measure response, row/aisle flow, exit counts, sign legibility and staff audibility, then fit and validate on separate events. The target itself is never a calibration datum.
+
+## Historical comparisons retained
+
+The following earlier studies use different engines and instruction/barrier semantics, so they are not interchangeable with Plus. The original 04:20 commit is `3e4bcf08e258e5db41b0035e307415bf129bc011`. Legacy A and B remain available, and their configurations and source snapshots remain archived. The original six-manager placement study gave A 230.1 s, Lite 194.2 s and B 182.6 s on 40 audiences. These are means of a specific policy, not default-seed outputs.
+
+The subsequent original-Lite route study evaluated 217 block plans and 84 placements, then froze two roles before 60 fresh audiences: the overall plan averaged 186.87 s in Lite (A 212.39, B 183.41); its combined-device role averaged 188.83 s in Lite (A 214.87, B 179.47). At the prespecified finest 0.0125 s step the same Lite policies averaged 186.84 and 190.45 s. None demonstrates the Lite target. The faster B value is a different abstraction, including optimistic storage relief; it does not establish Plus performance. Full raw tables and configurations are in `results/route-study` and the historical study UI.
+
+Earlier rope studies used a perceived crossing penalty; Plus uses physical bypass width and detour instead. Earlier utility-based acceptance merely influenced preferences; Plus commits accepted instructions. These changes can lengthen as well as shorten time. They were adopted for interpretable mechanisms before the final search, not chosen retrospectively for a faster mean.

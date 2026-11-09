@@ -1,0 +1,4359 @@
+{
+ "sourceHash": "40f2ce10cebb33fcdf17997c82763fdd2f82d94606c73b13ea39deef77ec4077",
+ "seeds": [
+  1612814014,
+  269545002
+ ],
+ "records": [
+  {
+   "id": "staff-12-patrol-posts-static",
+   "seed": 1612814014,
+   "N": 1329,
+   "wheelchairs": 3,
+   "allLeftBuilding": true,
+   "tEvac": 191.8,
+   "transitions": 19701,
+   "positionChecks": 1250316,
+   "seatwayChecks": 212257,
+   "distinctWalkways": 250,
+   "traversalsByKind": {
+    "aisle": 5590,
+    "crossAisle": 2486,
+    "door": 3160,
+    "corridor": 1868,
+    "passage": 505,
+    "walkway": 766,
+    "stair": 2271,
+    "portico": 723,
+    "foyer": 1001,
+    "outdoor": 1326,
+    "landing": 5
+   },
+   "violations": 0,
+   "backwardQueueUpdates": 7892,
+   "maxBackwardQueueUpdate": 11.391018313620469,
+   "note": "Queue-coordinate relocations along the same link are reported separately from forbidden seat-row shortcuts. They are not collision-resolved walking trajectories.",
+   "storageChecks": 808320,
+   "populationChecks": 2105,
+   "serviceChecks": "All directions and gates, every step; cumulative service ≤ integral capacity + initial credit",
+   "diagnostics": {
+    "staffCount": 12,
+    "managerMotion": [],
+    "counts": {
+     "static-sign": 2608,
+     "led-noticed": 2756,
+     "destination": 1612,
+     "switch-sign": 295,
+     "manager-heard": 5887,
+     "switch-manager": 169,
+     "message-conflict": 534,
+     "turn-executed": 178,
+     "command-released": 11,
+     "sign-update": 3,
+     "switch-observation": 2
+    },
+    "peopleNoticingLED": 1246,
+    "meanNoticeTime": 17.791332263242374,
+    "events": [
+     {
+      "t": 55,
+      "agent": -1,
+      "kind": "sign-update",
+      "source": "L10",
+      "exit": 0,
+      "reason": "Delayed local/radio manager information; hold and improvement threshold"
+     },
+     {
+      "t": 56,
+      "agent": -1,
+      "kind": "sign-update",
+      "source": "L1",
+      "exit": 0,
+      "reason": "Delayed local/radio manager information; hold and improvement threshold"
+     },
+     {
+      "t": 57,
+      "agent": -1,
+      "kind": "sign-update",
+      "source": "L9",
+      "exit": 0,
+      "reason": "Delayed local/radio manager information; hold and improvement threshold"
+     }
+    ],
+    "tail": [
+     {
+      "id": 524,
+      "exit": 4,
+      "time": 191.8,
+      "start": 28.2,
+      "wait": 120.79999999999741,
+      "seat": 524,
+      "group": 210,
+      "wheelchair": false
+     },
+     {
+      "id": 521,
+      "exit": 4,
+      "time": 190.8,
+      "start": 23.7,
+      "wait": 117.29999999999761,
+      "seat": 521,
+      "group": -1,
+      "wheelchair": false
+     },
+     {
+      "id": 207,
+      "exit": 2,
+      "time": 181.8,
+      "start": 36.9,
+      "wait": 120.29999999999744,
+      "seat": 207,
+      "group": 225,
+      "wheelchair": false
+     },
+     {
+      "id": 195,
+      "exit": 2,
+      "time": 181.2,
+      "start": 27.8,
+      "wait": 126.89999999999706,
+      "seat": 195,
+      "group": -1,
+      "wheelchair": false
+     },
+     {
+      "id": 185,
+      "exit": 2,
+      "time": 180.6,
+      "start": 31.8,
+      "wait": 110.69999999999798,
+      "seat": 185,
+      "group": -1,
+      "wheelchair": false
+     },
+     {
+      "id": 856,
+      "exit": 2,
+      "time": 180,
+      "start": 18.6,
+      "wait": 128.199999999997,
+      "seat": 856,
+      "group": 99,
+      "wheelchair": false
+     },
+     {
+      "id": 194,
+      "exit": 2,
+      "time": 179.4,
+      "start": 30.6,
+      "wait": 120.8999999999974,
+      "seat": 194,
+      "group": 222,
+      "wheelchair": false
+     },
+     {
+      "id": 350,
+      "exit": 0,
+      "time": 178.8,
+      "start": 20.7,
+      "wait": 77.99999999999984,
+      "seat": 350,
+      "group": 174,
+      "wheelchair": false
+     },
+     {
+      "id": 967,
+      "exit": 2,
+      "time": 178.8,
+      "start": 21,
+      "wait": 135.99999999999656,
+      "seat": 967,
+      "group": 150,
+      "wheelchair": false
+     },
+     {
+      "id": 849,
+      "exit": 2,
+      "time": 178.3,
+      "start": 27,
+      "wait": 130.79999999999686,
+      "seat": 849,
+      "group": 97,
+      "wheelchair": false
+     },
+     {
+      "id": 900,
+      "exit": 2,
+      "time": 177.7,
+      "start": 23.8,
+      "wait": 126.1999999999971,
+      "seat": 900,
+      "group": 105,
+      "wheelchair": false
+     },
+     {
+      "id": 233,
+      "exit": 2,
+      "time": 177.1,
+      "start": 30.4,
+      "wait": 128.299999999997,
+      "seat": 233,
+      "group": 231,
+      "wheelchair": false
+     },
+     {
+      "id": 191,
+      "exit": 2,
+      "time": 175.8,
+      "start": 30.6,
+      "wait": 119.09999999999751,
+      "seat": 191,
+      "group": 222,
+      "wheelchair": false
+     },
+     {
+      "id": 192,
+      "exit": 2,
+      "time": 175.2,
+      "start": 30.6,
+      "wait": 121.19999999999739,
+      "seat": 192,
+      "group": 222,
+      "wheelchair": false
+     },
+     {
+      "id": 196,
+      "exit": 2,
+      "time": 174.7,
+      "start": 26.4,
+      "wait": 118.19999999999756,
+      "seat": 196,
+      "group": -1,
+      "wheelchair": false
+     },
+     {
+      "id": 203,
+      "exit": 2,
+      "time": 174.1,
+      "start": 17.6,
+      "wait": 127.69999999999702,
+      "seat": 203,
+      "group": 223,
+      "wheelchair": false
+     },
+     {
+      "id": 166,
+      "exit": 0,
+      "time": 173.6,
+      "start": 15.8,
+      "wait": 109.39999999999806,
+      "seat": 166,
+      "group": 216,
+      "wheelchair": false
+     },
+     {
+      "id": 197,
+      "exit": 2,
+      "time": 173.5,
+      "start": 10.5,
+      "wait": 133.89999999999668,
+      "seat": 197,
+      "group": -1,
+      "wheelchair": false
+     },
+     {
+      "id": 165,
+      "exit": 0,
+      "time": 173.3,
+      "start": 15.8,
+      "wait": 94.4999999999989,
+      "seat": 165,
+      "group": 216,
+      "wheelchair": false
+     },
+     {
+      "id": 202,
+      "exit": 2,
+      "time": 172.9,
+      "start": 17.6,
+      "wait": 112.0999999999979,
+      "seat": 202,
+      "group": 223,
+      "wheelchair": false
+     },
+     {
+      "id": 177,
+      "exit": 2,
+      "time": 172.3,
+      "start": 18.1,
+      "wait": 125.09999999999717,
+      "seat": 177,
+      "group": 219,
+      "wheelchair": false
+     },
+     {
+      "id": 176,
+      "exit": 2,
+      "time": 171.7,
+      "start": 18.1,
+      "wait": 125.89999999999712,
+      "seat": 176,
+      "group": 219,
+      "wheelchair": false
+     },
+     {
+      "id": 919,
+      "exit": 2,
+      "time": 171.1,
+      "start": 39.1,
+      "wait": 109.19999999999807,
+      "seat": 919,
+      "group": 109,
+      "wheelchair": false
+     },
+     {
+      "id": 102,
+      "exit": 1,
+      "time": 170.6,
+      "start": 20.2,
+      "wait": 122.99999999999729,
+      "seat": 102,
+      "group": -1,
+      "wheelchair": false
+     },
+     {
+      "id": 204,
+      "exit": 2,
+      "time": 170.6,
+      "start": 36,
+      "wait": 108.49999999999811,
+      "seat": 204,
+      "group": 224,
+      "wheelchair": false
+     },
+     {
+      "id": 724,
+      "exit": 1,
+      "time": 170,
+      "start": 22.4,
+      "wait": 115.39999999999772,
+      "seat": 724,
+      "group": 131,
+      "wheelchair": false
+     },
+     {
+      "id": 922,
+      "exit": 2,
+      "time": 170,
+      "start": 21.6,
+      "wait": 121.79999999999735,
+      "seat": 922,
+      "group": 110,
+      "wheelchair": false
+     },
+     {
+      "id": 718,
+      "exit": 1,
+      "time": 169.4,
+      "start": 18.7,
+      "wait": 125.19999999999716,
+      "seat": 718,
+      "group": -1,
+      "wheelchair": false
+     },
+     {
+      "id": 917,
+      "exit": 2,
+      "time": 169.4,
+      "start": 26.7,
+      "wait": 124.19999999999722,
+      "seat": 917,
+      "group": 108,
+      "wheelchair": false
+     },
+     {
+      "id": 222,
+      "exit": 2,
+      "time": 168.8,
+      "start": 20.1,
+      "wait": 121.99999999999734,
+      "seat": 222,
+      "group": 228,
+      "wheelchair": false
+     },
+     {
+      "id": 674,
+      "exit": 1,
+      "time": 168.8,
+      "start": 28,
+      "wait": 119.1999999999975,
+      "seat": 674,
+      "group": 122,
+      "wheelchair": false
+     },
+     {
+      "id": 401,
+      "exit": 1,
+      "time": 168.2,
+      "start": 16.9,
+      "wait": 104.89999999999831,
+      "seat": 401,
+      "group": -1,
+      "wheelchair": false
+     },
+     {
+      "id": 836,
+      "exit": 2,
+      "time": 168.2,
+      "start": 16,
+      "wait": 131.49999999999682,
+      "seat": 836,
+      "group": -1,
+      "wheelchair": false
+     },
+     {
+      "id": 115,
+      "exit": 1,
+      "time": 167.6,
+      "start": 19.6,
+      "wait": 127.39999999999704,
+      "seat": 115,
+      "group": -1,
+      "wheelchair": false
+     },
+     {
+      "id": 831,
+      "exit": 2,
+      "time": 167.6,
+      "start": 14.6,
+      "wait": 136.69999999999652,
+      "seat": 831,
+      "group": 93,
+      "wheelchair": false
+     },
+     {
+      "id": 141,
+      "exit": 0,
+      "time": 167.2,
+      "start": 29.4,
+      "wait": 65.10000000000058,
+      "seat": 141,
+      "group": 214,
+      "wheelchair": false
+     },
+     {
+      "id": 874,
+      "exit": 2,
+      "time": 167.1,
+      "start": 24.6,
+      "wait": 116.59999999999765,
+      "seat": 874,
+      "group": -1,
+      "wheelchair": false
+     },
+     {
+      "id": 114,
+      "exit": 1,
+      "time": 167,
+      "start": 20.6,
+      "wait": 126.99999999999706,
+      "seat": 114,
+      "group": -1,
+      "wheelchair": false
+     },
+     {
+      "id": 128,
+      "exit": 0,
+      "time": 166.8,
+      "start": 27.1,
+      "wait": 84.0999999999995,
+      "seat": 128,
+      "group": -1,
+      "wheelchair": false
+     },
+     {
+      "id": 422,
+      "exit": 1,
+      "time": 166.5,
+      "start": 24.8,
+      "wait": 111.29999999999795,
+      "seat": 422,
+      "group": 186,
+      "wheelchair": false
+     },
+     {
+      "id": 870,
+      "exit": 2,
+      "time": 166.5,
+      "start": 34.4,
+      "wait": 113.29999999999784,
+      "seat": 870,
+      "group": -1,
+      "wheelchair": false
+     },
+     {
+      "id": 198,
+      "exit": 2,
+      "time": 165.9,
+      "start": 26.3,
+      "wait": 112.69999999999787,
+      "seat": 198,
+      "group": -1,
+      "wheelchair": false
+     },
+     {
+      "id": 448,
+      "exit": 1,
+      "time": 165.9,
+      "start": 15.2,
+      "wait": 123.99999999999723,
+      "seat": 448,
+      "group": -1,
+      "wheelchair": false
+     },
+     {
+      "id": 227,
+      "exit": 2,
+      "time": 165.3,
+      "start": 28.2,
+      "wait": 109.69999999999804,
+      "seat": 227,
+      "group": -1,
+      "wheelchair": false
+     },
+     {
+      "id": 232,
+      "exit": 2,
+      "time": 164.7,
+      "start": 30.4,
+      "wait": 112.79999999999787,
+      "seat": 232,
+      "group": 231,
+      "wheelchair": false
+     },
+     {
+      "id": 261,
+      "exit": 3,
+      "time": 164.1,
+      "start": 21.2,
+      "wait": 97.39999999999874,
+      "seat": 261,
+      "group": 157,
+      "wheelchair": false
+     },
+     {
+      "id": 853,
+      "exit": 2,
+      "time": 164.1,
+      "start": 25,
+      "wait": 114.59999999999776,
+      "seat": 853,
+      "group": 98,
+      "wheelchair": false
+     },
+     {
+      "id": 44,
+      "exit": 1,
+      "time": 164,
+      "start": 16.6,
+      "wait": 82.49999999999959,
+      "seat": 44,
+      "group": -1,
+      "wheelchair": false
+     },
+     {
+      "id": 234,
+      "exit": 2,
+      "time": 163.6,
+      "start": 19.9,
+      "wait": 119.99999999999746,
+      "seat": 234,
+      "group": -1,
+      "wheelchair": false
+     },
+     {
+      "id": 366,
+      "exit": 1,
+      "time": 163.4,
+      "start": 18.8,
+      "wait": 94.99999999999888,
+      "seat": 366,
+      "group": 177,
+      "wheelchair": false
+     }
+    ],
+    "warnings": []
+   }
+  },
+  {
+   "id": "staff-12-patrol-posts-static",
+   "seed": 269545002,
+   "N": 1329,
+   "wheelchairs": 3,
+   "allLeftBuilding": true,
+   "tEvac": 194.8,
+   "transitions": 19547,
+   "positionChecks": 1242519,
+   "seatwayChecks": 193886,
+   "distinctWalkways": 248,
+   "traversalsByKind": {
+    "aisle": 5188,
+    "crossAisle": 2765,
+    "door": 3142,
+    "stair": 2261,
+    "passage": 549,
+    "walkway": 771,
+    "corridor": 1806,
+    "portico": 765,
+    "foyer": 969,
+    "outdoor": 1326,
+    "landing": 5
+   },
+   "violations": 0,
+   "backwardQueueUpdates": 7698,
+   "maxBackwardQueueUpdate": 13.589440247763378,
+   "note": "Queue-coordinate relocations along the same link are reported separately from forbidden seat-row shortcuts. They are not collision-resolved walking trajectories.",
+   "storageChecks": 856320,
+   "populationChecks": 2230,
+   "serviceChecks": "All directions and gates, every step; cumulative service ≤ integral capacity + initial credit",
+   "diagnostics": {
+    "staffCount": 12,
+    "managerMotion": [],
+    "counts": {
+     "static-sign": 2697,
+     "led-noticed": 2759,
+     "destination": 1627,
+     "switch-sign": 309,
+     "manager-heard": 5806,
+     "switch-manager": 174,
+     "message-conflict": 521,
+     "turn-executed": 180,
+     "sign-update": 4,
+     "command-released": 13,
+     "switch-observation": 1
+    },
+    "peopleNoticingLED": 1240,
+    "meanNoticeTime": 18.14758064516129,
+    "events": [
+     {
+      "t": 55,
+      "agent": -1,
+      "kind": "sign-update",
+      "source": "L10",
+      "exit": 0,
+      "reason": "Delayed local/radio manager information; hold and improvement threshold"
+     },
+     {
+      "t": 57,
+      "agent": -1,
+      "kind": "sign-update",
+      "source": "L9",
+      "exit": 0,
+      "reason": "Delayed local/radio manager information; hold and improvement threshold"
+     },
+     {
+      "t": 60,
+      "agent": -1,
+      "kind": "sign-update",
+      "source": "L1",
+      "exit": 2,
+      "reason": "Delayed local/radio manager information; hold and improvement threshold"
+     },
+     {
+      "t": 73,
+      "agent": -1,
+      "kind": "sign-update",
+      "source": "L2",
+      "exit": 2,
+      "reason": "Delayed local/radio manager information; hold and improvement threshold"
+     }
+    ],
+    "tail": [
+     {
+      "id": 248,
+      "exit": 0,
+      "time": 194.8,
+      "start": 37.6,
+      "wait": 84.29999999999949,
+      "seat": 248,
+      "group": -1,
+      "wheelchair": false
+     },
+     {
+      "id": 249,
+      "exit": 0,
+      "time": 182.1,
+      "start": 34,
+      "wait": 92.799999999999,
+      "seat": 249,
+      "group": 153,
+      "wheelchair": false
+     },
+     {
+      "id": 250,
+      "exit": 0,
+      "time": 173.1,
+      "start": 34,
+      "wait": 78.59999999999981,
+      "seat": 250,
+      "group": 153,
+      "wheelchair": false
+     },
+     {
+      "id": 277,
+      "exit": 0,
+      "time": 171.5,
+      "start": 23.9,
+      "wait": 92.39999999999903,
+      "seat": 277,
+      "group": -1,
+      "wheelchair": false
+     },
+     {
+      "id": 167,
+      "exit": 0,
+      "time": 165.6,
+      "start": 35.8,
+      "wait": 88.09999999999927,
+      "seat": 167,
+      "group": -1,
+      "wheelchair": false
+     },
+     {
+      "id": 379,
+      "exit": 0,
+      "time": 165.3,
+      "start": 32.2,
+      "wait": 75.99999999999996,
+      "seat": 379,
+      "group": 177,
+      "wheelchair": false
+     },
+     {
+      "id": 139,
+      "exit": 2,
+      "time": 163.2,
+      "start": 28.9,
+      "wait": 72.60000000000015,
+      "seat": 139,
+      "group": 213,
+      "wheelchair": false
+     },
+     {
+      "id": 148,
+      "exit": 2,
+      "time": 160.9,
+      "start": 33.6,
+      "wait": 76.29999999999994,
+      "seat": 148,
+      "group": 214,
+      "wheelchair": false
+     },
+     {
+      "id": 515,
+      "exit": 1,
+      "time": 160.9,
+      "start": 35.4,
+      "wait": 87.19999999999932,
+      "seat": 515,
+      "group": 206,
+      "wheelchair": false
+     },
+     {
+      "id": 365,
+      "exit": 2,
+      "time": 160.3,
+      "start": 18.4,
+      "wait": 89.59999999999918,
+      "seat": 365,
+      "group": 173,
+      "wheelchair": false
+     },
+     {
+      "id": 359,
+      "exit": 4,
+      "time": 160,
+      "start": 22.9,
+      "wait": 87.5999999999993,
+      "seat": 359,
+      "group": -1,
+      "wheelchair": false
+     },
+     {
+      "id": 1,
+      "exit": 2,
+      "time": 159.3,
+      "start": 35.6,
+      "wait": 91.59999999999907,
+      "seat": 1,
+      "group": 235,
+      "wheelchair": false
+     },
+     {
+      "id": 27,
+      "exit": 3,
+      "time": 158.9,
+      "start": 23.6,
+      "wait": 95.29999999999886,
+      "seat": 27,
+      "group": 241,
+      "wheelchair": false
+     },
+     {
+      "id": 241,
+      "exit": 3,
+      "time": 157.9,
+      "start": 35.5,
+      "wait": 89.59999999999918,
+      "seat": 241,
+      "group": 151,
+      "wheelchair": false
+     },
+     {
+      "id": 155,
+      "exit": 2,
+      "time": 157.6,
+      "start": 18.1,
+      "wait": 84.0999999999995,
+      "seat": 155,
+      "group": 216,
+      "wheelchair": false
+     },
+     {
+      "id": 161,
+      "exit": 2,
+      "time": 157.1,
+      "start": 19,
+      "wait": 98.79999999999866,
+      "seat": 161,
+      "group": 218,
+      "wheelchair": false
+     },
+     {
+      "id": 276,
+      "exit": 3,
+      "time": 156.9,
+      "start": 31,
+      "wait": 78.59999999999981,
+      "seat": 276,
+      "group": -1,
+      "wheelchair": false
+     },
+     {
+      "id": 283,
+      "exit": 0,
+      "time": 155.7,
+      "start": 38.2,
+      "wait": 55.70000000000052,
+      "seat": 283,
+      "group": -1,
+      "wheelchair": false
+     },
+     {
+      "id": 86,
+      "exit": 0,
+      "time": 155.6,
+      "start": 21.7,
+      "wait": 80.79999999999968,
+      "seat": 86,
+      "group": 255,
+      "wheelchair": false
+     },
+     {
+      "id": 305,
+      "exit": 2,
+      "time": 154.8,
+      "start": 20.2,
+      "wait": 101.79999999999849,
+      "seat": 305,
+      "group": 164,
+      "wheelchair": false
+     },
+     {
+      "id": 377,
+      "exit": 0,
+      "time": 154.6,
+      "start": 18.6,
+      "wait": 83.09999999999955,
+      "seat": 377,
+      "group": 176,
+      "wheelchair": false
+     },
+     {
+      "id": 387,
+      "exit": 1,
+      "time": 154.4,
+      "start": 15.1,
+      "wait": 96.09999999999881,
+      "seat": 387,
+      "group": 180,
+      "wheelchair": false
+     },
+     {
+      "id": 158,
+      "exit": 0,
+      "time": 154,
+      "start": 22.5,
+      "wait": 77.19999999999989,
+      "seat": 158,
+      "group": -1,
+      "wheelchair": false
+     },
+     {
+      "id": 450,
+      "exit": 0,
+      "time": 153.9,
+      "start": 14.6,
+      "wait": 104.49999999999834,
+      "seat": 450,
+      "group": -1,
+      "wheelchair": false
+     },
+     {
+      "id": 487,
+      "exit": 4,
+      "time": 153.8,
+      "start": 35.9,
+      "wait": 75.69999999999997,
+      "seat": 487,
+      "group": -1,
+      "wheelchair": false
+     },
+     {
+      "id": 56,
+      "exit": 0,
+      "time": 153.6,
+      "start": 25.1,
+      "wait": 65.90000000000053,
+      "seat": 56,
+      "group": -1,
+      "wheelchair": false
+     },
+     {
+      "id": 121,
+      "exit": 2,
+      "time": 153.2,
+      "start": 30.9,
+      "wait": 74.30000000000005,
+      "seat": 121,
+      "group": -1,
+      "wheelchair": false
+     },
+     {
+      "id": 320,
+      "exit": 1,
+      "time": 153.2,
+      "start": 20,
+      "wait": 59.60000000000058,
+      "seat": 320,
+      "group": 166,
+      "wheelchair": false
+     },
+     {
+      "id": 361,
+      "exit": 4,
+      "time": 152.8,
+      "start": 23,
+      "wait": 97.69999999999872,
+      "seat": 361,
+      "group": 172,
+      "wheelchair": false
+     },
+     {
+      "id": 521,
+      "exit": 4,
+      "time": 151.8,
+      "start": 15.3,
+      "wait": 105.69999999999827,
+      "seat": 521,
+      "group": -1,
+      "wheelchair": false
+     },
+     {
+      "id": 26,
+      "exit": 0,
+      "time": 151.6,
+      "start": 23.6,
+      "wait": 66.30000000000051,
+      "seat": 26,
+      "group": 241,
+      "wheelchair": false
+     },
+     {
+      "id": 386,
+      "exit": 1,
+      "time": 151.4,
+      "start": 15.5,
+      "wait": 104.99999999999831,
+      "seat": 386,
+      "group": 179,
+      "wheelchair": false
+     },
+     {
+      "id": 61,
+      "exit": 2,
+      "time": 151.2,
+      "start": 27.3,
+      "wait": 81.99999999999962,
+      "seat": 61,
+      "group": 250,
+      "wheelchair": false
+     },
+     {
+      "id": 298,
+      "exit": 0,
+      "time": 151.2,
+      "start": 23.4,
+      "wait": 72.10000000000018,
+      "seat": 298,
+      "group": -1,
+      "wheelchair": false
+     },
+     {
+      "id": 443,
+      "exit": 0,
+      "time": 150.9,
+      "start": 21.7,
+      "wait": 98.99999999999865,
+      "seat": 443,
+      "group": 190,
+      "wheelchair": false
+     },
+     {
+      "id": 508,
+      "exit": 4,
+      "time": 150.8,
+      "start": 27.3,
+      "wait": 73.10000000000012,
+      "seat": 508,
+      "group": 205,
+      "wheelchair": false
+     },
+     {
+      "id": 1199,
+      "exit": 0,
+      "time": 150.6,
+      "start": 27.9,
+      "wait": 60.200000000000585,
+      "seat": 1199,
+      "group": -1,
+      "wheelchair": false
+     },
+     {
+      "id": 87,
+      "exit": 0,
+      "time": 150.1,
+      "start": 21.7,
+      "wait": 91.99999999999905,
+      "seat": 87,
+      "group": 255,
+      "wheelchair": false
+     },
+     {
+      "id": 182,
+      "exit": 2,
+      "time": 150.1,
+      "start": 15.9,
+      "wait": 105.0999999999983,
+      "seat": 182,
+      "group": 223,
+      "wheelchair": false
+     },
+     {
+      "id": 1320,
+      "exit": 6,
+      "time": 150.1,
+      "start": 41.7,
+      "wait": 46.800000000000395,
+      "seat": 1320,
+      "group": -1,
+      "wheelchair": false
+     },
+     {
+      "id": 456,
+      "exit": 4,
+      "time": 149.8,
+      "start": 19.7,
+      "wait": 83.9999999999995,
+      "seat": 456,
+      "group": 194,
+      "wheelchair": false
+     },
+     {
+      "id": 516,
+      "exit": 0,
+      "time": 149.8,
+      "start": 35.4,
+      "wait": 90.19999999999915,
+      "seat": 516,
+      "group": 206,
+      "wheelchair": false
+     },
+     {
+      "id": 1214,
+      "exit": 0,
+      "time": 149.8,
+      "start": 35.2,
+      "wait": 73.90000000000008,
+      "seat": 1214,
+      "group": -1,
+      "wheelchair": false
+     },
+     {
+      "id": 176,
+      "exit": 2,
+      "time": 149.6,
+      "start": 22,
+      "wait": 98.89999999999866,
+      "seat": 176,
+      "group": 221,
+      "wheelchair": false
+     },
+     {
+      "id": 85,
+      "exit": 0,
+      "time": 149.5,
+      "start": 21.6,
+      "wait": 90.09999999999916,
+      "seat": 85,
+      "group": 254,
+      "wheelchair": false
+     },
+     {
+      "id": 909,
+      "exit": 2,
+      "time": 149.3,
+      "start": 25.2,
+      "wait": 102.89999999999843,
+      "seat": 909,
+      "group": -1,
+      "wheelchair": false
+     },
+     {
+      "id": 367,
+      "exit": 1,
+      "time": 149.2,
+      "start": 14.9,
+      "wait": 103.4999999999984,
+      "seat": 367,
+      "group": -1,
+      "wheelchair": false
+     },
+     {
+      "id": 184,
+      "exit": 0,
+      "time": 149.1,
+      "start": 16.2,
+      "wait": 99.09999999999864,
+      "seat": 184,
+      "group": -1,
+      "wheelchair": false
+     },
+     {
+      "id": 185,
+      "exit": 2,
+      "time": 149.1,
+      "start": 26.8,
+      "wait": 92.29999999999903,
+      "seat": 185,
+      "group": -1,
+      "wheelchair": false
+     },
+     {
+      "id": 632,
+      "exit": 1,
+      "time": 149.1,
+      "start": 15.9,
+      "wait": 109.49999999999805,
+      "seat": 632,
+      "group": -1,
+      "wheelchair": false
+     }
+    ],
+    "warnings": []
+   }
+  },
+  {
+   "id": "staff-12-patrol20",
+   "seed": 1612814014,
+   "N": 1329,
+   "wheelchairs": 3,
+   "allLeftBuilding": true,
+   "tEvac": 179.3,
+   "transitions": 19694,
+   "positionChecks": 1240077,
+   "seatwayChecks": 210974,
+   "distinctWalkways": 252,
+   "traversalsByKind": {
+    "aisle": 5612,
+    "crossAisle": 2516,
+    "door": 3170,
+    "corridor": 1767,
+    "passage": 534,
+    "walkway": 763,
+    "stair": 2267,
+    "portico": 713,
+    "foyer": 1022,
+    "outdoor": 1326,
+    "landing": 4
+   },
+   "violations": 0,
+   "backwardQueueUpdates": 7984,
+   "maxBackwardQueueUpdate": 11.798920329336196,
+   "note": "Queue-coordinate relocations along the same link are reported separately from forbidden seat-row shortcuts. They are not collision-resolved walking trajectories.",
+   "storageChecks": 770688,
+   "populationChecks": 2007,
+   "serviceChecks": "All directions and gates, every step; cumulative service ≤ integral capacity + initial credit",
+   "diagnostics": {
+    "staffCount": 12,
+    "managerMotion": [
+     {
+      "manager": 8,
+      "walked": 71.42529669045553,
+      "blockedSeconds": 68.70000000000037,
+      "x": -12.35191493861873,
+      "y": 12.860947229956812,
+      "links": [
+       "CO_13",
+       "CO_12",
+       "CO_11",
+       "CO_10",
+       "CO_9"
+      ]
+     },
+     {
+      "manager": 10,
+      "walked": 55.0000000000005,
+      "blockedSeconds": 86.79999999999934,
+      "x": -4.65,
+      "y": -7.6,
+      "links": [
+       "FX_2",
+       "FX_3",
+       "FX_4"
+      ]
+     },
+     {
+      "manager": 11,
+      "walked": 46.00000000000038,
+      "blockedSeconds": 104.59999999999833,
+      "x": -4.3500000000000005,
+      "y": -7.6,
+      "links": [
+       "FX_3",
+       "FX_2",
+       "FX_1"
+      ]
+     }
+    ],
+    "counts": {
+     "static-sign": 2592,
+     "led-noticed": 2757,
+     "destination": 1593,
+     "switch-sign": 291,
+     "manager-heard": 6147,
+     "switch-manager": 157,
+     "message-conflict": 534,
+     "turn-executed": 161,
+     "manager-arrival": 46,
+     "command-released": 10,
+     "sign-update": 3,
+     "switch-observation": 1
+    },
+    "peopleNoticingLED": 1245,
+    "meanNoticeTime": 17.705220883534135,
+    "events": [
+     {
+      "t": 23.4,
+      "agent": -1,
+      "kind": "manager-arrival",
+      "source": "CM9",
+      "exit": -1,
+      "reason": "Patrol arrival at C_FCW; walked 3.42 m"
+     },
+     {
+      "t": 26.3,
+      "agent": -1,
+      "kind": "manager-arrival",
+      "source": "CM9",
+      "exit": -1,
+      "reason": "Patrol arrival at C_D4W; walked 5.59 m"
+     },
+     {
+      "t": 30.3,
+      "agent": -1,
+      "kind": "manager-arrival",
+      "source": "CM9",
+      "exit": -1,
+      "reason": "Patrol arrival at BSW2_b; walked 9.58 m"
+     },
+     {
+      "t": 30.9,
+      "agent": -1,
+      "kind": "manager-arrival",
+      "source": "CM9",
+      "exit": -1,
+      "reason": "Patrol arrival at BSW2_a; walked 10.14 m"
+     },
+     {
+      "t": 32,
+      "agent": -1,
+      "kind": "manager-arrival",
+      "source": "CM12",
+      "exit": -1,
+      "reason": "Patrol arrival at FX_C; walked 4.65 m"
+     },
+     {
+      "t": 35.3,
+      "agent": -1,
+      "kind": "manager-arrival",
+      "source": "CM9",
+      "exit": -1,
+      "reason": "Patrol arrival at C_D3W; walked 14.47 m"
+     },
+     {
+      "t": 35.5,
+      "agent": -1,
+      "kind": "manager-arrival",
+      "source": "CM11",
+      "exit": -1,
+      "reason": "Patrol arrival at FX_C; walked 4.65 m"
+     },
+     {
+      "t": 52,
+      "agent": -1,
+      "kind": "sign-update",
+      "source": "L10",
+      "exit": 0,
+      "reason": "Delayed local/radio manager information; hold and improvement threshold"
+     },
+     {
+      "t": 52.4,
+      "agent": -1,
+      "kind": "manager-arrival",
+      "source": "CM9",
+      "exit": -1,
+      "reason": "Patrol arrival at BSW2_a; walked 18.80 m"
+     },
+     {
+      "t": 53.3,
+      "agent": -1,
+      "kind": "manager-arrival",
+      "source": "CM9",
+      "exit": -1,
+      "reason": "Patrol arrival at BSW2_b; walked 19.36 m"
+     },
+     {
+      "t": 53.7,
+      "agent": -1,
+      "kind": "manager-arrival",
+      "source": "CM12",
+      "exit": -1,
+      "reason": "Patrol arrival at AW_front; walked 9.30 m"
+     },
+     {
+      "t": 56,
+      "agent": -1,
+      "kind": "sign-update",
+      "source": "L1",
+      "exit": 0,
+      "reason": "Delayed local/radio manager information; hold and improvement threshold"
+     },
+     {
+      "t": 63,
+      "agent": -1,
+      "kind": "sign-update",
+      "source": "L9",
+      "exit": 0,
+      "reason": "Delayed local/radio manager information; hold and improvement threshold"
+     },
+     {
+      "t": 82.6,
+      "agent": -1,
+      "kind": "manager-arrival",
+      "source": "CM11",
+      "exit": -1,
+      "reason": "Patrol arrival at AE_front; walked 9.30 m"
+     },
+     {
+      "t": 88,
+      "agent": -1,
+      "kind": "manager-arrival",
+      "source": "CM9",
+      "exit": -1,
+      "reason": "Patrol arrival at C_D4W; walked 23.35 m"
+     },
+     {
+      "t": 108.3,
+      "agent": -1,
+      "kind": "manager-arrival",
+      "source": "CM9",
+      "exit": -1,
+      "reason": "Patrol arrival at C_FCW; walked 25.53 m"
+     },
+     {
+      "t": 111.8,
+      "agent": -1,
+      "kind": "manager-arrival",
+      "source": "CM9",
+      "exit": -1,
+      "reason": "Patrol arrival at C_FC2; walked 28.94 m"
+     },
+     {
+      "t": 120.6,
+      "agent": -1,
+      "kind": "manager-arrival",
+      "source": "CM11",
+      "exit": -1,
+      "reason": "Patrol arrival at FX_E; walked 13.75 m"
+     },
+     {
+      "t": 125.2,
+      "agent": -1,
+      "kind": "manager-arrival",
+      "source": "CM9",
+      "exit": -1,
+      "reason": "Patrol arrival at C_FCW; walked 32.36 m"
+     },
+     {
+      "t": 135,
+      "agent": -1,
+      "kind": "manager-arrival",
+      "source": "CM11",
+      "exit": -1,
+      "reason": "Patrol arrival at AE_front; walked 18.20 m"
+     },
+     {
+      "t": 138.4,
+      "agent": -1,
+      "kind": "manager-arrival",
+      "source": "CM12",
+      "exit": -1,
+      "reason": "Patrol arrival at FX_W; walked 13.75 m"
+     },
+     {
+      "t": 139.7,
+      "agent": -1,
+      "kind": "manager-arrival",
+      "source": "CM11",
+      "exit": -1,
+      "reason": "Patrol arrival at FX_C; walked 22.85 m"
+     },
+     {
+      "t": 143.5,
+      "agent": -1,
+      "kind": "manager-arrival",
+      "source": "CM9",
+      "exit": -1,
+      "reason": "Patrol arrival at C_D4W; walked 34.54 m"
+     },
+     {
+      "t": 144.4,
+      "agent": -1,
+      "kind": "manager-arrival",
+      "source": "CM11",
+      "exit": -1,
+      "reason": "Patrol arrival at AW_front; walked 27.50 m"
+     },
+     {
+      "t": 147.5,
+      "agent": -1,
+      "kind": "manager-arrival",
+      "source": "CM9",
+      "exit": -1,
+      "reason": "Patrol arrival at BSW2_b; walked 38.52 m"
+     },
+     {
+      "t": 148.1,
+      "agent": -1,
+      "kind": "manager-arrival",
+      "source": "CM9",
+      "exit": -1,
+      "reason": "Patrol arrival at BSW2_a; walked 39.08 m"
+     },
+     {
+      "t": 152.5,
+      "agent": -1,
+      "kind": "manager-arrival",
+      "source": "CM9",
+      "exit": -1,
+      "reason": "Patrol arrival at C_D3W; walked 43.41 m"
+     },
+     {
+      "t": 152.8,
+      "agent": -1,
+      "kind": "manager-arrival",
+      "source": "CM12",
+      "exit": -1,
+      "reason": "Patrol arrival at AW_front; walked 18.20 m"
+     },
+     {
+      "t": 157.5,
+      "agent": -1,
+      "kind": "manager-arrival",
+      "source": "CM12",
+      "exit": -1,
+      "reason": "Patrol arrival at FX_C; walked 22.85 m"
+     },
+     {
+      "t": 159,
+      "agent": -1,
+      "kind": "manager-arrival",
+      "source": "CM11",
+      "exit": -1,
+      "reason": "Patrol arrival at FX_C; walked 32.15 m"
+     },
+     {
+      "t": 162.2,
+      "agent": -1,
+      "kind": "manager-arrival",
+      "source": "CM12",
+      "exit": -1,
+      "reason": "Patrol arrival at AE_front; walked 27.50 m"
+     },
+     {
+      "t": 163.7,
+      "agent": -1,
+      "kind": "manager-arrival",
+      "source": "CM11",
+      "exit": -1,
+      "reason": "Patrol arrival at AE_front; walked 36.80 m"
+     },
+     {
+      "t": 166.8,
+      "agent": -1,
+      "kind": "manager-arrival",
+      "source": "CM9",
+      "exit": -1,
+      "reason": "Patrol arrival at BSW2_a; walked 47.75 m"
+     },
+     {
+      "t": 167.4,
+      "agent": -1,
+      "kind": "manager-arrival",
+      "source": "CM9",
+      "exit": -1,
+      "reason": "Patrol arrival at BSW2_b; walked 48.30 m"
+     },
+     {
+      "t": 168.2,
+      "agent": -1,
+      "kind": "manager-arrival",
+      "source": "CM11",
+      "exit": -1,
+      "reason": "Patrol arrival at FX_E; walked 41.25 m"
+     },
+     {
+      "t": 171.4,
+      "agent": -1,
+      "kind": "manager-arrival",
+      "source": "CM9",
+      "exit": -1,
+      "reason": "Patrol arrival at C_D4W; walked 52.29 m"
+     },
+     {
+      "t": 173.6,
+      "agent": -1,
+      "kind": "manager-arrival",
+      "source": "CM9",
+      "exit": -1,
+      "reason": "Patrol arrival at C_FCW; walked 54.47 m"
+     },
+     {
+      "t": 176.8,
+      "agent": -1,
+      "kind": "manager-arrival",
+      "source": "CM12",
+      "exit": -1,
+      "reason": "Patrol arrival at FX_C; walked 32.15 m"
+     },
+     {
+      "t": 177.1,
+      "agent": -1,
+      "kind": "manager-arrival",
+      "source": "CM9",
+      "exit": -1,
+      "reason": "Patrol arrival at C_FC2; walked 57.89 m"
+     },
+     {
+      "t": 181.5,
+      "agent": -1,
+      "kind": "manager-arrival",
+      "source": "CM12",
+      "exit": -1,
+      "reason": "Patrol arrival at AW_front; walked 36.80 m"
+     },
+     {
+      "t": 182.6,
+      "agent": -1,
+      "kind": "manager-arrival",
+      "source": "CM11",
+      "exit": -1,
+      "reason": "Patrol arrival at AE_front; walked 45.70 m"
+     },
+     {
+      "t": 186,
+      "agent": -1,
+      "kind": "manager-arrival",
+      "source": "CM12",
+      "exit": -1,
+      "reason": "Patrol arrival at FX_W; walked 41.25 m"
+     },
+     {
+      "t": 187.3,
+      "agent": -1,
+      "kind": "manager-arrival",
+      "source": "CM11",
+      "exit": -1,
+      "reason": "Patrol arrival at FX_C; walked 50.35 m"
+     },
+     {
+      "t": 190.5,
+      "agent": -1,
+      "kind": "manager-arrival",
+      "source": "CM9",
+      "exit": -1,
+      "reason": "Patrol arrival at C_FCW; walked 61.30 m"
+     },
+     {
+      "t": 192,
+      "agent": -1,
+      "kind": "manager-arrival",
+      "source": "CM11",
+      "exit": -1,
+      "reason": "Patrol arrival at AW_front; walked 55.00 m"
+     },
+     {
+      "t": 192.7,
+      "agent": -1,
+      "kind": "manager-arrival",
+      "source": "CM9",
+      "exit": -1,
+      "reason": "Patrol arrival at C_D4W; walked 63.48 m"
+     },
+     {
+      "t": 196.7,
+      "agent": -1,
+      "kind": "manager-arrival",
+      "source": "CM9",
+      "exit": -1,
+      "reason": "Patrol arrival at BSW2_b; walked 67.47 m"
+     },
+     {
+      "t": 197.3,
+      "agent": -1,
+      "kind": "manager-arrival",
+      "source": "CM9",
+      "exit": -1,
+      "reason": "Patrol arrival at BSW2_a; walked 68.03 m"
+     },
+     {
+      "t": 200.4,
+      "agent": -1,
+      "kind": "manager-arrival",
+      "source": "CM12",
+      "exit": -1,
+      "reason": "Patrol arrival at AW_front; walked 45.70 m"
+     }
+    ],
+    "tail": [
+     {
+      "id": 459,
+      "exit": 4,
+      "time": 179.3,
+      "start": 18.7,
+      "wait": 80.99999999999967,
+      "seat": 459,
+      "group": 194,
+      "wheelchair": false
+     },
+     {
+      "id": 436,
+      "exit": 1,
+      "time": 166.5,
+      "start": 15.9,
+      "wait": 118.29999999999755,
+      "seat": 436,
+      "group": -1,
+      "wheelchair": false
+     },
+     {
+      "id": 697,
+      "exit": 1,
+      "time": 165.9,
+      "start": 20.4,
+      "wait": 119.2999999999975,
+      "seat": 697,
+      "group": 127,
+      "wheelchair": false
+     },
+     {
+      "id": 713,
+      "exit": 1,
+      "time": 165.3,
+      "start": 24.7,
+      "wait": 115.39999999999772,
+      "seat": 713,
+      "group": -1,
+      "wheelchair": false
+     },
+     {
+      "id": 633,
+      "exit": 1,
+      "time": 164.7,
+      "start": 25.6,
+      "wait": 116.49999999999766,
+      "seat": 633,
+      "group": -1,
+      "wheelchair": false
+     },
+     {
+      "id": 261,
+      "exit": 3,
+      "time": 164.1,
+      "start": 21.2,
+      "wait": 97.39999999999874,
+      "seat": 261,
+      "group": 157,
+      "wheelchair": false
+     },
+     {
+      "id": 634,
+      "exit": 1,
+      "time": 164.1,
+      "start": 26.2,
+      "wait": 113.8999999999978,
+      "seat": 634,
+      "group": -1,
+      "wheelchair": false
+     },
+     {
+      "id": 141,
+      "exit": 0,
+      "time": 163.5,
+      "start": 29.4,
+      "wait": 61.4000000000006,
+      "seat": 141,
+      "group": 214,
+      "wheelchair": false
+     },
+     {
+      "id": 695,
+      "exit": 1,
+      "time": 163.5,
+      "start": 20.8,
+      "wait": 115.5999999999977,
+      "seat": 695,
+      "group": 126,
+      "wheelchair": false
+     },
+     {
+      "id": 729,
+      "exit": 1,
+      "time": 163,
+      "start": 41,
+      "wait": 102.89999999999843,
+      "seat": 729,
+      "group": -1,
+      "wheelchair": false
+     },
+     {
+      "id": 205,
+      "exit": 2,
+      "time": 162.9,
+      "start": 36,
+      "wait": 94.4999999999989,
+      "seat": 205,
+      "group": 224,
+      "wheelchair": false
+     },
+     {
+      "id": 185,
+      "exit": 2,
+      "time": 162.8,
+      "start": 31.8,
+      "wait": 93.99999999999893,
+      "seat": 185,
+      "group": -1,
+      "wheelchair": false
+     },
+     {
+      "id": 299,
+      "exit": 0,
+      "time": 162.4,
+      "start": 13.2,
+      "wait": 124.99999999999717,
+      "seat": 299,
+      "group": -1,
+      "wheelchair": false
+     },
+     {
+      "id": 696,
+      "exit": 1,
+      "time": 162.4,
+      "start": 20.8,
+      "wait": 114.49999999999777,
+      "seat": 696,
+      "group": 126,
+      "wheelchair": false
+     },
+     {
+      "id": 153,
+      "exit": 0,
+      "time": 162.1,
+      "start": 21.6,
+      "wait": 112.79999999999787,
+      "seat": 153,
+      "group": -1,
+      "wheelchair": false
+     },
+     {
+      "id": 368,
+      "exit": 1,
+      "time": 161.8,
+      "start": 12.9,
+      "wait": 107.09999999999819,
+      "seat": 368,
+      "group": -1,
+      "wheelchair": false
+     },
+     {
+      "id": 445,
+      "exit": 0,
+      "time": 161.6,
+      "start": 25,
+      "wait": 117.29999999999761,
+      "seat": 445,
+      "group": 192,
+      "wheelchair": false
+     },
+     {
+      "id": 173,
+      "exit": 0,
+      "time": 161.2,
+      "start": 16.6,
+      "wait": 110.09999999999802,
+      "seat": 173,
+      "group": 218,
+      "wheelchair": false
+     },
+     {
+      "id": 343,
+      "exit": 0,
+      "time": 160.9,
+      "start": 28.1,
+      "wait": 97.29999999999875,
+      "seat": 343,
+      "group": 172,
+      "wheelchair": false
+     },
+     {
+      "id": 247,
+      "exit": 0,
+      "time": 160.6,
+      "start": 43.7,
+      "wait": 62.70000000000062,
+      "seat": 247,
+      "group": 155,
+      "wheelchair": false
+     },
+     {
+      "id": 204,
+      "exit": 2,
+      "time": 160.4,
+      "start": 36,
+      "wait": 97.79999999999872,
+      "seat": 204,
+      "group": 224,
+      "wheelchair": false
+     },
+     {
+      "id": 196,
+      "exit": 2,
+      "time": 160.3,
+      "start": 26.4,
+      "wait": 103.79999999999838,
+      "seat": 196,
+      "group": -1,
+      "wheelchair": false
+     },
+     {
+      "id": 159,
+      "exit": 0,
+      "time": 159.9,
+      "start": 24.1,
+      "wait": 107.29999999999818,
+      "seat": 159,
+      "group": -1,
+      "wheelchair": false
+     },
+     {
+      "id": 51,
+      "exit": 0,
+      "time": 159.4,
+      "start": 21.6,
+      "wait": 88.29999999999926,
+      "seat": 51,
+      "group": 241,
+      "wheelchair": false
+     },
+     {
+      "id": 354,
+      "exit": 3,
+      "time": 159.1,
+      "start": 15.4,
+      "wait": 100.79999999999855,
+      "seat": 354,
+      "group": -1,
+      "wheelchair": false
+     },
+     {
+      "id": 1264,
+      "exit": 0,
+      "time": 159.1,
+      "start": 36.2,
+      "wait": 55.900000000000524,
+      "seat": 1264,
+      "group": -1,
+      "wheelchair": false
+     },
+     {
+      "id": 342,
+      "exit": 0,
+      "time": 158.7,
+      "start": 16.3,
+      "wait": 110.89999999999797,
+      "seat": 342,
+      "group": -1,
+      "wheelchair": false
+     },
+     {
+      "id": 181,
+      "exit": 0,
+      "time": 158.4,
+      "start": 17.1,
+      "wait": 107.49999999999817,
+      "seat": 181,
+      "group": 220,
+      "wheelchair": false
+     },
+     {
+      "id": 341,
+      "exit": 0,
+      "time": 158.1,
+      "start": 17.2,
+      "wait": 96.89999999999877,
+      "seat": 341,
+      "group": 171,
+      "wheelchair": false
+     },
+     {
+      "id": 265,
+      "exit": 0,
+      "time": 157.1,
+      "start": 49.1,
+      "wait": 74.10000000000007,
+      "seat": 265,
+      "group": 158,
+      "wheelchair": false
+     },
+     {
+      "id": 401,
+      "exit": 1,
+      "time": 157,
+      "start": 16.9,
+      "wait": 93.69999999999895,
+      "seat": 401,
+      "group": -1,
+      "wheelchair": false
+     },
+     {
+      "id": 346,
+      "exit": 0,
+      "time": 156.8,
+      "start": 25.2,
+      "wait": 95.79999999999883,
+      "seat": 346,
+      "group": 173,
+      "wheelchair": false
+     },
+     {
+      "id": 380,
+      "exit": 0,
+      "time": 156.5,
+      "start": 19.2,
+      "wait": 100.79999999999855,
+      "seat": 380,
+      "group": 179,
+      "wheelchair": false
+     },
+     {
+      "id": 387,
+      "exit": 1,
+      "time": 156.4,
+      "start": 18.9,
+      "wait": 109.19999999999807,
+      "seat": 387,
+      "group": 181,
+      "wheelchair": false
+     },
+     {
+      "id": 514,
+      "exit": 1,
+      "time": 155.9,
+      "start": 19.9,
+      "wait": 104.49999999999834,
+      "seat": 514,
+      "group": 208,
+      "wheelchair": false
+     },
+     {
+      "id": 164,
+      "exit": 0,
+      "time": 155.6,
+      "start": 30.2,
+      "wait": 83.19999999999955,
+      "seat": 164,
+      "group": -1,
+      "wheelchair": false
+     },
+     {
+      "id": 190,
+      "exit": 0,
+      "time": 155.3,
+      "start": 19.1,
+      "wait": 104.89999999999831,
+      "seat": 190,
+      "group": -1,
+      "wheelchair": false
+     },
+     {
+      "id": 390,
+      "exit": 1,
+      "time": 155.3,
+      "start": 12.4,
+      "wait": 108.7999999999981,
+      "seat": 390,
+      "group": 182,
+      "wheelchair": false
+     },
+     {
+      "id": 241,
+      "exit": 3,
+      "time": 155.1,
+      "start": 27.1,
+      "wait": 96.59999999999879,
+      "seat": 241,
+      "group": 154,
+      "wheelchair": false
+     },
+     {
+      "id": 174,
+      "exit": 0,
+      "time": 154.8,
+      "start": 16.6,
+      "wait": 104.99999999999831,
+      "seat": 174,
+      "group": 218,
+      "wheelchair": false
+     },
+     {
+      "id": 327,
+      "exit": 0,
+      "time": 154.8,
+      "start": 24,
+      "wait": 78.09999999999984,
+      "seat": 327,
+      "group": -1,
+      "wheelchair": false
+     },
+     {
+      "id": 367,
+      "exit": 1,
+      "time": 154.7,
+      "start": 15.9,
+      "wait": 113.29999999999784,
+      "seat": 367,
+      "group": -1,
+      "wheelchair": false
+     },
+     {
+      "id": 158,
+      "exit": 0,
+      "time": 154.5,
+      "start": 34.6,
+      "wait": 62.70000000000062,
+      "seat": 158,
+      "group": 215,
+      "wheelchair": false
+     },
+     {
+      "id": 375,
+      "exit": 0,
+      "time": 154.4,
+      "start": 15.5,
+      "wait": 97.9999999999987,
+      "seat": 375,
+      "group": -1,
+      "wheelchair": false
+     },
+     {
+      "id": 162,
+      "exit": 0,
+      "time": 154.1,
+      "start": 26.9,
+      "wait": 98.89999999999866,
+      "seat": 162,
+      "group": -1,
+      "wheelchair": false
+     },
+     {
+      "id": 240,
+      "exit": 3,
+      "time": 154.1,
+      "start": 27.1,
+      "wait": 98.1999999999987,
+      "seat": 240,
+      "group": 154,
+      "wheelchair": false
+     },
+     {
+      "id": 362,
+      "exit": 4,
+      "time": 153.9,
+      "start": 20.7,
+      "wait": 88.29999999999926,
+      "seat": 362,
+      "group": 176,
+      "wheelchair": false
+     },
+     {
+      "id": 166,
+      "exit": 0,
+      "time": 153.8,
+      "start": 15.8,
+      "wait": 96.99999999999876,
+      "seat": 166,
+      "group": 216,
+      "wheelchair": false
+     },
+     {
+      "id": 350,
+      "exit": 0,
+      "time": 153.8,
+      "start": 20.7,
+      "wait": 53.00000000000048,
+      "seat": 350,
+      "group": 174,
+      "wheelchair": false
+     },
+     {
+      "id": 71,
+      "exit": 0,
+      "time": 153.5,
+      "start": 15.5,
+      "wait": 108.89999999999809,
+      "seat": 71,
+      "group": 245,
+      "wheelchair": false
+     }
+    ],
+    "warnings": []
+   }
+  },
+  {
+   "id": "staff-12-patrol20",
+   "seed": 269545002,
+   "N": 1329,
+   "wheelchairs": 3,
+   "allLeftBuilding": true,
+   "tEvac": 201.5,
+   "transitions": 19501,
+   "positionChecks": 1237126,
+   "seatwayChecks": 199269,
+   "distinctWalkways": 248,
+   "traversalsByKind": {
+    "aisle": 5277,
+    "crossAisle": 2746,
+    "door": 3147,
+    "stair": 2261,
+    "walkway": 762,
+    "passage": 552,
+    "corridor": 1684,
+    "portico": 766,
+    "foyer": 977,
+    "outdoor": 1326,
+    "landing": 3
+   },
+   "violations": 0,
+   "backwardQueueUpdates": 7714,
+   "maxBackwardQueueUpdate": 13.149440247763376,
+   "note": "Queue-coordinate relocations along the same link are reported separately from forbidden seat-row shortcuts. They are not collision-resolved walking trajectories.",
+   "storageChecks": 853248,
+   "populationChecks": 2222,
+   "serviceChecks": "All directions and gates, every step; cumulative service ≤ integral capacity + initial credit",
+   "diagnostics": {
+    "staffCount": 12,
+    "managerMotion": [
+     {
+      "manager": 8,
+      "walked": 75.85747493592282,
+      "blockedSeconds": 75.79999999999997,
+      "x": -10.342483544908813,
+      "y": 14.455793241968353,
+      "links": [
+       "CO_13",
+       "CO_12",
+       "CO_11",
+       "CO_10",
+       "CO_9"
+      ]
+     },
+     {
+      "manager": 10,
+      "walked": 59.30000000000056,
+      "blockedSeconds": 102.79999999999843,
+      "x": -0.34999999999999964,
+      "y": -7.6,
+      "links": [
+       "FX_2",
+       "FX_3",
+       "FX_4"
+      ]
+     },
+     {
+      "manager": 11,
+      "walked": 59.950000000000564,
+      "blockedSeconds": 102.09999999999847,
+      "x": -0.2999999999999998,
+      "y": -7.6,
+      "links": [
+       "FX_3",
+       "FX_2",
+       "FX_1"
+      ]
+     }
+    ],
+    "counts": {
+     "static-sign": 2686,
+     "led-noticed": 2763,
+     "destination": 1582,
+     "switch-sign": 284,
+     "manager-heard": 5981,
+     "switch-manager": 154,
+     "message-conflict": 552,
+     "turn-executed": 146,
+     "manager-arrival": 50,
+     "switch-observation": 1,
+     "sign-update": 4,
+     "command-released": 10
+    },
+    "peopleNoticingLED": 1238,
+    "meanNoticeTime": 17.961227786752826,
+    "events": [
+     {
+      "t": 23.4,
+      "agent": -1,
+      "kind": "manager-arrival",
+      "source": "CM9",
+      "exit": -1,
+      "reason": "Patrol arrival at C_FCW; walked 3.42 m"
+     },
+     {
+      "t": 33.9,
+      "agent": -1,
+      "kind": "manager-arrival",
+      "source": "CM12",
+      "exit": -1,
+      "reason": "Patrol arrival at FX_C; walked 4.65 m"
+     },
+     {
+      "t": 55,
+      "agent": -1,
+      "kind": "sign-update",
+      "source": "L10",
+      "exit": 0,
+      "reason": "Delayed local/radio manager information; hold and improvement threshold"
+     },
+     {
+      "t": 57,
+      "agent": -1,
+      "kind": "sign-update",
+      "source": "L9",
+      "exit": 0,
+      "reason": "Delayed local/radio manager information; hold and improvement threshold"
+     },
+     {
+      "t": 65,
+      "agent": -1,
+      "kind": "sign-update",
+      "source": "L1",
+      "exit": 2,
+      "reason": "Delayed local/radio manager information; hold and improvement threshold"
+     },
+     {
+      "t": 65.6,
+      "agent": -1,
+      "kind": "manager-arrival",
+      "source": "CM9",
+      "exit": -1,
+      "reason": "Patrol arrival at C_D4W; walked 5.59 m"
+     },
+     {
+      "t": 69,
+      "agent": -1,
+      "kind": "sign-update",
+      "source": "L2",
+      "exit": 2,
+      "reason": "Delayed local/radio manager information; hold and improvement threshold"
+     },
+     {
+      "t": 83.2,
+      "agent": -1,
+      "kind": "manager-arrival",
+      "source": "CM9",
+      "exit": -1,
+      "reason": "Patrol arrival at BSW2_b; walked 9.58 m"
+     },
+     {
+      "t": 83.8,
+      "agent": -1,
+      "kind": "manager-arrival",
+      "source": "CM9",
+      "exit": -1,
+      "reason": "Patrol arrival at BSW2_a; walked 10.14 m"
+     },
+     {
+      "t": 85.8,
+      "agent": -1,
+      "kind": "manager-arrival",
+      "source": "CM11",
+      "exit": -1,
+      "reason": "Patrol arrival at FX_C; walked 4.65 m"
+     },
+     {
+      "t": 86.3,
+      "agent": -1,
+      "kind": "manager-arrival",
+      "source": "CM12",
+      "exit": -1,
+      "reason": "Patrol arrival at AW_front; walked 9.30 m"
+     },
+     {
+      "t": 88.2,
+      "agent": -1,
+      "kind": "manager-arrival",
+      "source": "CM9",
+      "exit": -1,
+      "reason": "Patrol arrival at C_D3W; walked 14.47 m"
+     },
+     {
+      "t": 91.1,
+      "agent": -1,
+      "kind": "manager-arrival",
+      "source": "CM11",
+      "exit": -1,
+      "reason": "Patrol arrival at AE_front; walked 9.30 m"
+     },
+     {
+      "t": 102.5,
+      "agent": -1,
+      "kind": "manager-arrival",
+      "source": "CM9",
+      "exit": -1,
+      "reason": "Patrol arrival at BSW2_a; walked 18.80 m"
+     },
+     {
+      "t": 103.1,
+      "agent": -1,
+      "kind": "manager-arrival",
+      "source": "CM9",
+      "exit": -1,
+      "reason": "Patrol arrival at BSW2_b; walked 19.36 m"
+     },
+     {
+      "t": 107.1,
+      "agent": -1,
+      "kind": "manager-arrival",
+      "source": "CM9",
+      "exit": -1,
+      "reason": "Patrol arrival at C_D4W; walked 23.35 m"
+     },
+     {
+      "t": 131.5,
+      "agent": -1,
+      "kind": "manager-arrival",
+      "source": "CM9",
+      "exit": -1,
+      "reason": "Patrol arrival at C_FCW; walked 25.53 m"
+     },
+     {
+      "t": 135,
+      "agent": -1,
+      "kind": "manager-arrival",
+      "source": "CM9",
+      "exit": -1,
+      "reason": "Patrol arrival at C_FC2; walked 28.94 m"
+     },
+     {
+      "t": 135.9,
+      "agent": -1,
+      "kind": "manager-arrival",
+      "source": "CM12",
+      "exit": -1,
+      "reason": "Patrol arrival at FX_W; walked 13.75 m"
+     },
+     {
+      "t": 136.6,
+      "agent": -1,
+      "kind": "manager-arrival",
+      "source": "CM11",
+      "exit": -1,
+      "reason": "Patrol arrival at FX_E; walked 13.75 m"
+     },
+     {
+      "t": 148.4,
+      "agent": -1,
+      "kind": "manager-arrival",
+      "source": "CM9",
+      "exit": -1,
+      "reason": "Patrol arrival at C_FCW; walked 32.36 m"
+     },
+     {
+      "t": 150.3,
+      "agent": -1,
+      "kind": "manager-arrival",
+      "source": "CM12",
+      "exit": -1,
+      "reason": "Patrol arrival at AW_front; walked 18.20 m"
+     },
+     {
+      "t": 150.6,
+      "agent": -1,
+      "kind": "manager-arrival",
+      "source": "CM9",
+      "exit": -1,
+      "reason": "Patrol arrival at C_D4W; walked 34.54 m"
+     },
+     {
+      "t": 151,
+      "agent": -1,
+      "kind": "manager-arrival",
+      "source": "CM11",
+      "exit": -1,
+      "reason": "Patrol arrival at AE_front; walked 18.20 m"
+     },
+     {
+      "t": 154.6,
+      "agent": -1,
+      "kind": "manager-arrival",
+      "source": "CM9",
+      "exit": -1,
+      "reason": "Patrol arrival at BSW2_b; walked 38.52 m"
+     },
+     {
+      "t": 155,
+      "agent": -1,
+      "kind": "manager-arrival",
+      "source": "CM12",
+      "exit": -1,
+      "reason": "Patrol arrival at FX_C; walked 22.85 m"
+     },
+     {
+      "t": 155.2,
+      "agent": -1,
+      "kind": "manager-arrival",
+      "source": "CM9",
+      "exit": -1,
+      "reason": "Patrol arrival at BSW2_a; walked 39.08 m"
+     },
+     {
+      "t": 155.7,
+      "agent": -1,
+      "kind": "manager-arrival",
+      "source": "CM11",
+      "exit": -1,
+      "reason": "Patrol arrival at FX_C; walked 22.85 m"
+     },
+     {
+      "t": 159.6,
+      "agent": -1,
+      "kind": "manager-arrival",
+      "source": "CM9",
+      "exit": -1,
+      "reason": "Patrol arrival at C_D3W; walked 43.41 m"
+     },
+     {
+      "t": 159.7,
+      "agent": -1,
+      "kind": "manager-arrival",
+      "source": "CM12",
+      "exit": -1,
+      "reason": "Patrol arrival at AE_front; walked 27.50 m"
+     },
+     {
+      "t": 160.4,
+      "agent": -1,
+      "kind": "manager-arrival",
+      "source": "CM11",
+      "exit": -1,
+      "reason": "Patrol arrival at AW_front; walked 27.50 m"
+     },
+     {
+      "t": 173.9,
+      "agent": -1,
+      "kind": "manager-arrival",
+      "source": "CM9",
+      "exit": -1,
+      "reason": "Patrol arrival at BSW2_a; walked 47.75 m"
+     },
+     {
+      "t": 174.3,
+      "agent": -1,
+      "kind": "manager-arrival",
+      "source": "CM12",
+      "exit": -1,
+      "reason": "Patrol arrival at FX_C; walked 32.15 m"
+     },
+     {
+      "t": 174.5,
+      "agent": -1,
+      "kind": "manager-arrival",
+      "source": "CM9",
+      "exit": -1,
+      "reason": "Patrol arrival at BSW2_b; walked 48.30 m"
+     },
+     {
+      "t": 175,
+      "agent": -1,
+      "kind": "manager-arrival",
+      "source": "CM11",
+      "exit": -1,
+      "reason": "Patrol arrival at FX_C; walked 32.15 m"
+     },
+     {
+      "t": 178.5,
+      "agent": -1,
+      "kind": "manager-arrival",
+      "source": "CM9",
+      "exit": -1,
+      "reason": "Patrol arrival at C_D4W; walked 52.29 m"
+     },
+     {
+      "t": 179,
+      "agent": -1,
+      "kind": "manager-arrival",
+      "source": "CM12",
+      "exit": -1,
+      "reason": "Patrol arrival at AW_front; walked 36.80 m"
+     },
+     {
+      "t": 179.7,
+      "agent": -1,
+      "kind": "manager-arrival",
+      "source": "CM11",
+      "exit": -1,
+      "reason": "Patrol arrival at AE_front; walked 36.80 m"
+     },
+     {
+      "t": 180.7,
+      "agent": -1,
+      "kind": "manager-arrival",
+      "source": "CM9",
+      "exit": -1,
+      "reason": "Patrol arrival at C_FCW; walked 54.47 m"
+     },
+     {
+      "t": 183.5,
+      "agent": -1,
+      "kind": "manager-arrival",
+      "source": "CM12",
+      "exit": -1,
+      "reason": "Patrol arrival at FX_W; walked 41.25 m"
+     },
+     {
+      "t": 184.2,
+      "agent": -1,
+      "kind": "manager-arrival",
+      "source": "CM9",
+      "exit": -1,
+      "reason": "Patrol arrival at C_FC2; walked 57.89 m"
+     },
+     {
+      "t": 184.2,
+      "agent": -1,
+      "kind": "manager-arrival",
+      "source": "CM11",
+      "exit": -1,
+      "reason": "Patrol arrival at FX_E; walked 41.25 m"
+     },
+     {
+      "t": 197.6,
+      "agent": -1,
+      "kind": "manager-arrival",
+      "source": "CM9",
+      "exit": -1,
+      "reason": "Patrol arrival at C_FCW; walked 61.30 m"
+     },
+     {
+      "t": 197.9,
+      "agent": -1,
+      "kind": "manager-arrival",
+      "source": "CM12",
+      "exit": -1,
+      "reason": "Patrol arrival at AW_front; walked 45.70 m"
+     },
+     {
+      "t": 198.6,
+      "agent": -1,
+      "kind": "manager-arrival",
+      "source": "CM11",
+      "exit": -1,
+      "reason": "Patrol arrival at AE_front; walked 45.70 m"
+     },
+     {
+      "t": 199.8,
+      "agent": -1,
+      "kind": "manager-arrival",
+      "source": "CM9",
+      "exit": -1,
+      "reason": "Patrol arrival at C_D4W; walked 63.48 m"
+     },
+     {
+      "t": 202.6,
+      "agent": -1,
+      "kind": "manager-arrival",
+      "source": "CM12",
+      "exit": -1,
+      "reason": "Patrol arrival at FX_C; walked 50.35 m"
+     },
+     {
+      "t": 203.3,
+      "agent": -1,
+      "kind": "manager-arrival",
+      "source": "CM11",
+      "exit": -1,
+      "reason": "Patrol arrival at FX_C; walked 50.35 m"
+     },
+     {
+      "t": 203.8,
+      "agent": -1,
+      "kind": "manager-arrival",
+      "source": "CM9",
+      "exit": -1,
+      "reason": "Patrol arrival at BSW2_b; walked 67.47 m"
+     },
+     {
+      "t": 204.4,
+      "agent": -1,
+      "kind": "manager-arrival",
+      "source": "CM9",
+      "exit": -1,
+      "reason": "Patrol arrival at BSW2_a; walked 68.03 m"
+     },
+     {
+      "t": 207.3,
+      "agent": -1,
+      "kind": "manager-arrival",
+      "source": "CM12",
+      "exit": -1,
+      "reason": "Patrol arrival at AE_front; walked 55.00 m"
+     },
+     {
+      "t": 208,
+      "agent": -1,
+      "kind": "manager-arrival",
+      "source": "CM11",
+      "exit": -1,
+      "reason": "Patrol arrival at AW_front; walked 55.00 m"
+     },
+     {
+      "t": 208.8,
+      "agent": -1,
+      "kind": "manager-arrival",
+      "source": "CM9",
+      "exit": -1,
+      "reason": "Patrol arrival at C_D3W; walked 72.36 m"
+     },
+     {
+      "t": 221.9,
+      "agent": -1,
+      "kind": "manager-arrival",
+      "source": "CM12",
+      "exit": -1,
+      "reason": "Patrol arrival at FX_C; walked 59.65 m"
+     }
+    ],
+    "tail": [
+     {
+      "id": 932,
+      "exit": 2,
+      "time": 201.5,
+      "start": 34.6,
+      "wait": 143.19999999999615,
+      "seat": 932,
+      "group": 113,
+      "wheelchair": false
+     },
+     {
+      "id": 926,
+      "exit": 2,
+      "time": 200.9,
+      "start": 22.5,
+      "wait": 148.49999999999585,
+      "seat": 926,
+      "group": 112,
+      "wheelchair": false
+     },
+     {
+      "id": 927,
+      "exit": 2,
+      "time": 200.3,
+      "start": 22.5,
+      "wait": 149.09999999999582,
+      "seat": 927,
+      "group": 112,
+      "wheelchair": false
+     },
+     {
+      "id": 283,
+      "exit": 0,
+      "time": 199.9,
+      "start": 38.4,
+      "wait": 99.49999999999862,
+      "seat": 283,
+      "group": -1,
+      "wheelchair": false
+     },
+     {
+      "id": 929,
+      "exit": 2,
+      "time": 199.7,
+      "start": 24,
+      "wait": 153.89999999999554,
+      "seat": 929,
+      "group": -1,
+      "wheelchair": false
+     },
+     {
+      "id": 871,
+      "exit": 2,
+      "time": 199.2,
+      "start": 24.5,
+      "wait": 149.79999999999578,
+      "seat": 871,
+      "group": -1,
+      "wheelchair": false
+     },
+     {
+      "id": 208,
+      "exit": 2,
+      "time": 198.6,
+      "start": 48.7,
+      "wait": 126.89999999999706,
+      "seat": 208,
+      "group": -1,
+      "wheelchair": false
+     },
+     {
+      "id": 921,
+      "exit": 2,
+      "time": 198,
+      "start": 54.2,
+      "wait": 118.49999999999754,
+      "seat": 921,
+      "group": -1,
+      "wheelchair": false
+     },
+     {
+      "id": 915,
+      "exit": 2,
+      "time": 197.4,
+      "start": 43.1,
+      "wait": 139.09999999999638,
+      "seat": 915,
+      "group": -1,
+      "wheelchair": false
+     },
+     {
+      "id": 914,
+      "exit": 2,
+      "time": 196.8,
+      "start": 38.3,
+      "wait": 140.09999999999633,
+      "seat": 914,
+      "group": 111,
+      "wheelchair": false
+     },
+     {
+      "id": 147,
+      "exit": 2,
+      "time": 195.6,
+      "start": 33.3,
+      "wait": 108.7999999999981,
+      "seat": 147,
+      "group": 214,
+      "wheelchair": false
+     },
+     {
+      "id": 197,
+      "exit": 2,
+      "time": 195,
+      "start": 28.8,
+      "wait": 129.19999999999695,
+      "seat": 197,
+      "group": 227,
+      "wheelchair": false
+     },
+     {
+      "id": 204,
+      "exit": 2,
+      "time": 194.4,
+      "start": 17.7,
+      "wait": 149.89999999999577,
+      "seat": 204,
+      "group": 229,
+      "wheelchair": false
+     },
+     {
+      "id": 195,
+      "exit": 2,
+      "time": 193.8,
+      "start": 19.1,
+      "wait": 139.69999999999635,
+      "seat": 195,
+      "group": 226,
+      "wheelchair": false
+     },
+     {
+      "id": 198,
+      "exit": 2,
+      "time": 193.2,
+      "start": 28.8,
+      "wait": 133.7999999999967,
+      "seat": 198,
+      "group": 227,
+      "wheelchair": false
+     },
+     {
+      "id": 205,
+      "exit": 2,
+      "time": 192.6,
+      "start": 19.1,
+      "wait": 138.9999999999964,
+      "seat": 205,
+      "group": -1,
+      "wheelchair": false
+     },
+     {
+      "id": 200,
+      "exit": 2,
+      "time": 192.1,
+      "start": 24,
+      "wait": 138.5999999999964,
+      "seat": 200,
+      "group": -1,
+      "wheelchair": false
+     },
+     {
+      "id": 155,
+      "exit": 2,
+      "time": 191.5,
+      "start": 18.5,
+      "wait": 129.8999999999969,
+      "seat": 155,
+      "group": 216,
+      "wheelchair": false
+     },
+     {
+      "id": 201,
+      "exit": 2,
+      "time": 190.9,
+      "start": 19.3,
+      "wait": 148.09999999999587,
+      "seat": 201,
+      "group": 228,
+      "wheelchair": false
+     },
+     {
+      "id": 196,
+      "exit": 2,
+      "time": 190.3,
+      "start": 19.1,
+      "wait": 113.69999999999781,
+      "seat": 196,
+      "group": 226,
+      "wheelchair": false
+     },
+     {
+      "id": 186,
+      "exit": 2,
+      "time": 189.7,
+      "start": 16.2,
+      "wait": 121.69999999999736,
+      "seat": 186,
+      "group": -1,
+      "wheelchair": false
+     },
+     {
+      "id": 206,
+      "exit": 2,
+      "time": 189.1,
+      "start": 17.6,
+      "wait": 135.4999999999966,
+      "seat": 206,
+      "group": -1,
+      "wheelchair": false
+     },
+     {
+      "id": 486,
+      "exit": 2,
+      "time": 188.5,
+      "start": 28,
+      "wait": 126.69999999999708,
+      "seat": 486,
+      "group": -1,
+      "wheelchair": false
+     },
+     {
+      "id": 931,
+      "exit": 2,
+      "time": 188,
+      "start": 34.6,
+      "wait": 128.59999999999698,
+      "seat": 931,
+      "group": 113,
+      "wheelchair": false
+     },
+     {
+      "id": 930,
+      "exit": 2,
+      "time": 187.4,
+      "start": 25.8,
+      "wait": 140.29999999999632,
+      "seat": 930,
+      "group": -1,
+      "wheelchair": false
+     },
+     {
+      "id": 928,
+      "exit": 2,
+      "time": 186.8,
+      "start": 23,
+      "wait": 141.89999999999623,
+      "seat": 928,
+      "group": -1,
+      "wheelchair": false
+     },
+     {
+      "id": 248,
+      "exit": 0,
+      "time": 186.6,
+      "start": 37.3,
+      "wait": 76.39999999999993,
+      "seat": 248,
+      "group": -1,
+      "wheelchair": false
+     },
+     {
+      "id": 203,
+      "exit": 2,
+      "time": 186.2,
+      "start": 17.7,
+      "wait": 137.69999999999646,
+      "seat": 203,
+      "group": 229,
+      "wheelchair": false
+     },
+     {
+      "id": 426,
+      "exit": 2,
+      "time": 185.6,
+      "start": 16.1,
+      "wait": 123.19999999999727,
+      "seat": 426,
+      "group": -1,
+      "wheelchair": false
+     },
+     {
+      "id": 885,
+      "exit": 2,
+      "time": 185,
+      "start": 23.5,
+      "wait": 147.7999999999959,
+      "seat": 885,
+      "group": -1,
+      "wheelchair": false
+     },
+     {
+      "id": 187,
+      "exit": 2,
+      "time": 184.5,
+      "start": 17.9,
+      "wait": 136.59999999999653,
+      "seat": 187,
+      "group": -1,
+      "wheelchair": false
+     },
+     {
+      "id": 900,
+      "exit": 2,
+      "time": 183.9,
+      "start": 23.3,
+      "wait": 136.19999999999655,
+      "seat": 900,
+      "group": 110,
+      "wheelchair": false
+     },
+     {
+      "id": 194,
+      "exit": 2,
+      "time": 183.3,
+      "start": 16,
+      "wait": 137.0999999999965,
+      "seat": 194,
+      "group": -1,
+      "wheelchair": false
+     },
+     {
+      "id": 925,
+      "exit": 2,
+      "time": 182.8,
+      "start": 28.2,
+      "wait": 124.4999999999972,
+      "seat": 925,
+      "group": -1,
+      "wheelchair": false
+     },
+     {
+      "id": 913,
+      "exit": 2,
+      "time": 182.1,
+      "start": 38.3,
+      "wait": 125.49999999999714,
+      "seat": 913,
+      "group": 111,
+      "wheelchair": false
+     },
+     {
+      "id": 862,
+      "exit": 2,
+      "time": 181.6,
+      "start": 28.2,
+      "wait": 135.4999999999966,
+      "seat": 862,
+      "group": -1,
+      "wheelchair": false
+     },
+     {
+      "id": 923,
+      "exit": 2,
+      "time": 181.6,
+      "start": 24.3,
+      "wait": 127.59999999999702,
+      "seat": 923,
+      "group": -1,
+      "wheelchair": false
+     },
+     {
+      "id": 504,
+      "exit": 2,
+      "time": 180.5,
+      "start": 22.3,
+      "wait": 124.29999999999721,
+      "seat": 504,
+      "group": 204,
+      "wheelchair": false
+     },
+     {
+      "id": 912,
+      "exit": 2,
+      "time": 179.9,
+      "start": 38.3,
+      "wait": 127.39999999999704,
+      "seat": 912,
+      "group": 111,
+      "wheelchair": false
+     },
+     {
+      "id": 924,
+      "exit": 2,
+      "time": 179.3,
+      "start": 22.2,
+      "wait": 132.09999999999678,
+      "seat": 924,
+      "group": -1,
+      "wheelchair": false
+     },
+     {
+      "id": 423,
+      "exit": 2,
+      "time": 178.7,
+      "start": 11.1,
+      "wait": 143.39999999999614,
+      "seat": 423,
+      "group": -1,
+      "wheelchair": false
+     },
+     {
+      "id": 847,
+      "exit": 2,
+      "time": 178.1,
+      "start": 21.1,
+      "wait": 134.59999999999664,
+      "seat": 847,
+      "group": -1,
+      "wheelchair": false
+     },
+     {
+      "id": 875,
+      "exit": 2,
+      "time": 177.6,
+      "start": 34.1,
+      "wait": 110.69999999999798,
+      "seat": 875,
+      "group": -1,
+      "wheelchair": false
+     },
+     {
+      "id": 920,
+      "exit": 2,
+      "time": 177,
+      "start": 23.4,
+      "wait": 132.49999999999676,
+      "seat": 920,
+      "group": -1,
+      "wheelchair": false
+     },
+     {
+      "id": 215,
+      "exit": 2,
+      "time": 176.4,
+      "start": 25.5,
+      "wait": 121.39999999999738,
+      "seat": 215,
+      "group": -1,
+      "wheelchair": false
+     },
+     {
+      "id": 249,
+      "exit": 0,
+      "time": 176.4,
+      "start": 34.3,
+      "wait": 83.29999999999954,
+      "seat": 249,
+      "group": 153,
+      "wheelchair": false
+     },
+     {
+      "id": 918,
+      "exit": 2,
+      "time": 175.8,
+      "start": 26.9,
+      "wait": 129.29999999999694,
+      "seat": 918,
+      "group": -1,
+      "wheelchair": false
+     },
+     {
+      "id": 250,
+      "exit": 0,
+      "time": 175.7,
+      "start": 34.3,
+      "wait": 80.89999999999968,
+      "seat": 250,
+      "group": 153,
+      "wheelchair": false
+     },
+     {
+      "id": 836,
+      "exit": 2,
+      "time": 175.2,
+      "start": 35.7,
+      "wait": 113.19999999999784,
+      "seat": 836,
+      "group": 99,
+      "wheelchair": false
+     },
+     {
+      "id": 833,
+      "exit": 2,
+      "time": 174.6,
+      "start": 17.9,
+      "wait": 139.69999999999635,
+      "seat": 833,
+      "group": 98,
+      "wheelchair": false
+     }
+    ],
+    "warnings": []
+   }
+  },
+  {
+   "id": "expanded-FC2",
+   "seed": 1612814014,
+   "N": 1329,
+   "wheelchairs": 3,
+   "allLeftBuilding": true,
+   "tEvac": 192.6,
+   "transitions": 19602,
+   "positionChecks": 1261778,
+   "seatwayChecks": 216252,
+   "distinctWalkways": 242,
+   "traversalsByKind": {
+    "aisle": 5524,
+    "crossAisle": 2483,
+    "door": 3154,
+    "corridor": 1901,
+    "passage": 489,
+    "walkway": 741,
+    "stair": 2265,
+    "portico": 728,
+    "foyer": 988,
+    "outdoor": 1326,
+    "landing": 3
+   },
+   "violations": 0,
+   "backwardQueueUpdates": 7901,
+   "maxBackwardQueueUpdate": 11.798920329336182,
+   "note": "Queue-coordinate relocations along the same link are reported separately from forbidden seat-row shortcuts. They are not collision-resolved walking trajectories.",
+   "storageChecks": 793344,
+   "populationChecks": 2066,
+   "serviceChecks": "All directions and gates, every step; cumulative service ≤ integral capacity + initial credit",
+   "diagnostics": {
+    "staffCount": 12,
+    "managerMotion": [],
+    "counts": {
+     "static-sign": 2609,
+     "led-noticed": 2771,
+     "destination": 1614,
+     "switch-sign": 295,
+     "manager-heard": 8061,
+     "switch-manager": 171,
+     "message-conflict": 549,
+     "turn-executed": 182,
+     "sign-update": 3,
+     "switch-observation": 2
+    },
+    "peopleNoticingLED": 1242,
+    "meanNoticeTime": 18.193236714975846,
+    "events": [
+     {
+      "t": 55,
+      "agent": -1,
+      "kind": "sign-update",
+      "source": "L10",
+      "exit": 0,
+      "reason": "Delayed local/radio manager information; hold and improvement threshold"
+     },
+     {
+      "t": 57,
+      "agent": -1,
+      "kind": "sign-update",
+      "source": "L1",
+      "exit": 0,
+      "reason": "Delayed local/radio manager information; hold and improvement threshold"
+     },
+     {
+      "t": 103,
+      "agent": -1,
+      "kind": "sign-update",
+      "source": "L1",
+      "exit": 2,
+      "reason": "Delayed local/radio manager information; hold and improvement threshold"
+     }
+    ],
+    "tail": [
+     {
+      "id": 524,
+      "exit": 4,
+      "time": 192.6,
+      "start": 28.2,
+      "wait": 120.9999999999974,
+      "seat": 524,
+      "group": 210,
+      "wheelchair": false
+     },
+     {
+      "id": 521,
+      "exit": 4,
+      "time": 191.6,
+      "start": 23.7,
+      "wait": 118.09999999999756,
+      "seat": 521,
+      "group": -1,
+      "wheelchair": false
+     },
+     {
+      "id": 525,
+      "exit": 4,
+      "time": 189.1,
+      "start": 28.2,
+      "wait": 116.39999999999766,
+      "seat": 525,
+      "group": 210,
+      "wheelchair": false
+     },
+     {
+      "id": 520,
+      "exit": 4,
+      "time": 185.4,
+      "start": 22.5,
+      "wait": 115.6999999999977,
+      "seat": 520,
+      "group": -1,
+      "wheelchair": false
+     },
+     {
+      "id": 185,
+      "exit": 2,
+      "time": 178.4,
+      "start": 31.8,
+      "wait": 99.9999999999986,
+      "seat": 185,
+      "group": -1,
+      "wheelchair": false
+     },
+     {
+      "id": 247,
+      "exit": 0,
+      "time": 169.8,
+      "start": 43.7,
+      "wait": 54.3000000000005,
+      "seat": 247,
+      "group": 155,
+      "wheelchair": false
+     },
+     {
+      "id": 165,
+      "exit": 0,
+      "time": 169.4,
+      "start": 15.8,
+      "wait": 90.59999999999913,
+      "seat": 165,
+      "group": 216,
+      "wheelchair": false
+     },
+     {
+      "id": 378,
+      "exit": 0,
+      "time": 166.4,
+      "start": 16,
+      "wait": 115.39999999999772,
+      "seat": 378,
+      "group": -1,
+      "wheelchair": false
+     },
+     {
+      "id": 281,
+      "exit": 0,
+      "time": 165.8,
+      "start": 20.8,
+      "wait": 104.09999999999836,
+      "seat": 281,
+      "group": 162,
+      "wheelchair": false
+     },
+     {
+      "id": 284,
+      "exit": 0,
+      "time": 165.5,
+      "start": 20.8,
+      "wait": 95.19999999999887,
+      "seat": 284,
+      "group": 162,
+      "wheelchair": false
+     },
+     {
+      "id": 261,
+      "exit": 3,
+      "time": 165,
+      "start": 21.2,
+      "wait": 98.29999999999869,
+      "seat": 261,
+      "group": 157,
+      "wheelchair": false
+     },
+     {
+      "id": 393,
+      "exit": 0,
+      "time": 164,
+      "start": 23.5,
+      "wait": 112.59999999999788,
+      "seat": 393,
+      "group": 183,
+      "wheelchair": false
+     },
+     {
+      "id": 724,
+      "exit": 1,
+      "time": 163.5,
+      "start": 21.1,
+      "wait": 110.19999999999801,
+      "seat": 724,
+      "group": 131,
+      "wheelchair": false
+     },
+     {
+      "id": 485,
+      "exit": 0,
+      "time": 163.4,
+      "start": 26.8,
+      "wait": 112.1999999999979,
+      "seat": 485,
+      "group": 202,
+      "wheelchair": false
+     },
+     {
+      "id": 391,
+      "exit": 0,
+      "time": 163.1,
+      "start": 12.4,
+      "wait": 124.19999999999722,
+      "seat": 391,
+      "group": 182,
+      "wheelchair": false
+     },
+     {
+      "id": 380,
+      "exit": 0,
+      "time": 162.8,
+      "start": 19.2,
+      "wait": 107.09999999999819,
+      "seat": 380,
+      "group": 179,
+      "wheelchair": false
+     },
+     {
+      "id": 194,
+      "exit": 2,
+      "time": 162.6,
+      "start": 30.6,
+      "wait": 100.49999999999856,
+      "seat": 194,
+      "group": 222,
+      "wheelchair": false
+     },
+     {
+      "id": 160,
+      "exit": 0,
+      "time": 162.1,
+      "start": 21.5,
+      "wait": 121.69999999999736,
+      "seat": 160,
+      "group": -1,
+      "wheelchair": false
+     },
+     {
+      "id": 190,
+      "exit": 0,
+      "time": 161.6,
+      "start": 19.1,
+      "wait": 111.19999999999796,
+      "seat": 190,
+      "group": -1,
+      "wheelchair": false
+     },
+     {
+      "id": 392,
+      "exit": 0,
+      "time": 161.3,
+      "start": 23.5,
+      "wait": 105.59999999999827,
+      "seat": 392,
+      "group": 183,
+      "wheelchair": false
+     },
+     {
+      "id": 181,
+      "exit": 0,
+      "time": 160.6,
+      "start": 17.1,
+      "wait": 108.49999999999811,
+      "seat": 181,
+      "group": 220,
+      "wheelchair": false
+     },
+     {
+      "id": 703,
+      "exit": 1,
+      "time": 160.6,
+      "start": 24.8,
+      "wait": 113.39999999999783,
+      "seat": 703,
+      "group": -1,
+      "wheelchair": false
+     },
+     {
+      "id": 241,
+      "exit": 3,
+      "time": 160.3,
+      "start": 27.1,
+      "wait": 102.09999999999847,
+      "seat": 241,
+      "group": 154,
+      "wheelchair": false
+     },
+     {
+      "id": 375,
+      "exit": 0,
+      "time": 160.3,
+      "start": 15.5,
+      "wait": 103.89999999999837,
+      "seat": 375,
+      "group": -1,
+      "wheelchair": false
+     },
+     {
+      "id": 189,
+      "exit": 2,
+      "time": 160.1,
+      "start": 24.6,
+      "wait": 95.79999999999883,
+      "seat": 189,
+      "group": -1,
+      "wheelchair": false
+     },
+     {
+      "id": 412,
+      "exit": 0,
+      "time": 160,
+      "start": 23.6,
+      "wait": 118.69999999999753,
+      "seat": 412,
+      "group": -1,
+      "wheelchair": false
+     },
+     {
+      "id": 1264,
+      "exit": 0,
+      "time": 159.6,
+      "start": 36.5,
+      "wait": 56.10000000000053,
+      "seat": 1264,
+      "group": -1,
+      "wheelchair": false
+     },
+     {
+      "id": 172,
+      "exit": 0,
+      "time": 159.3,
+      "start": 16.4,
+      "wait": 112.79999999999787,
+      "seat": 172,
+      "group": -1,
+      "wheelchair": false
+     },
+     {
+      "id": 354,
+      "exit": 3,
+      "time": 159.3,
+      "start": 15.4,
+      "wait": 100.99999999999854,
+      "seat": 354,
+      "group": -1,
+      "wheelchair": false
+     },
+     {
+      "id": 341,
+      "exit": 0,
+      "time": 159,
+      "start": 17.2,
+      "wait": 97.79999999999872,
+      "seat": 341,
+      "group": 171,
+      "wheelchair": false
+     },
+     {
+      "id": 100,
+      "exit": 1,
+      "time": 158.9,
+      "start": 16.9,
+      "wait": 129.59999999999692,
+      "seat": 100,
+      "group": 249,
+      "wheelchair": false
+     },
+     {
+      "id": 158,
+      "exit": 0,
+      "time": 158.3,
+      "start": 34.6,
+      "wait": 66.5000000000005,
+      "seat": 158,
+      "group": 215,
+      "wheelchair": false
+     },
+     {
+      "id": 156,
+      "exit": 0,
+      "time": 158,
+      "start": 34.6,
+      "wait": 68.50000000000038,
+      "seat": 156,
+      "group": 215,
+      "wheelchair": false
+     },
+     {
+      "id": 128,
+      "exit": 0,
+      "time": 157.7,
+      "start": 27.1,
+      "wait": 75.00000000000001,
+      "seat": 128,
+      "group": -1,
+      "wheelchair": false
+     },
+     {
+      "id": 692,
+      "exit": 1,
+      "time": 157.7,
+      "start": 22.4,
+      "wait": 108.7999999999981,
+      "seat": 692,
+      "group": 125,
+      "wheelchair": false
+     },
+     {
+      "id": 198,
+      "exit": 2,
+      "time": 157.6,
+      "start": 26.3,
+      "wait": 104.39999999999834,
+      "seat": 198,
+      "group": -1,
+      "wheelchair": false
+     },
+     {
+      "id": 394,
+      "exit": 0,
+      "time": 157.6,
+      "start": 23.5,
+      "wait": 108.5999999999981,
+      "seat": 394,
+      "group": 183,
+      "wheelchair": false
+     },
+     {
+      "id": 178,
+      "exit": 0,
+      "time": 157.3,
+      "start": 11.6,
+      "wait": 77.39999999999988,
+      "seat": 178,
+      "group": -1,
+      "wheelchair": false
+     },
+     {
+      "id": 644,
+      "exit": 1,
+      "time": 157.1,
+      "start": 16.1,
+      "wait": 123.49999999999726,
+      "seat": 644,
+      "group": -1,
+      "wheelchair": false
+     },
+     {
+      "id": 81,
+      "exit": 0,
+      "time": 157,
+      "start": 20.8,
+      "wait": 109.19999999999807,
+      "seat": 81,
+      "group": 246,
+      "wheelchair": false
+     },
+     {
+      "id": 411,
+      "exit": 0,
+      "time": 157,
+      "start": 24,
+      "wait": 112.1999999999979,
+      "seat": 411,
+      "group": -1,
+      "wheelchair": false
+     },
+     {
+      "id": 69,
+      "exit": 0,
+      "time": 156.7,
+      "start": 21.1,
+      "wait": 89.3999999999992,
+      "seat": 69,
+      "group": 244,
+      "wheelchair": false
+     },
+     {
+      "id": 395,
+      "exit": 0,
+      "time": 156.5,
+      "start": 23.5,
+      "wait": 110.499999999998,
+      "seat": 395,
+      "group": 183,
+      "wheelchair": false
+     },
+     {
+      "id": 681,
+      "exit": 1,
+      "time": 156.5,
+      "start": 21.9,
+      "wait": 118.59999999999754,
+      "seat": 681,
+      "group": -1,
+      "wheelchair": false
+     },
+     {
+      "id": 240,
+      "exit": 3,
+      "time": 156.3,
+      "start": 27.1,
+      "wait": 100.39999999999857,
+      "seat": 240,
+      "group": 154,
+      "wheelchair": false
+     },
+     {
+      "id": 296,
+      "exit": 0,
+      "time": 156,
+      "start": 30.2,
+      "wait": 75.59999999999998,
+      "seat": 296,
+      "group": 164,
+      "wheelchair": false
+     },
+     {
+      "id": 248,
+      "exit": 0,
+      "time": 155.7,
+      "start": 43.7,
+      "wait": 61.70000000000061,
+      "seat": 248,
+      "group": 155,
+      "wheelchair": false
+     },
+     {
+      "id": 71,
+      "exit": 0,
+      "time": 155.4,
+      "start": 15.5,
+      "wait": 110.79999999999798,
+      "seat": 71,
+      "group": 245,
+      "wheelchair": false
+     },
+     {
+      "id": 717,
+      "exit": 1,
+      "time": 155.4,
+      "start": 16.3,
+      "wait": 105.99999999999825,
+      "seat": 717,
+      "group": -1,
+      "wheelchair": false
+     },
+     {
+      "id": 245,
+      "exit": 3,
+      "time": 155.3,
+      "start": 18.4,
+      "wait": 97.49999999999874,
+      "seat": 245,
+      "group": -1,
+      "wheelchair": false
+     }
+    ],
+    "warnings": []
+   }
+  },
+  {
+   "id": "expanded-FC2",
+   "seed": 269545002,
+   "N": 1329,
+   "wheelchairs": 3,
+   "allLeftBuilding": true,
+   "tEvac": 192.2,
+   "transitions": 19386,
+   "positionChecks": 1256554,
+   "seatwayChecks": 199529,
+   "distinctWalkways": 237,
+   "traversalsByKind": {
+    "aisle": 5088,
+    "crossAisle": 2781,
+    "door": 3131,
+    "stair": 2255,
+    "passage": 545,
+    "walkway": 754,
+    "corridor": 1778,
+    "portico": 779,
+    "foyer": 946,
+    "outdoor": 1326,
+    "landing": 3
+   },
+   "violations": 0,
+   "backwardQueueUpdates": 7771,
+   "maxBackwardQueueUpdate": 14.029440247763363,
+   "note": "Queue-coordinate relocations along the same link are reported separately from forbidden seat-row shortcuts. They are not collision-resolved walking trajectories.",
+   "storageChecks": 830976,
+   "populationChecks": 2164,
+   "serviceChecks": "All directions and gates, every step; cumulative service ≤ integral capacity + initial credit",
+   "diagnostics": {
+    "staffCount": 12,
+    "managerMotion": [],
+    "counts": {
+     "static-sign": 2679,
+     "led-noticed": 2742,
+     "destination": 1612,
+     "switch-sign": 292,
+     "manager-heard": 7614,
+     "switch-manager": 176,
+     "message-conflict": 521,
+     "turn-executed": 177,
+     "sign-update": 4,
+     "switch-observation": 2
+    },
+    "peopleNoticingLED": 1236,
+    "meanNoticeTime": 18.031553398058254,
+    "events": [
+     {
+      "t": 53,
+      "agent": -1,
+      "kind": "sign-update",
+      "source": "L10",
+      "exit": 0,
+      "reason": "Delayed local/radio manager information; hold and improvement threshold"
+     },
+     {
+      "t": 55,
+      "agent": -1,
+      "kind": "sign-update",
+      "source": "L9",
+      "exit": 0,
+      "reason": "Delayed local/radio manager information; hold and improvement threshold"
+     },
+     {
+      "t": 60,
+      "agent": -1,
+      "kind": "sign-update",
+      "source": "L1",
+      "exit": 1,
+      "reason": "Delayed local/radio manager information; hold and improvement threshold"
+     },
+     {
+      "t": 78,
+      "agent": -1,
+      "kind": "sign-update",
+      "source": "L2",
+      "exit": 1,
+      "reason": "Delayed local/radio manager information; hold and improvement threshold"
+     }
+    ],
+    "tail": [
+     {
+      "id": 248,
+      "exit": 0,
+      "time": 192.2,
+      "start": 37.6,
+      "wait": 81.69999999999963,
+      "seat": 248,
+      "group": -1,
+      "wheelchair": false
+     },
+     {
+      "id": 379,
+      "exit": 0,
+      "time": 182.7,
+      "start": 32.2,
+      "wait": 93.39999999999897,
+      "seat": 379,
+      "group": 177,
+      "wheelchair": false
+     },
+     {
+      "id": 249,
+      "exit": 0,
+      "time": 182.4,
+      "start": 34,
+      "wait": 88.09999999999927,
+      "seat": 249,
+      "group": 153,
+      "wheelchair": false
+     },
+     {
+      "id": 250,
+      "exit": 0,
+      "time": 181.9,
+      "start": 34,
+      "wait": 87.39999999999931,
+      "seat": 250,
+      "group": 153,
+      "wheelchair": false
+     },
+     {
+      "id": 27,
+      "exit": 3,
+      "time": 178.8,
+      "start": 23.5,
+      "wait": 115.29999999999772,
+      "seat": 27,
+      "group": 241,
+      "wheelchair": false
+     },
+     {
+      "id": 26,
+      "exit": 1,
+      "time": 175.2,
+      "start": 23.5,
+      "wait": 91.99999999999905,
+      "seat": 26,
+      "group": 241,
+      "wheelchair": false
+     },
+     {
+      "id": 241,
+      "exit": 3,
+      "time": 174.1,
+      "start": 35.5,
+      "wait": 105.79999999999826,
+      "seat": 241,
+      "group": 151,
+      "wheelchair": false
+     },
+     {
+      "id": 646,
+      "exit": 1,
+      "time": 171.9,
+      "start": 26.4,
+      "wait": 120.8999999999974,
+      "seat": 646,
+      "group": 121,
+      "wheelchair": false
+     },
+     {
+      "id": 338,
+      "exit": 3,
+      "time": 171.5,
+      "start": 25.6,
+      "wait": 114.49999999999777,
+      "seat": 338,
+      "group": 168,
+      "wheelchair": false
+     },
+     {
+      "id": 419,
+      "exit": 1,
+      "time": 171.3,
+      "start": 19.9,
+      "wait": 105.0999999999983,
+      "seat": 419,
+      "group": -1,
+      "wheelchair": false
+     },
+     {
+      "id": 720,
+      "exit": 1,
+      "time": 170.7,
+      "start": 14.5,
+      "wait": 126.49999999999709,
+      "seat": 720,
+      "group": 137,
+      "wheelchair": false
+     },
+     {
+      "id": 325,
+      "exit": 3,
+      "time": 170.5,
+      "start": 15.8,
+      "wait": 112.59999999999788,
+      "seat": 325,
+      "group": -1,
+      "wheelchair": false
+     },
+     {
+      "id": 401,
+      "exit": 1,
+      "time": 170.1,
+      "start": 22.5,
+      "wait": 119.79999999999747,
+      "seat": 401,
+      "group": 182,
+      "wheelchair": false
+     },
+     {
+      "id": 732,
+      "exit": 1,
+      "time": 169.5,
+      "start": 25.2,
+      "wait": 126.1999999999971,
+      "seat": 732,
+      "group": 138,
+      "wheelchair": false
+     },
+     {
+      "id": 2,
+      "exit": 3,
+      "time": 169,
+      "start": 35.6,
+      "wait": 108.19999999999813,
+      "seat": 2,
+      "group": 235,
+      "wheelchair": false
+     },
+     {
+      "id": 696,
+      "exit": 1,
+      "time": 169,
+      "start": 25.8,
+      "wait": 110.59999999999799,
+      "seat": 696,
+      "group": -1,
+      "wheelchair": false
+     },
+     {
+      "id": 1,
+      "exit": 1,
+      "time": 168.7,
+      "start": 35.6,
+      "wait": 108.7999999999981,
+      "seat": 1,
+      "group": 235,
+      "wheelchair": false
+     },
+     {
+      "id": 37,
+      "exit": 1,
+      "time": 168.2,
+      "start": 27.2,
+      "wait": 116.89999999999763,
+      "seat": 37,
+      "group": 245,
+      "wheelchair": false
+     },
+     {
+      "id": 240,
+      "exit": 3,
+      "time": 167.9,
+      "start": 35.5,
+      "wait": 105.99999999999825,
+      "seat": 240,
+      "group": 151,
+      "wheelchair": false
+     },
+     {
+      "id": 386,
+      "exit": 1,
+      "time": 167.8,
+      "start": 15.5,
+      "wait": 121.39999999999738,
+      "seat": 386,
+      "group": 179,
+      "wheelchair": false
+     },
+     {
+      "id": 86,
+      "exit": 1,
+      "time": 167.7,
+      "start": 21.7,
+      "wait": 103.3999999999984,
+      "seat": 86,
+      "group": 255,
+      "wheelchair": false
+     },
+     {
+      "id": 418,
+      "exit": 1,
+      "time": 167.2,
+      "start": 17,
+      "wait": 115.19999999999773,
+      "seat": 418,
+      "group": -1,
+      "wheelchair": false
+     },
+     {
+      "id": 343,
+      "exit": 3,
+      "time": 166.9,
+      "start": 32.4,
+      "wait": 91.89999999999905,
+      "seat": 343,
+      "group": 169,
+      "wheelchair": false
+     },
+     {
+      "id": 385,
+      "exit": 1,
+      "time": 166.6,
+      "start": 15.5,
+      "wait": 115.89999999999769,
+      "seat": 385,
+      "group": 179,
+      "wheelchair": false
+     },
+     {
+      "id": 437,
+      "exit": 1,
+      "time": 163.6,
+      "start": 21.7,
+      "wait": 106.8999999999982,
+      "seat": 437,
+      "group": 188,
+      "wheelchair": false
+     },
+     {
+      "id": 405,
+      "exit": 1,
+      "time": 163,
+      "start": 18.4,
+      "wait": 118.49999999999754,
+      "seat": 405,
+      "group": 183,
+      "wheelchair": false
+     },
+     {
+      "id": 382,
+      "exit": 1,
+      "time": 162.5,
+      "start": 21.4,
+      "wait": 101.5999999999985,
+      "seat": 382,
+      "group": 178,
+      "wheelchair": false
+     },
+     {
+      "id": 719,
+      "exit": 1,
+      "time": 162.4,
+      "start": 29.2,
+      "wait": 106.69999999999821,
+      "seat": 719,
+      "group": -1,
+      "wheelchair": false
+     },
+     {
+      "id": 716,
+      "exit": 1,
+      "time": 161.8,
+      "start": 28.5,
+      "wait": 110.19999999999801,
+      "seat": 716,
+      "group": -1,
+      "wheelchair": false
+     },
+     {
+      "id": 56,
+      "exit": 0,
+      "time": 161.7,
+      "start": 25.1,
+      "wait": 74.00000000000007,
+      "seat": 56,
+      "group": -1,
+      "wheelchair": false
+     },
+     {
+      "id": 344,
+      "exit": 3,
+      "time": 161.7,
+      "start": 32.4,
+      "wait": 92.19999999999904,
+      "seat": 344,
+      "group": 169,
+      "wheelchair": false
+     },
+     {
+      "id": 718,
+      "exit": 1,
+      "time": 161.3,
+      "start": 23.8,
+      "wait": 109.99999999999802,
+      "seat": 718,
+      "group": 136,
+      "wheelchair": false
+     },
+     {
+      "id": 46,
+      "exit": 1,
+      "time": 160.8,
+      "start": 37.7,
+      "wait": 87.69999999999929,
+      "seat": 46,
+      "group": 247,
+      "wheelchair": false
+     },
+     {
+      "id": 324,
+      "exit": 3,
+      "time": 160.7,
+      "start": 24.7,
+      "wait": 102.39999999999846,
+      "seat": 324,
+      "group": -1,
+      "wheelchair": false
+     },
+     {
+      "id": 167,
+      "exit": 0,
+      "time": 160.6,
+      "start": 35.8,
+      "wait": 83.09999999999955,
+      "seat": 167,
+      "group": -1,
+      "wheelchair": false
+     },
+     {
+      "id": 44,
+      "exit": 1,
+      "time": 160.2,
+      "start": 37.7,
+      "wait": 87.39999999999931,
+      "seat": 44,
+      "group": 247,
+      "wheelchair": false
+     },
+     {
+      "id": 515,
+      "exit": 1,
+      "time": 160.1,
+      "start": 34.8,
+      "wait": 86.99999999999933,
+      "seat": 515,
+      "group": 206,
+      "wheelchair": false
+     },
+     {
+      "id": 342,
+      "exit": 3,
+      "time": 159.7,
+      "start": 32.4,
+      "wait": 95.19999999999887,
+      "seat": 342,
+      "group": 169,
+      "wheelchair": false
+     },
+     {
+      "id": 717,
+      "exit": 1,
+      "time": 158.9,
+      "start": 23.8,
+      "wait": 108.5999999999981,
+      "seat": 717,
+      "group": 136,
+      "wheelchair": false
+     },
+     {
+      "id": 239,
+      "exit": 3,
+      "time": 158.7,
+      "start": 35.5,
+      "wait": 94.29999999999892,
+      "seat": 239,
+      "group": 151,
+      "wheelchair": false
+     },
+     {
+      "id": 700,
+      "exit": 1,
+      "time": 158.3,
+      "start": 22,
+      "wait": 118.89999999999752,
+      "seat": 700,
+      "group": -1,
+      "wheelchair": false
+     },
+     {
+      "id": 715,
+      "exit": 1,
+      "time": 157.8,
+      "start": 22.6,
+      "wait": 111.19999999999796,
+      "seat": 715,
+      "group": -1,
+      "wheelchair": false
+     },
+     {
+      "id": 341,
+      "exit": 3,
+      "time": 157.7,
+      "start": 24.7,
+      "wait": 103.09999999999842,
+      "seat": 341,
+      "group": -1,
+      "wheelchair": false
+     },
+     {
+      "id": 370,
+      "exit": 1,
+      "time": 157.6,
+      "start": 20.5,
+      "wait": 101.79999999999849,
+      "seat": 370,
+      "group": -1,
+      "wheelchair": false
+     },
+     {
+      "id": 359,
+      "exit": 4,
+      "time": 157.3,
+      "start": 22.9,
+      "wait": 84.89999999999945,
+      "seat": 359,
+      "group": -1,
+      "wheelchair": false
+     },
+     {
+      "id": 713,
+      "exit": 1,
+      "time": 157.2,
+      "start": 19.7,
+      "wait": 114.09999999999779,
+      "seat": 713,
+      "group": 135,
+      "wheelchair": false
+     },
+     {
+      "id": 403,
+      "exit": 1,
+      "time": 157.1,
+      "start": 20.4,
+      "wait": 108.49999999999811,
+      "seat": 403,
+      "group": -1,
+      "wheelchair": false
+     },
+     {
+      "id": 1203,
+      "exit": 0,
+      "time": 156.9,
+      "start": 20.2,
+      "wait": 73.6000000000001,
+      "seat": 1203,
+      "group": 20,
+      "wheelchair": false
+     },
+     {
+      "id": 276,
+      "exit": 3,
+      "time": 156.7,
+      "start": 31,
+      "wait": 78.39999999999982,
+      "seat": 276,
+      "group": -1,
+      "wheelchair": false
+     },
+     {
+      "id": 82,
+      "exit": 1,
+      "time": 156.6,
+      "start": 21.9,
+      "wait": 105.99999999999825,
+      "seat": 82,
+      "group": -1,
+      "wheelchair": false
+     }
+    ],
+    "warnings": []
+   }
+  }
+ ]
+}

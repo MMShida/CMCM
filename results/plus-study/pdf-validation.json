@@ -1,0 +1,46 @@
+[
+  {
+    "document": "MODEL_GUIDE",
+    "pages": 39,
+    "links": 150,
+    "bookmarks": 28,
+    "embeddedFonts": 28,
+    "equationsChecked": 37,
+    "producer": "xdvipdfmx (0.1)",
+    "sha256": "feee9a09ad6fdc568e4ca2604e2bab984f131316e624fcf01170c631efa7830a",
+    "checks": "native LaTeX; embedded fonts; no missing glyphs, overfull boxes or unresolved references; all text within page bounds"
+  },
+  {
+    "document": "RESULTS_AND_CHANGES",
+    "pages": 23,
+    "links": 48,
+    "bookmarks": 20,
+    "embeddedFonts": 11,
+    "equationsChecked": 0,
+    "producer": "xdvipdfmx (0.1)",
+    "sha256": "9c0f6900af0db1d7d05df0e1edd9709bd36997bd68224d1a7baabe9d7fb09052",
+    "checks": "native LaTeX; embedded fonts; no missing glyphs, overfull boxes or unresolved references; all text within page bounds"
+  },
+  {
+    "document": "SIMPLIFICATION_AUDIT",
+    "pages": 18,
+    "links": 57,
+    "bookmarks": 16,
+    "embeddedFonts": 14,
+    "equationsChecked": 6,
+    "producer": "xdvipdfmx (0.1)",
+    "sha256": "dfdc7fe3f0653a3610b23fc6530585d27e639f2171853faf20572d012d5fc3b9",
+    "checks": "native LaTeX; embedded fonts; no missing glyphs, overfull boxes or unresolved references; all text within page bounds"
+  },
+  {
+    "document": "IMPLEMENTATION_PROMPT",
+    "pages": 8,
+    "links": 48,
+    "bookmarks": 8,
+    "embeddedFonts": 12,
+    "equationsChecked": 0,
+    "producer": "xdvipdfmx (0.1)",
+    "sha256": "79c7e2b447e499788b4ca1ed7c421df3a75291d724683850c9e7f98e88abb326",
+    "checks": "native LaTeX; embedded fonts; no missing glyphs, overfull boxes or unresolved references; all text within page bounds"
+  }
+]

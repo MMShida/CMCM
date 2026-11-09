@@ -70,7 +70,9 @@ async function main() {
   }
   const geo = BAILEY_HALL;
   const levelOfZone = new Map(geo.zones.map((z) => [z.id, z.level]));
-  const blocks = planBlocks(geo);
+  const requestedBlocks=arg('blocks')?.split(',');
+  const blocks = planBlocks(geo).filter(b=>!requestedBlocks||requestedBlocks.includes(b.key));
+  if(!blocks.length)throw Error('No matching seat blocks');
   let plan: Record<string, ExitGroupId> = arg('start') ? JSON.parse(readFileSync(arg('start')!, 'utf8')).plan : expandPlan(base.crowdManagers.plan, geo);
   const seeds = batchSeeds(Number(arg('seed', '9001')), K);
   if (flag('strict-scope')) assertScope(base);

@@ -2,17 +2,18 @@
 import puppeteer from 'puppeteer-core';
 import {readFileSync,mkdirSync,writeFileSync} from 'node:fs';
 const placementsOnly=process.argv.includes('--placements-only');
-const base='http://127.0.0.1:5180/',report=JSON.parse(readFileSync(placementsOnly?'public/results/placement-study.json':'public/results/research-180-summary.json'));
+const routesOnly=process.argv.includes('--routes-only');
+const base='http://127.0.0.1:5180/',report=JSON.parse(readFileSync(routesOnly?'public/results/route-study.json':placementsOnly?'public/results/placement-study.json':'public/results/research-180-summary.json'));
 const tab=m=>m==='A'?'live':m==='Lite'?'lite':'net';
-const out='results/placement-study/'+(placementsOnly?'browser-placements':'browser-verification')+'.json';mkdirSync('results/placement-study',{recursive:true});
+const out=routesOnly?'results/route-study/browser-verification.json':'results/placement-study/'+(placementsOnly?'browser-placements':'browser-verification')+'.json';mkdirSync('results/placement-study',{recursive:true});
 const browser=await puppeteer.launch({executablePath:'/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',headless:true,pipe:true,protocolTimeout:300000});
 const page=await browser.newPage();page.setDefaultTimeout(180000);const errors=[],checks=[];
 page.on('pageerror',e=>{errors.push(e.message);console.error(e.message);});
 try {
  await page.goto(base+'?tab=research',{waitUntil:'networkidle0'});
- console.log('Study loaded');await page.waitForSelector(`[data-study-id="${placementsOnly?'combined-six':'refined-A'}"][data-model="A"]`);
+ console.log('Study loaded');await page.waitForSelector(`[data-study-id="${routesOnly?'selected':placementsOnly?'combined-six':'refined-A'}"][data-model="A"]`);
  await page.$$eval('details',xs=>xs.forEach(d=>d.open=true));
- for(const [id,model] of placementsOnly?[['combined-six','A'],['combined-six','Lite'],['combined-six','B']]:[['mateus-fixed','A'],['refined-A','A'],['selected-B','B']]){
+ for(const [id,model] of routesOnly?[['selected','A'],['overall-dt0.0125','Lite'],['combined-dt0.0125','Lite'],['selected','B']]:placementsOnly?[['combined-six','A'],['combined-six','Lite'],['combined-six','B']]:[['mateus-fixed','A'],['refined-A','A'],['selected-B','B']]){
   const row=report.rows.find(r=>r.id===id&&r.model===model),first=row.times[0];
   await page.goto(base+'?tab=research',{waitUntil:'networkidle0'});await page.waitForSelector(`[data-study-id="${id}"][data-model="${model}"]`);
   await page.$$eval('details',xs=>xs.forEach(d=>d.open=true));
@@ -27,7 +28,7 @@ try {
   console.log('Live parity',id,model,first.tEvac);checks.push({id,model,seed:first.seed,expected:first.tEvac,display:t.value,configExact:true});
  }
  // Exercise actual browser worker pool, not a Node surrogate. This is also the UI batch code path.
- const row=report.rows.find(r=>r.id===(placementsOnly?'combined-six':'refined-A')&&r.model===(placementsOnly?'Lite':'A'));
+ const row=report.rows.find(r=>r.id===(routesOnly?'overall-dt0.0125':placementsOnly?'combined-six':'refined-A')&&r.model===(routesOnly||placementsOnly?'Lite':'A'));
  console.log('Starting browser batch replay');const values=await page.evaluate(async cfg=>{
   const {runBatchInWorkers}=await import('/src/simulation/WorkerPool.ts');
   const {batchStats}=await import('/src/simulation/MonteCarlo.ts');

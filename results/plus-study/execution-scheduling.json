@@ -1,0 +1,16 @@
+{
+  "date": "2026-11-08T23:46:59.149981+00:00",
+  "reason": "8 GB host; excessive simultaneous workers produced memory pressure. Schedule studies in smaller groups without changing configurations, seeds or model time.",
+  "resumeOrder": [
+    "original reference confirmation after speed",
+    "bounded guidance retuning after original reference confirmation",
+    "supplement after bounded guidance retuning",
+    "fine resolution after expanded-staff robustness and audit"
+  ],
+  "wallTimeLimit": "Process suspension can inflate per-run wallTimeMs; it is not used as a model-performance comparison.",
+  "note": "Original selected 100-run result saved; speed study prioritized next. Waiting staff audit restarted to check a genuinely moving 12-manager candidate.",
+  "supplementResume": {
+    "date": "2026-11-09T00:53:37.326419+00:00",
+    "note": "Replaced the paused first supplemental batch before it saved any case; its incomplete jobs are rerun. Frozen cases/seeds unchanged. The resumed runner checkpoints each completed case and uses 4 workers while fine-resolution confirmations run, then 8 when that allocation is free. Protocol and actual runtime source snapshots remain separate."
+  }
+}

@@ -20,7 +20,8 @@
     "lite": "node --import tsx scripts/run-lite.ts",
     "lite:study": "node --import tsx scripts/lite-study.ts",
     "docs:pdf": "python3 scripts/build-latex-docs.py --compile",
-    "docs:check": "python3 scripts/check-research-pdfs.py"
+    "docs:check": "python3 scripts/check-research-pdfs.py",
+    "plus": "node --import tsx scripts/run-plus.ts"
   },
   "dependencies": {
     "react": "^18.3.1",

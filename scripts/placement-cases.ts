@@ -25,7 +25,7 @@ export function stripLayout(name:string,c:SimConfig):GuidanceSign[]{
   const start=Math.max(0,Math.min(length-2,length*fraction-1)),end=start+2;
   const point=(s:number):[number,number]=>{let n=0;for(let k=0;k<seg.length;k++){if(s<=n+seg[k]+1e-9){const u=(s-n)/seg[k];return [raw.pts[k][0]+u*(raw.pts[k+1][0]-raw.pts[k][0]),raw.pts[k][1]+u*(raw.pts[k+1][1]-raw.pts[k][1])];}n+=seg[k];}return raw.pts.at(-1)!;};
   const points:[number,number][]=[point(start)];let d=0;seg.forEach((v,i)=>{d+=v;if(d>start+1e-8&&d<end-1e-8)points.push(raw.pts[i+1]);});points.push(point(end));
-  const field=computeField(g,g.safeByGroup[EXIT_GROUPS.indexOf(exit)],li=>g.links[li].prohibited||closed.has(g.links[li].id));
+  const field=computeField(g,g.safeByGroup[EXIT_GROUPS.indexOf(exit)],li=>g.links[li].isRow||g.links[li].prohibited||closed.has(g.links[li].id));
   if(!Number.isFinite(Math.min(field.dist[L.a],field.dist[L.b])))throw Error('Unreachable sign destination');
   if(field.dist[L.a]<field.dist[L.b])points.reverse();
   const [x,y]=point((start+end)/2);return {id:`L${j+1}`,x,y,floor:raw.floor,facingDegrees:0,exit,strip:{linkId:id,points}};

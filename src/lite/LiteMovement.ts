@@ -35,13 +35,13 @@ export class LiteMovement extends MovementSystem {
       if(L.isRow)this.occCap[L.idx]=Math.max(1,Math.floor(L.len/(2*sim.cfg.population.radiusMean)));
     }
   }
-  private speed(a:Agent,li:number,dir:number){
+  protected speed(a:Agent,li:number,dir:number){
     const L=this.g.links[li];let v=(a.group>=0&&!this.sim.cfg.population.groupMeetOutside?this.groupPace[a.id]:a.v0)*this.sim.envSpeed;
     if(L.isStair){v*=((L.drop>0&&dir<0)||(L.drop<0&&dir>0))?a.stairRatioUp:a.stairRatio;if(L.outdoorStair)v*=this.sim.cfg.environment.outdoorStairFactor;}
     if(L.isRow)v=Math.min(v,this.sim.cfg.movement.rowSpeed);
     return Math.max(.05,v);
   }
-  private enter(a:Agent,li:number,dir:1|-1,s:number){
+  protected enter(a:Agent,li:number,dir:1|-1,s:number){
     const queues=this.lanes[li][dir>0?0:1];
     const available=this.g.links[li].isRow?1:this.allowedLanes(li,dir>0?0:1);
     let lane=0;for(let k=1;k<available;k++)if(queues[k].length<queues[lane].length)lane=k;

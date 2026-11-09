@@ -48,6 +48,8 @@ export interface GuidanceSign {
 }
 
 export interface SimConfig {
+  /** A-Lite+ installations and explicit model switches; ignored by legacy engines. */
+  plus?: import('../plus/Config').PlusConfig;
   label: string;
   scenarioId: string;
   seed: number;
@@ -56,6 +58,8 @@ export interface SimConfig {
   population: {
     typeShares: Record<BehaviorType, number>;
     speedMean: number;
+    /** Optional distribution-shape sensitivity. Absent preserves the original clipped normal. */
+    speedDistribution?: 'normal' | 'lognormal';
     speedSd: number;
     speedMin: number;
     speedMax: number;

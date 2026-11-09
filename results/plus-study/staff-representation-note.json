@@ -1,0 +1,9 @@
+{
+  "basePotentialPosts": 10,
+  "explicitSixPosts": 6,
+  "activePostCoordinatesEqual": true,
+  "activeActivationTimesEqual": true,
+  "audienceEqual": true,
+  "runtimeDifference": "Inherited guidance RNG draws activation times for all available geometry posts before hearing. Explicit six-post representation consumes fewer draws; the hearing sequence changes despite identical active coordinates.",
+  "interpretation": "Compare patrol motion with its matching explicit stationary control. Do not attribute template-versus-explicit seed differences to placement. Marginal hearing law and all physical parameters remain unchanged."
+}

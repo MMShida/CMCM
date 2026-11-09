@@ -59,16 +59,19 @@ Scope & Research model; assumptions and calibration limits stated explicitly
 \vspace{9mm}
 \end{titlepage}
 \pagenumbering{roman}
-\tableofcontents
+{\small\tableofcontents}
 \clearpage
 \pagenumbering{arabic}
+This document records the original A-Lite transport model and its historical experiments. The current primary model, \textbf{A-Lite+}, retains that uncontracted network, finite storage and conservative service, then adds local group pacing, limited wide-corridor passing, visible-queue decisions, committed accepted instructions and explicit physical LEDs/barrier bypasses. Those extensions, their equations and research limits are derived in \code{MODEL_GUIDE.pdf}; the completed comparisons and independent confirmation appear in \code{RESULTS_AND_CHANGES.pdf}. Historical numbers below describe their stated configurations and must not be read as current Plus results. In the UI, select the \textbf{A-Lite+} tab and a saved study policy to reproduce the new model.
+
+
 \textbf{Historical 18-manager confirmation: A-Lite 191.4 s [188.3, 194.6]; the mean 180-second target was not achieved.} All forty A-Lite audiences cleared; six cleared by 180 s. The same guidance gives 259.0 s in A and 166.4 s in B. These are model-dependent predictions, not estimates to average together.
 
 
 The reference is Mateus's 8 November 2026, 04:20:42 EST commit \code{3e4bcf0}. The previous source was saved before this extension. Original A remains available when optional switches are absent. Every finalist in that earlier staffing/simplification study has \textbf{no barriers}, retains 1,329 people and three wheelchair users, and uses unchanged geometry, gate rates, body-size/speed/response distributions and imperfect compliance. A-Lite deliberately simplifies group motion; that structural change is not an operational achievement.
 
 
-The current six-manager LED/barrier study supersedes that earlier staffing choice and is reported in \textbf{RESULTS\_AND\_CHANGES.pdf}. A-Lite shares the finite-strip visibility and hard/soft barrier mechanisms with A; those mechanisms are now tested directly in A-Lite.
+The current six-manager LED/barrier study supersedes that earlier staffing choice and is reported in \textbf{RESULTS\_AND\_CHANGES.pdf}. A-Lite shares the finite-strip visibility and hard/soft barrier mechanisms with A; those mechanisms are now tested directly in A-Lite. The subsequent block-instruction search, 60-audience confirmation and walkway-transition audit are in the companion report. Model Guide Sections 22–23 explain why A-Lite is the primary comparative model, what it cannot answer and why no current model is empirically calibrated to Bailey. Rendering follows walkway polylines; queue coordinates still are not body trajectories.
 
 
 The companion \textbf{MODEL\_GUIDE.pdf} develops the full model ladder and shared mathematics. This report specifies A-Lite, audits mechanisms and reports verification and experiments. Historical panel-based winners remain in \textbf{RESULTS\_AND\_CHANGES.pdf}; they are not proposed egress installations.

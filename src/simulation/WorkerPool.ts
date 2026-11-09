@@ -29,7 +29,7 @@ export function runBatchInWorkers(
   seeds: number[],
   onProgress: (done: number, total: number, last: RunSummary | null) => void,
   geo?: GeometryData,
-  model: 'A' | 'B' | 'Lite' = 'A',
+  model: 'A' | 'B' | 'Lite' | 'Plus' = 'A',
 ): BatchHandle {
   const n = Math.min(workerCount(), Math.max(1, seeds.length));
   ensurePool(n);

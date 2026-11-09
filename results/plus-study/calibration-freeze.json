@@ -1,0 +1,276 @@
+{
+ "frozenAt": "2026-11-08T22:29:21.854Z",
+ "hash": "754e041d5d5188a220015f80111637f4cff5fce1707f493c58ef98fe77797db9",
+ "physical": {
+  "population": {
+   "typeShares": {
+    "shortest": 0.2,
+    "habitual": 0.35,
+    "follower": 0.25,
+    "queueAvoider": 0.1,
+    "cooperative": 0.05,
+    "impatient": 0.05
+   },
+   "speedMean": 1.2,
+   "speedSd": 0.25,
+   "speedMin": 0.5,
+   "speedMax": 2,
+   "elderlyFraction": 0.25,
+   "elderlySpeedFactor": 0.78,
+   "stairRatio": 0.57,
+   "stairRatioElderly": 0.51,
+   "radiusMean": 0.22,
+   "radiusSd": 0.02,
+   "familiarityProb": 0.15,
+   "exitKnowledge": {
+    "FOYER": 1,
+    "PORTICO_W": 0.25,
+    "PORTICO_E": 0.25,
+    "STAGE_W": 0.1,
+    "STAGE_E": 0.1,
+    "BAL_NW": 0.35,
+    "BAL_NE": 0.35
+   },
+   "groupFraction": 0.5,
+   "groupSizeWeights": [
+    0.7,
+    0.2,
+    0.1
+   ],
+   "groupWaitMax": 90,
+   "groupMeetOutside": false,
+   "stairRatioUp": 0.57,
+   "stairRatioUpElderly": 0.51,
+   "belongingsProb": 0.5,
+   "belongingsMedian": 6,
+   "belongingsSigma": 0.6,
+   "luggageFlowFactor": 0.97,
+   "wheelchairCount": 3,
+   "wheelchairSpeed": 0.8
+  },
+  "movement": {
+   "dt": 0.1,
+   "rowSpeed": 0.45,
+   "squeezeSpeed": 0.2,
+   "doorFlow": 1.3,
+   "stairFlow": 1,
+   "boundaryLayerDoor": 0.15,
+   "boundaryLayerStair": 0.09,
+   "laneWidth": 0.6,
+   "tau": 0.5,
+   "counterflowFriction": 0.5,
+   "speedModel": "headway",
+   "timeHeadway": 0.7,
+   "weidmannGamma": 1.913,
+   "weidmannRhoMax": 5.4,
+   "groupCohesionDist": 4,
+   "groupBreakDist": 12,
+   "urgency": 0.6,
+   "fasterIsSlower": {
+    "enabled": true,
+    "gain": 0.15,
+    "drop": 0.45,
+    "threshold": 0.35
+   },
+   "highDensityThreshold": 3.5,
+   "maxDensity": 4.5
+  },
+  "premovement": {
+   "recognitionMedian": 6,
+   "recognitionSigma": 0.6,
+   "responseMedian": 14,
+   "responseSigma": 0.6,
+   "aisleCoef": 0.04,
+   "exitDistCoef": 0.05,
+   "levelFactor": {
+    "orchestra": 1,
+    "mezzanine": 1,
+    "balcony": 1.1
+   },
+   "familiarityCoef": 0.15,
+   "socialKappa": 1.5,
+   "socialAwareRate": 0.4,
+   "neighbourRadius": 2.5,
+   "cmFactor": 0.5
+  },
+  "plus": {
+   "version": 1,
+   "signs": [],
+   "barriers": [],
+   "groupPace": "local",
+   "passing": true,
+   "localObservation": true,
+   "fixedAcceptance": true,
+   "executeInstructions": true,
+   "controllerDelay": 3,
+   "controllerHold": 20,
+   "controllerMargin": 20,
+   "costs": {
+    "managerPerEvent": 120,
+    "sign": 250,
+    "stripPerMetre": 40,
+    "barrier": 150,
+    "controller": 800
+   }
+  },
+  "calibration": [
+   {
+    "parameter": "Audience and building",
+    "value": "1329; 527/486/316; 3 wheelchair users",
+    "units": "people",
+    "category": "Bailey problem specification",
+    "range": "Fixed",
+    "finding": "Assigned competition population and supplied plans; 51 link dimensions flagged approximate.",
+    "source": "CMCM 2026 Bail(ey)ing Out, pp. 1–3",
+    "url": "/CMCM_2026_Bail(ey)ing_Out.pdf",
+    "limit": "Reconstruction, not surveyed as-built geometry."
+   },
+   {
+    "parameter": "Free walking speed",
+    "value": "truncated normal, mean 1.2 before age adjustment",
+    "units": "m/s",
+    "category": "Inherited assumption, research bounded",
+    "range": "Mean 1.1–1.3",
+    "finding": "Single-file experiments relate spacing and speed; they do not identify this mixed audience distribution.",
+    "source": "Seyfried et al. (2005)",
+    "url": "https://arxiv.org/abs/physics/0506170",
+    "limit": "Elderly share .25 and factor .78 remain assumptions; no Bailey trajectories."
+   },
+   {
+    "parameter": "Net time headway",
+    "value": "0.70",
+    "units": "s",
+    "category": "Inherited assumption, research bounded",
+    "range": "0.50–1.06",
+    "finding": "Seyfried reports spacing d=0.36+1.06v over 0.1–1.0 m/s; Johansson studies constant net headway. Definitions differ.",
+    "source": "Seyfried (2005); Johansson (2009)",
+    "url": "https://arxiv.org/abs/0908.3118",
+    "limit": "Body diameter .44 m plus H is not the complete fit from either experiment."
+   },
+   {
+    "parameter": "Seat-row cap",
+    "value": "0.45",
+    "units": "m/s",
+    "category": "Inherited conservative assumption",
+    "range": "0.45–0.60",
+    "finding": "Eight campus lecture-room trials: imposing 0.45 m/s generally overpredicted time; 0.60 was another numerical model, not their measured estimate.",
+    "source": "Spearpoint & Xiang (2011)",
+    "url": "https://publications.iafss.org/publications/fss/10/599/view",
+    "limit": "Mostly young familiar lecture users; conservative value retained for concert."
+   },
+   {
+    "parameter": "Stair movement",
+    "value": "individual free speed × inherited stair ratio",
+    "units": "m/s",
+    "category": "Inherited assumption, externally checked",
+    "range": "Ratio ×0.85–1.15",
+    "finding": "NIST TN1839 (2015), Table 5: 5244 observed stair journeys, overall mean .44, SD .19 m/s; congested realized speeds must not be substituted for uncongested desired speeds.",
+    "source": "Kuligowski et al., NIST TN1839",
+    "url": "https://doi.org/10.6028/NIST.TN.1839",
+    "limit": "Different stair geometry and occupancy; no Bailey stair calibration."
+   },
+   {
+    "parameter": "Door / stair specific flow",
+    "value": "1.3 / 1.0; boundary losses 0.15 / 0.09",
+    "units": "people/(m s); m",
+    "category": "Inherited engineering assumptions",
+    "range": "Rates ×0.9–1.1",
+    "finding": "Theatre network trials require aisle and exit constraints; obstacle studies do not establish a universal capacity gain.",
+    "source": "Spearpoint & Xiang (2011); Wang et al. (2023)",
+    "url": "https://arxiv.org/abs/2212.01296",
+    "limit": "No measured Bailey saturated flow. Faster-is-slower and luggage factors retained."
+   },
+   {
+    "parameter": "Density and spillback",
+    "value": "4.5 maximum; finite shared link storage",
+    "units": "people/m²",
+    "category": "Assumption with conservation verification",
+    "range": "3.5–4.5",
+    "finding": "Capacity follows J=v/(d+vH); space is reserved for ALL occupants. No timed overflow. No extra density multiplier on the same queue delay.",
+    "source": "Seyfried (2005); Guo et al. (2011)",
+    "url": "https://doi.org/10.1016/j.trb.2010.09.009",
+    "limit": "Link averages, not contact forces or precise crowd pressure."
+   },
+   {
+    "parameter": "Recognition / response / preparation",
+    "value": "lognormal medians 6 / 14 / 6; log SD .6",
+    "units": "s",
+    "category": "Inherited assumptions; supported distribution family",
+    "range": "Response median ×0.8–1.2",
+    "finding": "Unannounced theatre evidence supports response heterogeneity and seat-position dependence.",
+    "source": "Hopkin, Galea & Deere (2015/2017)",
+    "url": "https://doi.org/10.1002/fam.2424",
+    "limit": "Exact medians, social acceleration and spatial coefficients not fitted to Bailey."
+   },
+   {
+    "parameter": "Groups",
+    "value": "readiness wait ≤90; local pace within existing 4 m on same link",
+    "units": "s; m",
+    "category": "Research-motivated structural change; distance assumed",
+    "range": "Compare permanent slowest pace",
+    "finding": "108 recorded participants in groups of 3 vs individuals; longer response/approach, no discernible difference immediately before exits.",
+    "source": "Bode et al. (2015)",
+    "url": "https://doi.org/10.1371/journal.pone.0121227",
+    "limit": "Small artificial groups; experiment does not estimate 4 m. No speed bonus at a gate."
+   },
+   {
+    "parameter": "Exit decisions",
+    "value": "persistent random utility; 8 s / 15% improvement; 6 s review cooldown",
+    "units": "s",
+    "category": "Inherited choice model / assumptions",
+    "range": "Controller hold 20–30",
+    "finding": "Route-choice experiments support response to travel and queues with relatively infrequent revisions.",
+    "source": "Liao et al. (2017)",
+    "url": "https://doi.org/10.1098/rsif.2016.0684",
+    "limit": "Preferences and thresholds not Bailey measured; perceived cost contains only visible/communicated conditions."
+   },
+   {
+    "parameter": "LED notice / acceptance",
+    "value": "0.77 / 0.80 per person-installation; range 8 m, cone ±70°",
+    "units": "probability; m; degrees",
+    "category": "Transferred detection; acceptance/geometry assumptions",
+    "range": "Detection .50–.90; acceptance .60–.90; range 4–12",
+    "finding": "Controlled unfamiliar-building trials: dynamic-sign detection 77% head-on, 72% oblique versus 39%/37% static; most who noticed followed.",
+    "source": "Galea et al. (2014), FSS11:1129–1143",
+    "url": "https://doi.org/10.3801/IAFSS.FSS.11-1129",
+    "limit": "Not a dense theatre. Floor-strip transfer especially uncertain; 2017 combined voice/sign 66% is not notice probability."
+   },
+   {
+    "parameter": "Existing static sign notice",
+    "value": "0.38 per person-installation",
+    "units": "probability",
+    "category": "Transferred experiment",
+    "range": ".25–.60",
+    "finding": "Static-sign detection near 38% in an unfamiliar building; not repeated independent lottery every second.",
+    "source": "Xie et al. (2012); Galea et al. (2014)",
+    "url": "https://doi.org/10.1002/fam.1095",
+    "limit": "Existing sign positions inferred from exit nodes; exact mounting heights/photometry unavailable."
+   },
+   {
+    "parameter": "Crowd Managers",
+    "value": "6; fixed .80 acceptance; 12 m acoustic reach; activation lognormal median10",
+    "units": "people; probability; m; s",
+    "category": "Count from problem; behavioral assumptions",
+    "range": "Acceptance .60–.90; radius 8–12",
+    "finding": "Sign/voice trials support consistent messages; no retrieved Bailey experiment identifies manager compliance .80.",
+    "source": "Galea et al. (2017)",
+    "url": "https://gala.gre.ac.uk/id/eprint/16552/",
+    "limit": "Hearing differs from acceptance and execution. Local observations delayed 2 s; radio 3 s, reliability .9."
+   },
+   {
+    "parameter": "Physical temporary barriers",
+    "value": "slot footprint; one bypass ≥1.1 m or alternate-route closure; no gain",
+    "units": "m",
+    "category": "Design assumptions and feasibility screening",
+    "range": "No device / partial belt / open rail",
+    "finding": "Diversion devices can increase or decrease flow; S-shaped rails may lower density while lengthening time.",
+    "source": "Wang et al. (2023); Chen et al. (2023)",
+    "url": "https://doi.org/10.1016/j.ssci.2022.106020",
+    "limit": "1.1 m is a research screening rule, not code certification. Actual installation needs Fire Marshal approval."
+   }
+  ]
+ },
+ "sourceHash": "bda4bd0ca8f4323dd26dc8324cc184352823767470e21915e011e823c9bd1c3f",
+ "geometryHash": "589ec717bcd756e68d99b1e1f344b2886e90f32bf293d73637a335677b49066f",
+ "note": "Research-bounded assumptions, not fitted to 180 or empirically validated at Bailey. Freeze precedes operational search."
+}

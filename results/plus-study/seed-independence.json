@@ -1,0 +1,100 @@
+{
+  "phases": [
+    {
+      "base": 73001,
+      "runs": 4
+    },
+    {
+      "base": 73002,
+      "runs": 16
+    },
+    {
+      "base": 73003,
+      "runs": 6
+    },
+    {
+      "base": 73004,
+      "runs": 16
+    },
+    {
+      "base": 73101,
+      "runs": 100
+    },
+    {
+      "base": 73201,
+      "runs": 16
+    },
+    {
+      "base": 73202,
+      "runs": 20
+    },
+    {
+      "base": 73203,
+      "runs": 20
+    },
+    {
+      "base": 73204,
+      "runs": 20
+    },
+    {
+      "base": 73205,
+      "runs": 12
+    },
+    {
+      "base": 73206,
+      "runs": 20
+    },
+    {
+      "base": 73207,
+      "runs": 2
+    },
+    {
+      "base": 73301,
+      "runs": 20
+    },
+    {
+      "base": 73401,
+      "runs": 8
+    },
+    {
+      "base": 73402,
+      "runs": 16
+    },
+    {
+      "base": 73403,
+      "runs": 100
+    },
+    {
+      "base": 73404,
+      "runs": 20
+    },
+    {
+      "base": 73407,
+      "runs": 2
+    },
+    {
+      "base": 73501,
+      "runs": 8
+    },
+    {
+      "base": 73502,
+      "runs": 20
+    },
+    {
+      "base": 73503,
+      "runs": 100
+    },
+    {
+      "base": 73504,
+      "runs": 12
+    },
+    {
+      "base": 73507,
+      "runs": 2
+    }
+  ],
+  "uniqueAudienceSeeds": 560,
+  "overlaps": [],
+  "note": "Distinct seed bases in separate phases have no overlapping generated seeds. Within-phase paired policies and declared finest-step replays intentionally reuse audiences.",
+  "additionalPairedDiagnostic": "resolution-diagnostic uses the first 20 of the existing 100 confirmation audiences at bases 73101, 73403 and 73503. This intentional reuse estimates numerical differences; it does not supply independent new confirmation."
+}

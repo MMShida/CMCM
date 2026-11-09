@@ -1,3 +1,4 @@
+import {PlusSimulation} from '../plus/PlusSimulation';
 /**
  * Drives a live simulation for the UI: fixed-step engine updates decoupled from
  * the render rate, linear interpolation between the last two engine states for
@@ -13,6 +14,7 @@ import { SimulationEngine } from '../simulation/SimulationEngine';
 import { computeField } from '../geometry/NavigationGraph';
 import { EXIT_GROUPS } from '../geometry/types';
 import type { Dyn, Frame } from './MapRenderer';
+import {walkwayPoint} from './WalkwayInterpolation';
 
 export interface Snapshot {
   t: number;
@@ -31,6 +33,10 @@ export class LiveController {
   private prevX!: Float32Array;
   private prevY!: Float32Array;
   private prevFloor!: Uint8Array;
+  private prevLink!: Int32Array;
+  private prevS!: Float64Array;
+  private prevLat!: Float64Array;
+  private framePoint = new Float64Array(2);
   frame!: Frame;
   snapshots: Snapshot[] = [];
   replay: number | null = null;
@@ -45,7 +51,7 @@ export class LiveController {
   constructor(
     public geo: GeometryData,
     public cfg: SimConfig,
-    public model: 'A' | 'Lite' = 'A',
+    public model: 'A' | 'Lite' | 'Plus' = 'A',
   ) {
     this.reset(cfg, geo);
   }
@@ -53,11 +59,14 @@ export class LiveController {
   reset(cfg: SimConfig, geo: GeometryData = this.geo) {
     this.cfg = cfg;
     this.geo = geo;
-    this.sim = this.model === 'Lite' ? new LiteSimulation(geo, cfg, cfg.seed) : new SimulationEngine(geo, cfg, cfg.seed);
+    this.sim = this.model === 'Plus' ? new PlusSimulation(geo,cfg,cfg.seed) : this.model === 'Lite' ? new LiteSimulation(geo, cfg, cfg.seed) : new SimulationEngine(geo, cfg, cfg.seed);
     const n = this.sim.agents.length;
     this.prevX = new Float32Array(n);
     this.prevY = new Float32Array(n);
     this.prevFloor = new Uint8Array(n);
+    this.prevLink = new Int32Array(n);
+    this.prevS = new Float64Array(n);
+    this.prevLat = new Float64Array(n);
     this.frame = { n, x: new Float32Array(n), y: new Float32Array(n), floor: new Uint8Array(n), state: new Uint8Array(n), radius: new Float32Array(n) };
     this.sim.agents.forEach((a, i) => (this.frame.radius[i] = a.radius));
     this.capturePrev();
@@ -109,6 +118,9 @@ export class LiveController {
       this.prevX[i] = A[i].x;
       this.prevY[i] = A[i].y;
       this.prevFloor[i] = A[i].floor;
+      const a=A[i];this.prevLink[i]=a.link;
+      this.prevS[i]=a.link>=0&&a.dir<0?this.sim.graph.links[a.link].len-a.sDir:a.sDir;
+      this.prevLat[i]=a.latOffset;
     }
   }
 
@@ -183,7 +195,10 @@ export class LiveController {
     const f = this.frame;
     for (let i = 0; i < A.length; i++) {
       const a = A[i];
-      if (this.prevFloor[i] === a.floor) {
+      const s=a.link>=0&&a.dir<0?this.sim.graph.links[a.link].len-a.sDir:a.sDir;
+      if(this.prevFloor[i]===a.floor&&walkwayPoint(this.sim.graph,this.prevLink[i],a.link,this.prevS[i],s,this.prevLat[i],a.latOffset,alpha,this.framePoint)){
+        f.x[i]=this.framePoint[0];f.y[i]=this.framePoint[1];
+      } else if (this.prevFloor[i] === a.floor) {
         f.x[i] = this.prevX[i] + (a.x - this.prevX[i]) * alpha;
         f.y[i] = this.prevY[i] + (a.y - this.prevY[i]) * alpha;
       } else {
@@ -231,14 +246,14 @@ export class LiveController {
         for (const li of sim.barrierLinks) b[li] = 1;
         return b;
       })(),
-      rope: Uint8Array.from(sim.graph.links,L=>this.cfg.barriers.includes(L.id)&&this.cfg.barrierTypes?.[L.id]==='soft-rope'?1:0),
+      rope: Uint8Array.from(sim.graph.links,L=>sim.cfg.barriers.includes(L.id)&&sim.cfg.barrierTypes?.[L.id]==='soft-rope'?1:0),
       queue: showQueues && this.replay === null ? sim.gates.queueNow : undefined,
       passes: this.replay === null ? sim.gates.passes : this.passHistory[this.replay],
       cms: sim.guidance.cms.map((c) => ({ x: c.post.x, y: c.post.y, floor: c.post.floor, active: sim.t >= c.tActive, id: c.post.id })),
       selected,
       ledOn: this.cfg.led.enabled && sim.guidance.ledActive,
       ledLinks: this.ledLinks,
-      signs: this.cfg.led.spatial?.signs,
+      signs: this.sim instanceof PlusSimulation ? [] : this.cfg.led.spatial?.signs,
     };
     if (this.heatMode === 'peak') {
       dyn.heats = sim.heat.map((h) => ({ x0: h.x0, y0: h.y0, cell: h.cell, nx: h.nx, ny: h.ny, data: h.maxD }));
