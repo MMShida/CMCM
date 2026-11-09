@@ -1,6 +1,0 @@
-{
-  "declaredAt": "2026-11-08T22:01:01.182Z",
-  "rule": "Choose the lowest complete mean among the same 24-audience validation candidates, regardless of device presence; never consult confirmation outcomes",
-  "confirmationBase": 62106,
-  "runs": 60
-}

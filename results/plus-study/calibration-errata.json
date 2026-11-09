@@ -1,6 +1,0 @@
-{
-  "recordedAt": "2026-11-08T22:57:32.630Z",
-  "correction": "The original speed sampler clips a normal draw after age adjustment; it does not rejection-sample a truncated normal. The freeze ledger used imprecise terminology. No default speed draw or numerical calibration changed.",
-  "originalFreezePreserved": true,
-  "newOptionalFamily": "Lognormal at equal pre-clipping arithmetic mean and SD, supplementary sensitivity only; original random draw order preserved."
-}

@@ -1,8 +1,0 @@
-{
-  "checks": [
-    "An actual 1/8 failed policy has no unconditional finite mean or CI",
-    "Original selected 100-run mean reproduces 190.577 s",
-    "Wilson endpoints verified for 0/100 and 100/100"
-  ],
-  "passed": true
-}
